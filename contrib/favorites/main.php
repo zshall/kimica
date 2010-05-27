@@ -156,9 +156,9 @@ class Favorites extends SimpleExtension {
 
 	private function add_vote($image_id, $user_id, $do_set) {
 		global $database;
+			
 		if ($do_set) {
-
-                $is_favorited = $database->db->GetOne(
+			$is_favorited = $database->db->GetOne(
 				"SELECT COUNT(*) AS ct FROM user_favorites WHERE user_id = ? AND image_id = ?",
 				array($user_id, $image_id)) > 0;
 			
@@ -167,7 +167,6 @@ class Favorites extends SimpleExtension {
 				"INSERT INTO user_favorites(image_id, user_id, created_at) VALUES(?, ?, NOW())",
 				array($image_id, $user_id));
 			}
-
 		} else {
 			$database->Execute(
 				"DELETE FROM user_favorites WHERE image_id = ? AND user_id = ?",
