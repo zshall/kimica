@@ -21,8 +21,19 @@ class ForumTheme extends Themelet {
     {
 		global $config, $user;
 		$max_characters = $config->get_int('forumMaxCharsPerPost');
+		
+		$html = "<script type='text/javascript'>
+				function textCounter(textarea, counterID, maxLen) {
+				cnt = document.getElementById(counterID);
+				if (textarea.value.length > maxLen) {
+				textarea.value = textarea.value.substring(0,maxLen);
+				}
+				cnt.innerHTML = maxLen - textarea.value.length;
+				}
+				</script>";
+		
         $postUrl = make_link("forum/create");
-        $html = '<form action="'.$postUrl.'" method="POST">';
+        $html .= '<form action="'.$postUrl.'" method="POST">';
 
        
         if (!is_null($threadTitle))
@@ -34,8 +45,8 @@ class ForumTheme extends Themelet {
 		$html .= "
 				<table style='width: 500px;'>
 					<tr><td>Title:</td><td><input type='text' name='title' value='$threadTitle'></td></tr>
-					<tr><td>Message:</td><td><textarea id='message' name='message' >$threadText</textarea></td></tr>
-					<tr><td></td><td><small>Max characters alowed: $max_characters.</small></td></tr>";
+					<tr><td>Message:</td><td><textarea id='message' name='message' onkeyup=\"textCounter(this,'count_display',$max_characters);\" onkeydown=\"textCounter(this,'count_display',$max_characters);\"></textarea>
+					<tr><td></td><td><small><span id='count_display'>$max_characters</span> characters remaining.</small></td></tr>";
 		if($user->is_admin()){
 			$html .= "<tr><td colspan='2'><label for='sticky'>Sticky:</label><input name='sticky' type='checkbox' value='Y' /></td></tr>";
 		}
@@ -58,15 +69,26 @@ class ForumTheme extends Themelet {
 		
 		$max_characters = $config->get_int('forumMaxCharsPerPost');
 		
+		$html = "<script type='text/javascript'>
+				function textCounter(textarea, counterID, maxLen) {
+				cnt = document.getElementById(counterID);
+				if (textarea.value.length > maxLen) {
+				textarea.value = textarea.value.substring(0,maxLen);
+				}
+				cnt.innerHTML = maxLen - textarea.value.length;
+				}
+				</script>";
+		
         $postUrl = make_link("forum/answer");
-        $html = '<form action="'.$postUrl.'" method="POST">';
+			
+        $html .= '<form action="'.$postUrl.'" method="POST">';
 
         $html .= '<input type="hidden" name="threadID" value="'.$threadID.'" />';
 		
 		$html .= "
 				<table style='width: 500px;'>
-					<tr><td>Message:</td><td><textarea id='message' name='message' ></textarea>
-					<tr><td></td><td><small>Max characters alowed: $max_characters.</small></td></tr>
+					<tr><td>Message:</td><td><textarea id='message' name='message' onkeyup=\"textCounter(this,'count_display',$max_characters);\" onkeydown=\"textCounter(this,'count_display',$max_characters);\"></textarea>
+					<tr><td></td><td><small><span id='count_display'>$max_characters</span> characters remaining.</small></td></tr>
 					</td></tr>";
 							
 		$html .= "<tr><td colspan='2'><input type='submit' value='Submit' /></td></tr>
@@ -80,7 +102,7 @@ class ForumTheme extends Themelet {
 
 
 
-    public function display_thread($posts, $showAdminOptions,  $threadTitle, $threadID, $pageNumber, $totalPages)
+    public function display_thread($posts, $is_admin, $is_logged,  $threadTitle, $threadID, $pageNumber, $totalPages)
     {
 		global $config, $page/*, $user*/;
 
@@ -88,10 +110,34 @@ class ForumTheme extends Themelet {
 		$data_href = $config->get_string('base_href');
 		$base_href = $config->get_string('base_href');
 		
-        $html = "";
-        $n = 0;
-
-        $html = "<table id='postList' class='zebra'>".
+		$title = $threadTitle;
+		
+		$n = 0;
+		
+		$html ="
+				<script language='javascript'>
+				function quote(fieldId, user, message)
+				{
+					field=document.getElementById(fieldId);
+				
+					if (document.selection) 
+					{
+						field.focus();
+						sel = document.selection.createRange();
+						sel.text = '[quote=' + user + ']' + message + '[/quote]';
+					}
+					else if (field.selectionStart || field.selectionStart == 0) 
+					{
+						var startPos = field.selectionStart;
+						var endPos = field.selectionEnd;
+						field.focus();
+						field.value = field.value.substring(0, startPos) + '[quote=' + user + ']' + message + '[/quote]' + field.value.substring(endPos, field.value.length);
+					} 
+				}
+			</script>
+		";
+		
+        $html .= "<table id='postList' class='zebra'>".
 			"<thead><tr>".
             "<th>User</th>".
             "<th>Message</th>".
@@ -110,7 +156,6 @@ class ForumTheme extends Themelet {
             $message = str_replace('\n', '<br>', $message);
             $message = str_replace('\r', '<br>', $message);
 			
-			$message = stripslashes($message);
 			
             $user = "<a href='".make_link("user/".$post["user_name"]."")."'>".$post["user_name"]."</a>";
 
@@ -133,10 +178,14 @@ class ForumTheme extends Themelet {
 			//$delete_link = "";
 			//}
 			
-			if($showAdminOptions){
-			$delete_link = "<a href=".make_link("forum/delete/".$threadID."/".$postID).">Delete</a>";
-			}else{
+			$quote_link = "";
+			if(!$is_logged){
+				$quote_link = " <a href=\"javascript:quote('message', '".$post["user_name"]."', '".$message."')\">Quote</a>";
+			}
+			
 			$delete_link = "";
+			if($is_admin){
+				$delete_link = " <a href=".make_link("forum/delete/".$threadID."/".$postID).">Delete</a>";
 			}
             
             $html .= "<tr class='$oe'>".
@@ -144,7 +193,7 @@ class ForumTheme extends Themelet {
                 "<td class='forum_message'>".$message."</td>"."</tr>
 				<tr class='$oe'>
 					<td class='forum_subuser'><small>".autodate($post["date"])."</small></td>
-					<td class='forum_submessage'>".$delete_link."</td>
+					<td class='forum_submessage'>".$quote_link.$delete_link."</td>
 				</tr>";
 
         }
@@ -153,8 +202,8 @@ class ForumTheme extends Themelet {
         
         $this->display_paginator($page, "forum/view/".$threadID, null, $pageNumber, $totalPages);
 
-		$page->set_title(html_escape($threadTitle));
-		$page->set_heading(html_escape($threadTitle));
+		$page->set_title(html_escape($title));
+		$page->set_heading(html_escape($title));
         $page->add_block(new Block("Thread", $html, "main", 20));
 
     }
@@ -170,7 +219,7 @@ class ForumTheme extends Themelet {
 
 
 
-    private function make_thread_list($threads, $showAdminOptions)
+    private function make_thread_list($threads, $is_admin)
     {
         $html = "<table id='threadList' class='zebra'>".
             "<thead><tr>".
@@ -179,8 +228,7 @@ class ForumTheme extends Themelet {
 			"<th>Updated</th>".
             "<th>Responses</th>";
 
-        if($showAdminOptions)
-        {
+        if($is_admin){
             $html .= "<th>Actions</th>";
         }
 
@@ -215,8 +263,9 @@ class ForumTheme extends Themelet {
 				"<td>".autodate($thread["uptodate"])."</td>".
                 "<td>".$thread["response_count"]."</td>";
              
-            if ($showAdminOptions)
+            if($is_admin){
                 $html .= '<td><a href="'.make_link("forum/nuke/".$thread["id"]).'" title="Delete '.$title.'">Delete</a></td>';
+			}
 
             $html .= "</tr>";
         }

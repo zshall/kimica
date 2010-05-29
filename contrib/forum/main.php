@@ -1,7 +1,7 @@
 <?php
 /**
- * Name: [Beta] Forum
- * Author: Sein Kraft <mail@seinkraft.info>
+ * Name: Forum
+ * Author: Sein Kraft <seinkraft@hotmail.com>
  *         Alpha <alpha@furries.com.ar>
  * License: GPLv2
  * Description: Rough forum extension
@@ -89,7 +89,7 @@ class Forum extends SimpleExtension {
                         $threadID = int_escape($event->get_arg(1));
                         $pageNumber = int_escape($event->get_arg(2));
 
-                        $this->show_posts($event, $user->is_admin());
+                        $this->show_posts($event);
                         if($user->is_admin()) $this->theme->add_actions_block($page, $threadID);
                         if(!$user->is_anonymous()) $this->theme->display_new_post_composer($page, $threadID);
                         break;
@@ -197,7 +197,7 @@ class Forum extends SimpleExtension {
                 $hasErrors = true;
                 $errors .= "<div id='error'>You cannot have an empty title.</div>";
             }
-            else if (strlen(mysql_real_escape_string(html_escape($_POST["title"]))) > 255)
+            else if (strlen(mysql_real_escape_string(htmlspecialchars($_POST["title"]))) > 255)
             {
                 $hasErrors = true;
                 $errors .= "<div id='error'>Your title is too long.</div>";
@@ -283,7 +283,7 @@ class Forum extends SimpleExtension {
             $this->theme->display_thread_list($page, $threads, $showAdminOptions, $pageNumber + 1, $totalPages);
         }
 		
-		private function show_posts($event, $showAdminOptions = false)
+		private function show_posts($event)
         {
 			global $config, $database, $user;
 			
@@ -313,13 +313,13 @@ class Forum extends SimpleExtension {
 			
 			$threadTitle = $this->get_thread_title($threadID);
 			
-			$this->theme->display_thread($posts, $showAdminOptions, $threadTitle, $threadID, $pageNumber + 1, $totalPages);
+			$this->theme->display_thread($posts, $user->is_admin(), $user->is_anonymous(), $threadTitle, $threadID, $pageNumber + 1, $totalPages);
         }
 
         private function save_new_thread($user)
         {
-            $title = mysql_real_escape_string(html_escape($_POST["title"]));
-			$sticky = html_escape($_POST["sticky"]);
+            $title = $_POST["title"];
+			$sticky = $_POST["sticky"];
 			
 			if($sticky == ""){
 			$sticky = "N";
@@ -344,7 +344,7 @@ class Forum extends SimpleExtension {
         {
 			global $config;
             $userID = $user->id;
-            $message = mysql_real_escape_string(html_escape($_POST["message"]));
+            $message = $_POST["message"];
 			
 			$max_characters = $config->get_int('forumMaxCharsPerPost');
 			$message = substr($message, 0, $max_characters);
