@@ -145,9 +145,9 @@ class ForumTheme extends Themelet {
 		
         foreach ($posts as $post)
         {
-            $message = $post["message"];
+            $unformated = $post["message"];
 
-            $tfe = new TextFormattingEvent($message);
+            $tfe = new TextFormattingEvent($unformated);
             send_event($tfe);
             $message = $tfe->formatted;
 			
@@ -180,7 +180,7 @@ class ForumTheme extends Themelet {
 			
 			$quote_link = "";
 			if(!$is_logged){
-				$quote_link = " <a href=\"javascript:quote('message', '".$post["user_name"]."', '".$message."')\">Quote</a>";
+				$quote_link = " <a href=\"javascript:quote('message', '".$post["user_name"]."', '".$unformated."')\">Quote</a>";
 			}
 			
 			$delete_link = "";
