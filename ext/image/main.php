@@ -269,7 +269,7 @@ class ImageIO extends SimpleExtension {
 		$image = Image::by_id($image_id);
 
 		global $page;
-		if(!is_null($image) && (($image->status == "a") || ($user->is_admin() || $user->is_moderator()))) {
+		if(!is_null($image) && ($image->is_approved() || $image->is_locked() || ($user->is_admin() || $user->is_moderator()))) {
 			$page->set_mode("data");
 			if($type == "thumb") {
 				$page->set_type("image/jpeg");
