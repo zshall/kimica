@@ -264,11 +264,12 @@ class ImageIO extends SimpleExtension {
 // fetch image {{{
 	private function send_file($image_id, $type) {
 		global $config;
+		global $user;
 		global $database;
 		$image = Image::by_id($image_id);
 
 		global $page;
-		if(!is_null($image)) {
+		if(!is_null($image) && (($image->status == "a") || ($user->is_admin() || $user->is_moderator()))) {
 			$page->set_mode("data");
 			if($type == "thumb") {
 				$page->set_type("image/jpeg");
