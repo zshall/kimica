@@ -259,7 +259,8 @@ function create_tables($dsn) { // {{{
 			name VARCHAR(32) UNIQUE NOT NULL,
 			pass CHAR(32),
 			joindate SCORE_DATETIME NOT NULL DEFAULT SCORE_NOW,
-			admin SCORE_BOOL NOT NULL DEFAULT SCORE_BOOL_N,
+			validate CHAR(16),
+			role ENUM('g', 'u', 'm', 'a') NOT NULL DEFAULT 'g',
 			email VARCHAR(128)
 		"));
 		$db->execute($engine->create_table_sql("images", "
@@ -320,9 +321,9 @@ function insert_defaults($dsn) { // {{{
 		$engine->init($db);
 
 		$config_insert = $db->Prepare("INSERT INTO config(name, value) VALUES(?, ?)");
-		$user_insert = $db->Prepare("INSERT INTO users(name, pass, joindate, admin) VALUES(?, ?, now(), ?)");
+		$user_insert = $db->Prepare("INSERT INTO users(name, pass, joindate,validate, role) VALUES(?, ?, now(), ?, ?)");
 
-		$db->Execute($user_insert, Array('Anonymous', null, 'N'));
+		$db->Execute($user_insert, Array('Anonymous', null, null, 'g'));
 		$db->Execute($config_insert, Array('anon_id', $db->Insert_ID()));
 
 		if(check_im_version() > 0) {

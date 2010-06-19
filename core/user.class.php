@@ -15,6 +15,8 @@ class User {
 	var $email;
 	var $join_date;
 	var $admin;
+	var $moderator;
+	var $user;
 
 	/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 	* Initialisation                                               *
@@ -28,13 +30,17 @@ class User {
 	/**
 	 * One will very rarely construct a user directly, more common
 	 * would be to use User::by_id, User::by_session, etc
+	 *
+	 * Roles are definied by enum('g','u','m','a') guest, user, moderator, admin
 	 */
 	public function User($row) {
 		$this->id = int_escape($row['id']);
 		$this->name = $row['name'];
 		$this->email = $row['email'];
 		$this->join_date = $row['joindate'];
-		$this->admin = ($row['admin'] == 'Y');
+		$this->admin = ($row['role'] == 'a');
+		$this->moderator = ($row['role'] == 'm');
+		$this->user = ($row['role'] == 'u');
 	}
 
 	public static function by_session($name, $session) {
@@ -69,6 +75,15 @@ class User {
 		assert(strlen($hash) == 32);
 		global $database;
 		$row = $database->get_row("SELECT * FROM users WHERE name = ? AND pass = ?", array($name, $hash));
+		return is_null($row) ? null : new User($row);
+	}
+	
+	public static function by_validation_and_name($name, $code) {
+		assert(is_string($name));
+		assert(is_string($code));
+		assert(strlen($code) == 16);
+		global $database;
+		$row = $database->get_row("SELECT * FROM users WHERE name = ? AND validate = ?", array($name, $code));
 		return is_null($row) ? null : new User($row);
 	}
 
@@ -113,13 +128,51 @@ class User {
 	public function is_admin() {
 		return $this->admin;
 	}
+	
+	/**
+	 * Test if this user is an moderator
+	 *
+	 * @retval bool
+	 */
+	public function is_moderator() {
+		return $this->moderator;
+	}
+	
+	/**
+	 * Test if this user is an verified user
+	 *
+	 * @retval bool
+	 */
+	public function is_user() {
+		return $this->user;
+	}
+	
 
 	public function set_admin($admin) {
 		assert(is_bool($admin));
 		global $database;
-		$yn = $admin ? 'Y' : 'N';
-		$database->Execute("UPDATE users SET admin=? WHERE id=?", array($yn, $this->id));
+		$yn = $admin ? 'a' : 'u';
+		$database->Execute("UPDATE users SET role=? WHERE id=?", array($yn, $this->id));
 		log_info("core-user", "Made {$this->name} admin=$yn");
+	}
+	
+	public function set_moderator($moderator) {
+		assert(is_bool($moderator));
+		global $database;
+		$yn = $moderator ? 'm' : 'u';
+		$database->Execute("UPDATE users SET role=? WHERE id=?", array($yn, $this->id));
+		log_info("core-user", "Made {$this->name} moderator=$yn");
+	}
+	
+	/*
+	* Used in validation
+	*/
+	public function set_user($user) {
+		assert(is_bool($user));
+		global $database;
+		$yn = $user ? 'u' : 'g';
+		$database->Execute("UPDATE users SET validate=?, role=? WHERE id=?", array(NULL, $yn, $this->id));
+		log_info("core-user", "Made {$this->name} user=$yn");
 	}
 
 	public function set_password($password) {

@@ -37,6 +37,25 @@ class UserPageTheme extends Themelet {
 		$page->add_block(new Block("User Links", $html, "left", 90));
 	}
 
+	public function display_validation_page(Page $page) {
+		global $config;
+
+		$html .= "
+		<form action='".make_link("user_admin/validate")."' method='POST'>
+			<table style='width: 300px;'>
+				<tr><td>User</td><td><input type='text' name='name'></td></tr>
+				<tr><td>Code</td><td><input type='text' name='code'></td></tr>
+				<tr><td colspan='2'><input type='Submit' value='Validate'></td></tr>
+			</table>
+		</form>
+		";
+
+		$page->set_title("Validate Account");
+		$page->set_heading("Validate Account");
+		$page->add_block(new NavBlock());
+		$page->add_block(new Block("Validate", $html));
+	}
+	
 	public function display_signup_page(Page $page) {
 		global $config;
 		$tac = $config->get_string("login_tac", "");
@@ -58,7 +77,7 @@ class UserPageTheme extends Themelet {
 				<tr><td>Name</td><td><input type='text' name='name'></td></tr>
 				<tr><td>Password</td><td><input type='password' name='pass1'></td></tr>
 				<tr><td>Repeat Password</td><td><input type='password' name='pass2'></td></tr>
-				<tr><td>Email (Optional)</td><td><input type='text' name='email'></td></tr>
+				<tr><td>Email</td><td><input type='text' name='email'></td></tr>
 				$reca
 				<tr><td colspan='2'><input type='Submit' value='Create Account'></td></tr>
 			</table>

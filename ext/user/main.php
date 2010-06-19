@@ -48,6 +48,7 @@ class UserPage extends SimpleExtension {
 		$config->set_default_bool("login_signup_enabled", true);
 		$config->set_default_int("login_memory", 365);
 		$config->set_default_string("avatar_host", "none");
+		$config->set_default_string("account_email", "example@example.com");
 		$config->set_default_int("avatar_gravatar_size", 80);
 		$config->set_default_string("avatar_gravatar_default", "");
 		$config->set_default_string("avatar_gravatar_rating", "g");
@@ -94,8 +95,8 @@ class UserPage extends SimpleExtension {
 				if(is_null($user)) {
 					$this->theme->display_error($page, "Error", "There's no user with that name");
 				}
-				if(is_null($user->email)) {
-					//
+				else {
+					$this->theme->display_login_page($page);
 				}
 			}
 			else if($event->get_arg(0) == "create") {
@@ -116,13 +117,25 @@ class UserPage extends SimpleExtension {
 
 						$uce = new UserCreationEvent($_POST['name'], $_POST['pass1'], $_POST['email']);
 						send_event($uce);
-						$this->set_login_cookie($uce->username, $uce->password);
 						$page->set_mode("redirect");
-						$page->set_redirect(make_link("user"));
+						$page->set_redirect(make_link("user_admin/validate"));
 					}
 					catch(UserCreationException $ex) {
 						$this->theme->display_error($page, "User Creation Error", $ex->getMessage());
 					}
+				}
+			}
+			else if($event->get_arg(0) == "validate") {
+				if(!isset($_REQUEST['name'])) {
+					$this->theme->display_validation_page($page);
+				}
+				else if(!isset($_REQUEST['code'])) {
+					$this->theme->display_validation_page($page);
+				}
+				else {
+					$this->validate($page);
+					$page->set_mode("redirect");
+					$page->set_redirect(make_link("user_admin/login"));
 				}
 			}
 			else if($event->get_arg(0) == "set_more") {
@@ -196,6 +209,7 @@ class UserPage extends SimpleExtension {
 
 		$sb = new SetupBlock("User Options");
 		$sb->add_bool_option("login_signup_enabled", "Allow new signups: ");
+		$sb->add_text_option("account_email", "<br>Verification Email:");
 		$sb->add_longtext_option("login_tac", "<br>Terms &amp; Conditions:<br>");
 		$sb->add_choice_option("avatar_host", $hosts, "<br>Avatars: ");
 
@@ -246,6 +260,21 @@ class UserPage extends SimpleExtension {
 	}
 // }}}
 // Things done *with* the user {{{
+	private function validate($page)  {
+		global $user;
+
+		$name = $_POST['name'];
+		$code = $_POST['code'];
+		
+		$duser = User::by_validation_and_name($name, $code);
+		if(!is_null($duser)) {
+			$duser->set_user(TRUE);
+		}
+		else{
+			$this->theme->display_error($page, "Error", "No user with those details was found.");
+		}
+	}
+	
 	private function login($page)  {
 		global $user;
 
@@ -259,6 +288,12 @@ class UserPage extends SimpleExtension {
 			$this->set_login_cookie($name, $pass);
 			if($user->is_admin()) {
 				log_warning("user", "Admin logged in");
+			}
+			else if($user->is_moderator()) {
+				log_warning("user", "Moderator logged in");
+			}
+			else if($user->is_user()) {
+				log_info("user", "User logged in");
 			}
 			else {
 				log_info("user", "User logged in");
@@ -286,26 +321,53 @@ class UserPage extends SimpleExtension {
 					"Username contains invalid characters. Allowed characters are ".
 					"letters, numbers, dash, and underscore");
 		}
+		else if(!preg_match('/^[_a-zA-Z0-9-]+(\.[_a-zA-Z0-9-]+)*@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)+$/', $email)) {
+			throw new UserCreationException(
+					"Email address is not valid.");
+		}
 		else if($database->db->GetRow("SELECT * FROM users WHERE name = ?", array($name))) {
 			throw new UserCreationException("That username is already taken");
 		}
 	}
 
 	private function create_user($event) {
-		global $database;
+		global $config, $page, $database;
 
 		$hash = md5(strtolower($event->username) . $event->password);
 		$email = (!empty($event->email)) ? $event->email : null;
+		$code = substr(md5(microtime()), 0, 16);
 
-		// if there are currently no admins, the new user should be one
-		$need_admin = ($database->db->GetOne("SELECT COUNT(*) FROM users WHERE admin IN ('Y', 't', '1')") == 0);
-		$admin = $need_admin ? 'Y' : 'N';
-
-		$database->Execute(
-				"INSERT INTO users (name, pass, joindate, email, admin) VALUES (?, ?, now(), ?, ?)",
-				array($event->username, $hash, $email, $admin));
-		$uid = $database->db->Insert_ID();
-		log_info("user", "Created User #$uid ({$event->username})");
+		// if there are currently no admins, the new user should be one (a for admin, g for non validated users)
+		$need_admin = ($database->db->GetOne("SELECT COUNT(*) FROM users WHERE role IN ('a', 't', '1')") == 0);
+		$role = $need_admin ? 'a' : 'g';
+		$validate = $need_admin ? null : $code;
+		
+		$link = make_http(make_link("user_admin/validate?name=$event->username&code=$validate"));
+		$activation_link = '<a href="'.$link.'">'.$link.'</a>';
+		
+		$site = $config->get_string("title");
+		$site_email = $config->get_string("account_email");
+		
+		$headers  = "From: $site <$site_email>\r\n";
+		$headers .= "Reply-To: $site_email\r\n";
+		$headers .= "X-Mailer: PHP/" . phpversion(). "\r\n";
+		$headers .= "errors-to: $site_email\r\n";
+		$headers .= "Date: " . date(DATE_RFC2822);
+		$headers .= 'MIME-Version: 1.0' . "\r\n";
+		$headers .= 'Content-type: text/html; charset=iso-8859-1' . "\r\n";
+		
+		$sent = mail($email,"Validation Code",$activation_link,$headers);
+		
+		if(TRUE){
+			$database->Execute(
+					"INSERT INTO users (name, pass, joindate, validate, role, email) VALUES (?, ?, now(), ?, ?, ?)",
+					array($event->username, $hash, $validate, $role, $email));
+			$uid = $database->db->Insert_ID();
+			log_info("user", "Created User #$uid ({$event->username})");
+		}
+		else{
+			$this->theme->display_error($page, "Error", "Theres was an error triying to send the email");
+		}
 	}
 
 	private function set_login_cookie($name, $pass) {
