@@ -164,7 +164,7 @@ class User {
 		return $this->anon;
 	}
 	
-	public function set_admin($owner) {
+	public function set_owner($owner) {
 		assert(is_bool($owner));
 		global $database;
 		$yn = $owner ? 'o' : 'u';
