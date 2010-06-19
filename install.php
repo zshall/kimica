@@ -260,7 +260,7 @@ function create_tables($dsn) { // {{{
 			pass CHAR(32),
 			joindate SCORE_DATETIME NOT NULL DEFAULT SCORE_NOW,
 			validate CHAR(16),
-			role ENUM('g', 'u', 'm', 'a') NOT NULL DEFAULT 'g',
+			role ENUM('g', 'u', 'm', 'a', 'o') NOT NULL DEFAULT 'g',
 			email VARCHAR(128)
 		"));
 		$db->execute($engine->create_table_sql("images", "

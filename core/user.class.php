@@ -14,6 +14,7 @@ class User {
 	var $name;
 	var $email;
 	var $join_date;
+	var $owner;
 	var $admin;
 	var $moderator;
 	var $user;
@@ -39,7 +40,8 @@ class User {
 		$this->name = $row['name'];
 		$this->email = $row['email'];
 		$this->join_date = $row['joindate'];
-		$this->admin = ($row['role'] == 'a');
+		$this->owner = ($row['role'] == 'o');
+		$this->admin = ($row['role'] == 'a' || $row['role'] == 'o');
 		$this->moderator = ($row['role'] == 'm');
 		$this->user = ($row['role'] == 'u');
 		$this->anon = ($row['role'] == 'g');
@@ -121,6 +123,15 @@ class User {
 		global $config;
 		return ($this->id != $config->get_int('anon_id'));
 	}
+	
+	/**
+	 * Test if this user is an owner
+	 *
+	 * @retval bool
+	 */
+	public function is_owner() {
+		return $this->owner;
+	}
 
 	/**
 	 * Test if this user is an administrator
@@ -151,6 +162,14 @@ class User {
 	
 	public function is_anon() {
 		return $this->anon;
+	}
+	
+	public function set_admin($owner) {
+		assert(is_bool($owner));
+		global $database;
+		$yn = $owner ? 'o' : 'u';
+		$database->Execute("UPDATE users SET role=? WHERE id=?", array($yn, $this->id));
+		log_info("core-user", "Made {$this->name} owner=$yn");
 	}
 
 	public function set_admin($admin) {

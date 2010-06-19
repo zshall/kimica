@@ -339,7 +339,7 @@ class UserPage extends SimpleExtension {
 
 		// if there are currently no admins, the new user should be one (a for admin, g for non validated users)
 		$need_admin = ($database->db->GetOne("SELECT COUNT(*) FROM users WHERE role IN ('a', 't', '1')") == 0);
-		$role = $need_admin ? 'a' : 'g';
+		$role = $need_admin ? 'o' : 'g';
 		$validate = $need_admin ? null : $code;
 		
 		$link = make_http(make_link("user_admin/validate?name=$event->username&code=$validate"));
