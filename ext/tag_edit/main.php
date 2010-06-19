@@ -128,9 +128,6 @@ class TagEdit implements Extension {
 			if($this->can_source($event->image)) {
 				$event->add_part($this->theme->get_source_editor_html($event->image), 41);
 			}
-			if($user->is_admin()) {
-				$event->add_part($this->theme->get_lock_editor_html($event->image), 42);
-			}
 		}
 
 		if($event instanceof SetupBuildingEvent) {
