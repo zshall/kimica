@@ -136,7 +136,10 @@ class ViewImage extends SimpleExtension {
 			
 			if($user->is_admin() || $user->is_moderator()){
 				$image = Image::by_id($image_id);
-				if($action == "a"){
+				if($action == "l"){
+					$image->set_status("l");
+				}
+				else if($action == "a"){
 					$image->set_status("a");
 				}
 				else if($action == "p"){

@@ -129,10 +129,14 @@ class ViewImageTheme extends Themelet {
 	
 	public function get_status_html(Image $image, $status) {
 		global $page, $user;
+		$locked = "";
 		$approved = "";
 		$pending = "";
 		$deleted = "";
-		if($status=="a"){
+		if($status=="l"){
+			$locked = "selected='selected'";
+		}
+		else if($status=="a"){
 			$approved = "selected='selected'";
 		}
 		else if($status=="p"){
@@ -145,6 +149,7 @@ class ViewImageTheme extends Themelet {
 		$html = "<form action='".make_link("post/status")."' method='POST'>
 				<input type='hidden' name='image_id' value='$i_image_id'>
 				<select name='status'>
+					<option value='l' $locked>Locked</option>
 			   		<option value='a' $approved>Approved</option>
 			   		<option value='p' $pending>Pending</option>
 			   		<option value='d' $deleted>Deleted</option>
