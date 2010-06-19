@@ -264,6 +264,8 @@ class UserPage extends SimpleExtension {
 		$name = $_POST['name'];
 		$code = $_POST['code'];
 		
+		//if(strlen($code) == 16){
+		
 		$duser = User::by_validation_and_name($name, $code);
 		if(!is_null($duser)) {
 			$duser->set_user(TRUE);
@@ -338,10 +340,10 @@ class UserPage extends SimpleExtension {
 		$code = substr(md5(microtime()), 0, 16);
 
 		// if there are currently no admins, the new user should be one (a for admin, g for non validated users)
-		$need_admin = ($database->db->GetOne("SELECT COUNT(*) FROM users WHERE role IN ('a', 't', '1')") == 0);
+		$need_admin = ($database->db->GetOne("SELECT COUNT(*) FROM users WHERE role IN ('o', 't', '1')") == 0);
 		$role = $need_admin ? 'o' : 'g';
 		$validate = $need_admin ? null : $code;
-		
+				
 		$link = make_http(make_link("user_admin/validate?name=$event->username&code=$validate"));
 		$activation_link = '<a href="'.$link.'">'.$link.'</a>';
 		
