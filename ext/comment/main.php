@@ -111,7 +111,7 @@ class CommentList extends SimpleExtension {
 		}
 	}
 
-	public function onPageRequest(PageRequestEvent $event) {
+	public function onPageRequest($event) {
 		global $page, $user;
 		if($event->page_matches("comment")) {
 			if($event->get_arg(0) == "add") {
@@ -151,7 +151,7 @@ class CommentList extends SimpleExtension {
 		}
 	}
 
-	public function onPostListBuilding(PostListBuildingEvent $event) {
+	public function onPostListBuilding($event) {
 		global $config;
 		$cc = $config->get_int("comment_count");
 		if($cc > 0) {
@@ -162,14 +162,14 @@ class CommentList extends SimpleExtension {
 		}
 	}
 
-	public function onUserPageBuilding(UserPageBuildingEvent $event) {
+	public function onUserPageBuilding(Event $event) {
 		$i_days_old = ((time() - strtotime($event->display_user->join_date)) / 86400) + 1;
 		$i_comment_count = Comment::count_comments_by_user($event->display_user);
 		$h_comment_rate = sprintf("%.1f", ($i_comment_count / $i_days_old));
 		$event->add_stats("Comments made: $i_comment_count, $h_comment_rate per day");
 	}
 
-	public function onDisplayingImage(DisplayingImageEvent $event) {
+	public function onDisplayingImage($event) {
 		$this->theme->display_image_comments(
 			$event->image,
 			$this->get_comments($event->image->id),
@@ -177,7 +177,7 @@ class CommentList extends SimpleExtension {
 		);
 	}
 
-	public function onImageDeletion(ImageDeletionEvent $event) {
+	public function onImageDeletion($event) {
 		global $database;
 		$image_id = $event->image->id;
 		$database->Execute("DELETE FROM comments WHERE image_id=?", array($image_id));
@@ -185,17 +185,17 @@ class CommentList extends SimpleExtension {
 	}
 
 	// TODO: split akismet into a separate class, which can veto the event
-	public function onCommentPosting(CommentPostingEvent $event) {
+	public function onCommentPosting($event) {
 		$this->add_comment_wrapper($event->image_id, $event->user, $event->comment, $event);
 	}
 
-	public function onCommentDeletion(CommentDeletionEvent $event) {
+	public function onCommentDeletion($event) {
 		global $database;
 		$database->Execute("DELETE FROM comments WHERE id=?", array($event->comment_id));
 		log_info("comment", "Deleting Comment #{$event->comment_id}");
 	}
 
-	public function onSetupBuilding(SetupBuildingEvent $event) {
+	public function onSetupBuilding($event) {
 		$sb = new SetupBlock("Comment Options");
 		$sb->add_bool_option("comment_anon", "Allow anonymous comments: ");
 		$sb->add_bool_option("comment_captcha", "<br>Require CAPTCHA for anonymous comments: ");
@@ -213,7 +213,7 @@ class CommentList extends SimpleExtension {
 		$event->panel->add_block($sb);
 	}
 
-	public function onSearchTermParse(SearchTermParseEvent $event) {
+	public function onSearchTermParse($event) {
 		$matches = array();
 		if(preg_match("/comments(<|>|<=|>=|=)(\d+)/", $event->term, $matches)) {
 			$cmp = $matches[1];

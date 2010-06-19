@@ -108,7 +108,9 @@ EOD;
 	protected function build_table($images, $query) {
 		$table = "";
 		foreach($images as $image) {
-			$table .= $this->build_thumb_html($image, $query);
+			if(($image->approved == "Y") || ($user->is_admin())) {
+				$table .= $this->build_thumb_html($image, $query);
+			}
 		}
 		return $table;
 	}

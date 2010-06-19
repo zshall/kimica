@@ -4,9 +4,7 @@ class ViewImageTheme extends Themelet {
 	/*
 	 * Build a page showing $image and some info about it
 	 */
-	public function display_page(Image $image, $editor_parts) {
-		global $page;
-
+	public function display_page(Page $page, Image $image, $editor_parts) {
 		$metatags = str_replace(" ", ", ", html_escape($image->get_tag_list()));
 
 		$page->set_title("Image {$image->id}: ".html_escape($image->get_tag_list()));
@@ -126,6 +124,30 @@ class ViewImageTheme extends Themelet {
 				<br>
 			</div>
 		";
+		return $html;
+	}
+	
+	public function get_approver_html(Image $image, $is_approved) {
+		global $page, $user;
+
+		$i_image_id = int_escape($image->id);
+		if(!$is_approved == "Y") {
+			$html = "<form action='".make_link("approve")."' method='POST'>
+				<input type='hidden' name='image_id' value='$i_image_id'>
+				<input type='hidden' name='action' value='set'>
+				<input type='submit' value='Approve'>
+				</form>
+			";
+		}
+		else {
+			$html = "<form action='".make_link("approve")."' method='POST'>
+				<input type='hidden' name='image_id' value='$i_image_id'>
+				<input type='hidden' name='action' value='unset'>
+				<input type='submit' value='Un-Approve'>
+				</form>
+			";
+		}
+
 		return $html;
 	}
 }

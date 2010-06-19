@@ -68,7 +68,7 @@ class ImageAdminBlockBuildingEvent extends Event {
 
 class ViewImage extends SimpleExtension {
 	public function onPageRequest(PageRequestEvent $event) {
-		global $page, $user;
+		global $page, $user, $database;
 
 		if(
 			$event->page_matches("post/prev") ||
@@ -107,8 +107,12 @@ class ViewImage extends SimpleExtension {
 			$image_id = int_escape($event->get_arg(0));
 
 			$image = Image::by_id($image_id);
+			
+			if($user->is_admin()){
+				//$event->add_part($this->theme->get_approver_html($event->image, $image->approved));
+			}
 
-			if(!is_null($image)) {
+			if(!is_null($image) && (($image->approved == "Y") || ($user->is_admin()))) {
 				send_event(new DisplayingImageEvent($image));
 				$iabbe = new ImageAdminBlockBuildingEvent($image, $user);
 				send_event($iabbe);
@@ -129,14 +133,30 @@ class ViewImage extends SimpleExtension {
 			$page->set_mode("redirect");
 			$page->set_redirect(make_link("post/view/$image_id", $query));
 		}
+		
+		if($event->page_matches("post/approve")) {
+			$image_id = int_escape($_POST['image_id']);
+			$action = html_escape($_POST['action']);
+			
+			if((($action == "set") || ($action == "unset")) && ($user->is_admin())){
+				if($action == "set"){
+					$database->Execute("UPDATE images SET approved = ? WHERE id = ?", array("Y", $image_id));
+				}else{
+					$database->Execute("UPDATE images SET approved = ? WHERE id = ?", array("N", $image_id));
+				}
+			}
+
+			$page->set_mode("redirect");
+			$page->set_redirect(make_link("post/view/$image_id", $query));
+		}
 	}
 
 	public function onDisplayingImage(DisplayingImageEvent $event) {
-		global $user;
+		global $page, $user;
 		$iibbe = new ImageInfoBoxBuildingEvent($event->get_image(), $user);
 		send_event($iibbe);
 		ksort($iibbe->parts);
-		$this->theme->display_page($event->get_image(), $iibbe->parts);
+		$this->theme->display_page($page, $event->get_image(), $iibbe->parts);
 	}
 }
 ?>

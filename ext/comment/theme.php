@@ -75,7 +75,9 @@ class CommentListTheme extends Themelet {
 				</tr></table>
 			";
 
-			$page->add_block(new Block("{$image->id}: ".($image->get_tag_list()), $html, "main", $position++));
+			if(($image->approved == "Y") || ($user->is_admin())) {
+				$page->add_block(new Block("{$image->id}: ".($image->get_tag_list()), $html, "main", $position++));
+			}
 		}
 	}
 
