@@ -199,7 +199,7 @@ class Index extends SimpleExtension {
 	public function onSearchTermParse($event) {
 		global $user;
 		if ($user->is_user() || $user->is_anon()){
-			$event->add_querylet(new Querylet("status = 'a'"));
+			$event->add_querylet(new Querylet("images.status IN ('l','a')"));
 		}
 			
 		$matches = array();
@@ -240,7 +240,7 @@ class Index extends SimpleExtension {
 			$tags = $matches[2];
 			$event->add_querylet(new Querylet("images.id IN (SELECT DISTINCT image_id FROM image_tags GROUP BY image_id HAVING count(image_id) $cmp $tags)"));
 		}
-		else if(preg_match("/^status=(a|p|d)$/", $event->term, $matches)) {
+		else if(preg_match("/^status=(l|a|p|d)$/", $event->term, $matches)) {
 			$status = $matches[1];
 			$event->add_querylet(new Querylet("status = ?", array($status)));
 		}

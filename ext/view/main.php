@@ -107,8 +107,8 @@ class ViewImage extends SimpleExtension {
 			$image_id = int_escape($event->get_arg(0));
 
 			$image = Image::by_id($image_id);
-
-			if(!is_null($image) && (($image->status == "a") || ($user->is_admin() || $user->is_moderator()))) {
+	
+			if(!is_null($image) && ($image->is_approved() || $image->is_locked() || ($user->is_admin() || $user->is_moderator()))) {
 				send_event(new DisplayingImageEvent($image));
 				$iabbe = new ImageAdminBlockBuildingEvent($image, $user);
 				send_event($iabbe);
@@ -135,14 +135,15 @@ class ViewImage extends SimpleExtension {
 			$action = html_escape($_POST['status']);
 			
 			if($user->is_admin() || $user->is_moderator()){
+				$image = Image::by_id($image_id);
 				if($action == "a"){
-					$database->Execute("UPDATE images SET status = ? WHERE id = ?", array("a", $image_id));
+					$image->set_status("a");
 				}
 				else if($action == "p"){
-					$database->Execute("UPDATE images SET status = ? WHERE id = ?", array("p", $image_id));
+					$image->set_status("p");
 				}
 				else if($action == "d"){
-					$database->Execute("UPDATE images SET status = ? WHERE id = ?", array("d", $image_id));
+					$image->set_status("d");
 				}
 			}
 

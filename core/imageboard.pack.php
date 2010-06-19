@@ -36,7 +36,7 @@ class Image {
 	var $owner_ip;
 	var $posted;
 	var $source;
-	var $locked;
+	var $status;
 
 	/**
 	 * One will very rarely construct an image directly, more common
@@ -374,17 +374,30 @@ class Image {
 
 
 	public function is_locked() {
-		return ($this->locked === true || $this->locked == "Y" || $this->locked == "t");
+		return ($this->status == "l");
 	}
-	public function set_locked($tf) {
+	
+	public function is_approved() {
+		return ($this->status == "a");
+	}
+	
+	public function is_pending() {
+		return ($this->status == "p");
+	}
+		
+	public function is_deleted() {
+		return ($this->status == "d");
+	}
+	
+	public function set_status($status) {
 		global $database;
-		$ln = $tf ? "Y" : "N";
-		$sln = $database->engine->scoreql_to_sql("SCORE_BOOL_$ln");
-		$sln = str_replace("'", "", $sln);
-		$sln = str_replace('"', "", $sln);
-		$database->execute("UPDATE images SET locked=? WHERE id=?", array($sln, $this->id));
+		$database->Execute("UPDATE images SET status = ? WHERE id = ?", array($status, $this->id));
 	}
-
+	
+	public function get_status() {
+		return $this->status;
+	}
+	
 	/**
 	 * Delete all tags from this image.
 	 *
