@@ -16,7 +16,7 @@ class DowntimeTheme extends Themelet {
 		global $config;
 		$theme_name = $config->get_string('theme');
 		$data_href = get_base_href();
-		$login_link = make_link("user_admin/login");
+		$login_link = make_link("account/login");
 		header("HTTP/1.0 503 Service Temporarily Unavailable");
 
 		print <<<EOD

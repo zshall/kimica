@@ -69,7 +69,7 @@ class UserPage extends SimpleExtension {
 			$this->theme->display_user_block($page, $user, $ubbe->parts);
 		}
 
-		if($event->page_matches("user_admin")) {
+		if($event->page_matches("account")) {
 			if($event->get_arg(0) == "login") {
 				if(isset($_POST['user']) && isset($_POST['pass'])) {
 					$this->login($page);
@@ -118,7 +118,7 @@ class UserPage extends SimpleExtension {
 						$uce = new UserCreationEvent($_POST['name'], $_POST['pass1'], $_POST['email']);
 						send_event($uce);
 						$page->set_mode("redirect");
-						$page->set_redirect(make_link("user_admin/validate"));
+						$page->set_redirect(make_link("account/validate"));
 					}
 					catch(UserCreationException $ex) {
 						$this->theme->display_error($page, "User Creation Error", $ex->getMessage());
@@ -126,8 +126,15 @@ class UserPage extends SimpleExtension {
 				}
 			}
 			else if($event->get_arg(0) == "validate") {
+				
 				$user = $event->get_arg(1);
 				$code = $event->get_arg(2);
+				
+				if(isset($_POST["name"]) || isset($_POST["code"])){
+					$user = $_POST["name"];
+					$code = $_POST["code"];
+				}
+				
 				if(!isset($user)){
 					$this->theme->display_validation_page($page);
 				}
@@ -233,7 +240,7 @@ class UserPage extends SimpleExtension {
 
 	public function onUserBlockBuilding(Event $event) {
 		$event->add_link("My Profile", make_link("user"));
-		$event->add_link("Log Out", make_link("user_admin/logout"), 99);
+		$event->add_link("Log Out", make_link("account/logout"), 99);
 	}
 
 	public function onUserCreation(Event $event) {
@@ -267,7 +274,7 @@ class UserPage extends SimpleExtension {
 		if(!is_null($duser)) {
 			$duser->set_user(TRUE);
 			$page->set_mode("redirect");
-			$page->set_redirect(make_link("user_admin/login"));
+			$page->set_redirect(make_link("account/login"));
 		}
 		else{
 			$this->theme->display_error($page, "Error", "No user with those details was found.");
@@ -341,7 +348,7 @@ class UserPage extends SimpleExtension {
 		$role = $need_admin ? 'o' : 'g';
 		$validate = $need_admin ? null : $code;
 				
-		$link = make_http(make_link("user_admin/validate/$event->username/$validate"));
+		$link = make_http(make_link("account/validate/$event->username/$validate"));
 		$activation_link = '<a href="'.$link.'">'.$link.'</a>';
 		
 		$site = $config->get_string("title");

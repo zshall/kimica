@@ -32,9 +32,9 @@ class Layout {
 		// Custom links: These appear on the menu.
 		$custom_links = "";
 		if($user->is_anonymous()) {
-			$custom_links .= $this->navlinks(make_link('user_admin/login'), "Account", array("user", "user_admin", "setup", "admin", "profile"));
+			$custom_links .= $this->navlinks(make_link('account/login'), "Account", array("user", "account", "setup", "admin", "profile"));
 		} else {
-			$custom_links .= $this->navlinks(make_link('user'), "Account", array("user", "setup", "user_admin", "admin", "profile"));
+			$custom_links .= $this->navlinks(make_link('user'), "Account", array("user", "setup", "account", "admin", "profile"));
 		}
 		$custom_links .= $this->navlinks(make_link('post/list'), "Posts", array("post", "view"));
 		$custom_links .= $this->navlinks(make_link('comment/list'), "Comments", array("comment"));

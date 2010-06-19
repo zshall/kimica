@@ -103,10 +103,10 @@ class Layout {
 		// bzchan: CUSTOM LINKS are prepared here, change these to whatever you like
 		$custom_links = "";
 		if($user->is_anonymous()) {
-			$custom_links .= $this->navlinks(make_link('user_admin/login'), "My Account", array("user", "user_admin", "setup", "admin"));
+			$custom_links .= $this->navlinks(make_link('account/login'), "My Account", array("user", "account", "setup", "admin"));
 		}
 		else {
-			$custom_links .= $this->navlinks(make_link('user'), "My Account", array("user", "user_admin", "setup", "admin"));
+			$custom_links .= $this->navlinks(make_link('user'), "My Account", array("user", "account", "setup", "admin"));
 		}
 		$custom_links .= $this->navlinks(make_link('post/list'), "Posts", array("post"));
 		$custom_links .= $this->navlinks(make_link('comment/list'), "Comments", array("comment"));

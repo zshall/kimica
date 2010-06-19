@@ -41,7 +41,7 @@ class UserPageTheme extends Themelet {
 		global $config;
 
 		$html = "
-		<form action='".make_link("user_admin/validate")."' method='POST'>
+		<form action='".make_link("account/validate")."' method='POST'>
 			<table style='width: 300px;'>
 				<tr><td>User</td><td><input type='text' name='name'></td></tr>
 				<tr><td>Code</td><td><input type='text' name='code'></td></tr>
@@ -72,7 +72,7 @@ class UserPageTheme extends Themelet {
 		$reca = "<tr><td colspan='2'>".captcha_get_html()."</td></tr>";
 
 		$html .= "
-		<form action='".make_link("user_admin/create")."' method='POST'>
+		<form action='".make_link("account/create")."' method='POST'>
 			<table style='width: 300px;'>
 				<tr><td>Name</td><td><input type='text' name='name'></td></tr>
 				<tr><td>Password</td><td><input type='password' name='pass1'></td></tr>
@@ -101,7 +101,7 @@ class UserPageTheme extends Themelet {
 	public function display_login_block(Page $page) {
 		global $config;
 		$html = "
-			<form action='".make_link("user_admin/login")."' method='POST'>
+			<form action='".make_link("account/login")."' method='POST'>
 				<table summary='Login Form'>
 					<tr>
 						<td width='70'><label for='user'>Name</label></td>
@@ -116,7 +116,7 @@ class UserPageTheme extends Themelet {
 			</form>
 		";
 		if($config->get_bool("login_signup_enabled")) {
-			$html .= "<small><a href='".make_link("user_admin/create")."'>Create Account</a></small>";
+			$html .= "<small><a href='".make_link("account/create")."'>Create Account</a></small>";
 		}
 		$page->add_block(new Block("Login", $html, "left", 90));
 	}
@@ -172,7 +172,7 @@ class UserPageTheme extends Themelet {
 		$html = "";
 
 		$html .= "
-		<form action='".make_link("user_admin/change_pass")."' method='POST'>
+		<form action='".make_link("account/change_pass")."' method='POST'>
 			<input type='hidden' name='id' value='{$duser->id}'>
 			<table style='width: 300px;'>
 				<tr><th colspan='2'>Change Password</th></tr>
@@ -182,7 +182,7 @@ class UserPageTheme extends Themelet {
 			</table>
 		</form>
 
-		<p><form action='".make_link("user_admin/change_email")."' method='POST'>
+		<p><form action='".make_link("account/change_email")."' method='POST'>
 			<input type='hidden' name='id' value='{$duser->id}'>
 			<table style='width: 300px;'>
 				<tr><th colspan='2'>Change Email</th></tr>
@@ -196,7 +196,7 @@ class UserPageTheme extends Themelet {
 			$i_user_id = int_escape($duser->id);
 			$h_is_admin = $duser->is_admin() ? " checked" : "";
 			$html .= "
-				<p><form action='".make_link("user_admin/set_more")."' method='POST'>
+				<p><form action='".make_link("account/set_more")."' method='POST'>
 				<input type='hidden' name='id' value='$i_user_id'>
 				Admin: <input name='admin' type='checkbox'$h_is_admin>
 				<input type='submit' value='Set'>

@@ -38,7 +38,7 @@ class Downtime implements Extension {
 	}
 
 	private function is_safe_page(PageRequestEvent $event) {
-		if($event->page_matches("user_admin/login")) return true;
+		if($event->page_matches("account/login")) return true;
 		else return false;
 	}
 }

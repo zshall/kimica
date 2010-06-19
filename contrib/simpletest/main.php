@@ -118,7 +118,7 @@ class SCoreWebTestCase extends WebTestCase {
 	}
 
 	protected function log_in_as_user() {
-        $this->get_page('user_admin/login');
+        $this->get_page('account/login');
 		$this->assertText("Login");
 		$this->setField('user', USER_NAME);
 		$this->setField('pass', USER_PASS);
@@ -126,7 +126,7 @@ class SCoreWebTestCase extends WebTestCase {
 	}
 
 	protected function log_in_as_admin() {
-        $this->get_page('user_admin/login');
+        $this->get_page('account/login');
 		$this->assertText("Login");
 		$this->setField('user', ADMIN_NAME);
 		$this->setField('pass', ADMIN_PASS);
