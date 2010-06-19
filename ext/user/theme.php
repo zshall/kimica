@@ -40,7 +40,7 @@ class UserPageTheme extends Themelet {
 	public function display_validation_page(Page $page) {
 		global $config;
 
-		$html .= "
+		$html = "
 		<form action='".make_link("user_admin/validate")."' method='POST'>
 			<table style='width: 300px;'>
 				<tr><td>User</td><td><input type='text' name='name'></td></tr>

@@ -134,8 +134,6 @@ class UserPage extends SimpleExtension {
 				}
 				else {
 					$this->validate($page);
-					$page->set_mode("redirect");
-					$page->set_redirect(make_link("user_admin/login"));
 				}
 			}
 			else if($event->get_arg(0) == "set_more") {
@@ -269,6 +267,8 @@ class UserPage extends SimpleExtension {
 		$duser = User::by_validation_and_name($name, $code);
 		if(!is_null($duser)) {
 			$duser->set_user(TRUE);
+			$page->set_mode("redirect");
+			$page->set_redirect(make_link("user_admin/login"));
 		}
 		else{
 			$this->theme->display_error($page, "Error", "No user with those details was found.");
@@ -358,7 +358,7 @@ class UserPage extends SimpleExtension {
 		
 		$sent = mail($email,"Validation Code",$activation_link,$headers);
 		
-		if(TRUE){
+		if($sent){
 			$database->Execute(
 					"INSERT INTO users (name, pass, joindate, validate, role, email) VALUES (?, ?, now(), ?, ?, ?)",
 					array($event->username, $hash, $validate, $role, $email));
