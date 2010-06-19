@@ -227,15 +227,20 @@ class ImageIO extends SimpleExtension {
 				throw new ImageAdditionException($error);
 			}
 		}
+		
+		$auto_aprove = "p";
+		if($user->is_admin() || $user->is_moderator()){
+			$auto_aprove = "a";
+		}
 
 		// actually insert the info
 		$database->Execute(
 				"INSERT INTO images(
 					owner_id, owner_ip, filename, filesize,
-					hash, ext, width, height, posted, source)
-				VALUES (?, ?, ?, ?, ?, ?, ?, ?, now(), ?)",
+					hash, ext, width, height, posted, source, status)
+				VALUES (?, ?, ?, ?, ?, ?, ?, ?, now(), ?, ?)",
 				array($user->id, $_SERVER['REMOTE_ADDR'], $image->filename, $image->filesize,
-						$image->hash, $image->ext, $image->width, $image->height, $image->source));
+						$image->hash, $image->ext, $image->width, $image->height, $image->source, $auto_aprove));
 		if($database->engine->name == "pgsql") {
 			$database->Execute("UPDATE users SET image_count = image_count+1 WHERE id = ? ", array($user->id));
 			$image->id = $database->db->GetOne("SELECT id FROM images WHERE hash=?", array($image->hash));
