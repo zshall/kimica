@@ -42,7 +42,7 @@ class User {
 		$this->join_date = $row['joindate'];
 		$this->owner = ($row['role'] == 'o');
 		$this->admin = ($row['role'] == 'a' || $row['role'] == 'o');
-		$this->moderator = ($row['role'] == 'm');
+		$this->moderator = ($row['role'] == 'm' || $row['role'] == 'a' || $row['role'] == 'o');
 		$this->user = ($row['role'] == 'u');
 		$this->anon = ($row['role'] == 'g');
 	}

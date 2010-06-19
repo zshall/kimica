@@ -126,14 +126,16 @@ class UserPage extends SimpleExtension {
 				}
 			}
 			else if($event->get_arg(0) == "validate") {
-				if(!isset($_REQUEST['name'])) {
+				$user = $event->get_arg(1);
+				$code = $event->get_arg(2);
+				if(!isset($user)){
 					$this->theme->display_validation_page($page);
 				}
-				else if(!isset($_REQUEST['code'])) {
+				else if(!isset($code) || !strlen($code) == 16){
 					$this->theme->display_validation_page($page);
 				}
 				else {
-					$this->validate($page);
+					$this->validate($page, $user, $code);
 				}
 			}
 			else if($event->get_arg(0) == "set_more") {
@@ -258,14 +260,9 @@ class UserPage extends SimpleExtension {
 	}
 // }}}
 // Things done *with* the user {{{
-	private function validate($page)  {
+	private function validate($page, $name, $code)  {
 		global $user;
-
-		$name = $_POST['name'];
-		$code = $_POST['code'];
-		
-		//if(strlen($code) == 16){
-		
+				
 		$duser = User::by_validation_and_name($name, $code);
 		if(!is_null($duser)) {
 			$duser->set_user(TRUE);
@@ -344,7 +341,7 @@ class UserPage extends SimpleExtension {
 		$role = $need_admin ? 'o' : 'g';
 		$validate = $need_admin ? null : $code;
 				
-		$link = make_http(make_link("user_admin/validate?name=$event->username&code=$validate"));
+		$link = make_http(make_link("user_admin/validate/$event->username/$validate"));
 		$activation_link = '<a href="'.$link.'">'.$link.'</a>';
 		
 		$site = $config->get_string("title");
