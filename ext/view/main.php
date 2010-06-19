@@ -107,12 +107,8 @@ class ViewImage extends SimpleExtension {
 			$image_id = int_escape($event->get_arg(0));
 
 			$image = Image::by_id($image_id);
-			
-			if($user->is_admin()){
-				//$event->add_part($this->theme->get_approver_html($event->image, $image->approved));
-			}
 
-			if(!is_null($image) && (($image->approved == "Y") || ($user->is_admin()))) {
+			if(!is_null($image) && (($image->status == "a") || ($user->is_admin() || $user->is_moderator()))) {
 				send_event(new DisplayingImageEvent($image));
 				$iabbe = new ImageAdminBlockBuildingEvent($image, $user);
 				send_event($iabbe);
@@ -134,20 +130,31 @@ class ViewImage extends SimpleExtension {
 			$page->set_redirect(make_link("post/view/$image_id", $query));
 		}
 		
-		if($event->page_matches("post/approve")) {
+		if($event->page_matches("post/status")) {
 			$image_id = int_escape($_POST['image_id']);
-			$action = html_escape($_POST['action']);
+			$action = html_escape($_POST['status']);
 			
-			if((($action == "set") || ($action == "unset")) && ($user->is_admin())){
-				if($action == "set"){
-					$database->Execute("UPDATE images SET approved = ? WHERE id = ?", array("Y", $image_id));
-				}else{
-					$database->Execute("UPDATE images SET approved = ? WHERE id = ?", array("N", $image_id));
+			if($user->is_admin() || $user->is_moderator()){
+				if($action == "a"){
+					$database->Execute("UPDATE images SET status = ? WHERE id = ?", array("a", $image_id));
+				}
+				else if($action == "p"){
+					$database->Execute("UPDATE images SET status = ? WHERE id = ?", array("p", $image_id));
+				}
+				else if($action == "d"){
+					$database->Execute("UPDATE images SET status = ? WHERE id = ?", array("d", $image_id));
 				}
 			}
 
 			$page->set_mode("redirect");
 			$page->set_redirect(make_link("post/view/$image_id", $query));
+		}
+	}
+	
+	public function onImageAdminBlockBuilding(ImageAdminBlockBuildingEvent $event) {
+		global $user;
+		if($user->is_admin()|| $user->is_moderator()){
+			$event->add_part($this->theme->get_status_html($event->image, $event->image->status));
 		}
 	}
 

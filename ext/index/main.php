@@ -139,6 +139,7 @@ class Index extends SimpleExtension {
 	public function onPageRequest($event) {
 		global $config, $database, $page, $user;
 		if($event->page_matches("post/list")) {
+					
 			if(isset($_GET['search'])) {
 				$search = url_escape(trim($_GET['search']));
 				if(empty($search)) {
@@ -196,6 +197,11 @@ class Index extends SimpleExtension {
 	}
 
 	public function onSearchTermParse($event) {
+		global $user;
+		if ($user->is_user() || $user->is_anon()){
+			$event->add_querylet(new Querylet("status = 'a'"));
+		}
+			
 		$matches = array();
 		if(preg_match("/^size(<|>|<=|>=|=)(\d+)x(\d+)$/", $event->term, $matches)) {
 			$cmp = $matches[1];
@@ -233,6 +239,10 @@ class Index extends SimpleExtension {
 			$cmp = $matches[1];
 			$tags = $matches[2];
 			$event->add_querylet(new Querylet("images.id IN (SELECT DISTINCT image_id FROM image_tags GROUP BY image_id HAVING count(image_id) $cmp $tags)"));
+		}
+		else if(preg_match("/^status=(a|p|d)$/", $event->term, $matches)) {
+			$status = $matches[1];
+			$event->add_querylet(new Querylet("status = ?", array($status)));
 		}
 	}
 }

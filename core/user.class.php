@@ -17,6 +17,7 @@ class User {
 	var $admin;
 	var $moderator;
 	var $user;
+	var $anon;
 
 	/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 	* Initialisation                                               *
@@ -41,6 +42,7 @@ class User {
 		$this->admin = ($row['role'] == 'a');
 		$this->moderator = ($row['role'] == 'm');
 		$this->user = ($row['role'] == 'u');
+		$this->anon = ($row['role'] == 'g');
 	}
 
 	public static function by_session($name, $session) {
@@ -147,6 +149,9 @@ class User {
 		return $this->user;
 	}
 	
+	public function is_anon() {
+		return $this->anon;
+	}
 
 	public function set_admin($admin) {
 		assert(is_bool($admin));

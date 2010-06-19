@@ -127,26 +127,31 @@ class ViewImageTheme extends Themelet {
 		return $html;
 	}
 	
-	public function get_approver_html(Image $image, $is_approved) {
+	public function get_status_html(Image $image, $status) {
 		global $page, $user;
-
+		$approved = "";
+		$pending = "";
+		$deleted = "";
+		if($status=="a"){
+			$approved = "selected='selected'";
+		}
+		else if($status=="p"){
+			$pending = "selected='selected'";
+		}
+		else if($status=="d"){
+			$deleted = "selected='selected'";
+		}
 		$i_image_id = int_escape($image->id);
-		if(!$is_approved == "Y") {
-			$html = "<form action='".make_link("approve")."' method='POST'>
+		$html = "<form action='".make_link("post/status")."' method='POST'>
 				<input type='hidden' name='image_id' value='$i_image_id'>
-				<input type='hidden' name='action' value='set'>
-				<input type='submit' value='Approve'>
+				<select name='status'>
+			   		<option value='a' $approved>Approved</option>
+			   		<option value='p' $pending>Pending</option>
+			   		<option value='d' $deleted>Deleted</option>
+				</select> 
+				<input type='submit' value='Change Status'>
 				</form>
-			";
-		}
-		else {
-			$html = "<form action='".make_link("approve")."' method='POST'>
-				<input type='hidden' name='image_id' value='$i_image_id'>
-				<input type='hidden' name='action' value='unset'>
-				<input type='submit' value='Un-Approve'>
-				</form>
-			";
-		}
+				";
 
 		return $html;
 	}
