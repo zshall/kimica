@@ -267,13 +267,13 @@ class Forum extends SimpleExtension {
             $threadsPerPage = $config->get_int('forumThreadsPerPage', 15);
 
             $threads = $database->get_all(
-                "SELECT f.id, f.sticky, f.title, f.date, f.uptodate, u.name AS user_name, u.email AS user_email, u.admin AS user_admin, sum(1) - 1 AS response_count ".
+                "SELECT f.id, f.sticky, f.title, f.date, f.uptodate, u.name AS user_name, u.email AS user_email, u.role AS user_role, sum(1) - 1 AS response_count ".
                 "FROM forum_threads AS f ".
                 "INNER JOIN users AS u ".
                 "ON f.user_id = u.id ".
                 "INNER JOIN forum_posts AS p ".
                 "ON p.thread_id = f.id ".
-                "GROUP BY f.id, f.sticky, f.title, f.date, u.name, u.email, u.admin ".
+                "GROUP BY f.id, f.sticky, f.title, f.date, u.name, u.email, u.role ".
                 "ORDER BY f.sticky ASC, f.uptodate DESC LIMIT ?, ?"
                 , array($pageNumber * $threadsPerPage, $threadsPerPage)
             );
@@ -299,7 +299,7 @@ class Forum extends SimpleExtension {
             $postsPerPage = $config->get_int('forumPostsPerPage', 15);
 
             $posts = $database->get_all(
-                "SELECT p.id, p.date, p.message, u.name as user_name, u.email AS user_email, u.admin AS user_admin ".
+                "SELECT p.id, p.date, p.message, u.name as user_name, u.email AS user_email, u.role AS user_role ".
                 "FROM forum_posts AS p ".
                 "INNER JOIN users AS u ".
                 "ON p.user_id = u.id ".
@@ -369,7 +369,7 @@ class Forum extends SimpleExtension {
             $postsPerPage = $config->get_int('forumPostsPerPage', 15);
 
             return $database->get_all(
-                "SELECT p.id, p.date, p.message, u.name as user_name, u.email AS user_email, u.admin AS user_admin ".
+                "SELECT p.id, p.date, p.message, u.name as user_name, u.email AS user_email, u.role AS user_role ".
                 "FROM forum_posts AS p ".
                 "INNER JOIN users AS u ".
                 "ON p.user_id = u.id ".

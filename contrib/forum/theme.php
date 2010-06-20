@@ -45,7 +45,7 @@ class ForumTheme extends Themelet {
 		$html .= "
 				<table style='width: 500px;'>
 					<tr><td>Title:</td><td><input type='text' name='title' value='$threadTitle'></td></tr>
-					<tr><td>Message:</td><td><textarea id='message' name='message' onkeyup=\"textCounter(this,'count_display',$max_characters);\" onkeydown=\"textCounter(this,'count_display',$max_characters);\"></textarea>
+					<tr><td>Message:</td><td><textarea id='message' name='message' rows='10' onkeyup=\"textCounter(this,'count_display',$max_characters);\" onkeydown=\"textCounter(this,'count_display',$max_characters);\"></textarea>
 					<tr><td></td><td><small><span id='count_display'>$max_characters</span> characters remaining.</small></td></tr>";
 		if($user->is_admin()){
 			$html .= "<tr><td colspan='2'><label for='sticky'>Sticky:</label><input name='sticky' type='checkbox' value='Y' /></td></tr>";
@@ -87,7 +87,7 @@ class ForumTheme extends Themelet {
 		
 		$html .= "
 				<table style='width: 500px;'>
-					<tr><td>Message:</td><td><textarea id='message' name='message' onkeyup=\"textCounter(this,'count_display',$max_characters);\" onkeydown=\"textCounter(this,'count_display',$max_characters);\"></textarea>
+					<tr><td>Message:</td><td><textarea id='message' name='message' rows='10' onkeyup=\"textCounter(this,'count_display',$max_characters);\" onkeydown=\"textCounter(this,'count_display',$max_characters);\"></textarea>
 					<tr><td></td><td><small><span id='count_display'>$max_characters</span> characters remaining.</small></td></tr>
 					</td></tr>";
 							
@@ -164,9 +164,16 @@ class ForumTheme extends Themelet {
 
             $oe = ($n++ % 2 == 0) ? "even" : "odd";
 			
-			if ($post["user_admin"] == "Y") {
+			if ($post["user_role"] == "o") {
+			$rank = "<sup>owner</sup>";
+			}
+			else if ($post["user_role"] == "a") {
 			$rank = "<sup>admin</sup>";
-			} else {
+			}
+			else if ($post["user_role"] == "m") {
+			$rank = "<sup>moderator</sup>";
+			}
+			else {
 			$rank = "<sup>user</sup>";
 			}
 			
