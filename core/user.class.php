@@ -166,7 +166,7 @@ class User {
 	 * @retval bool
 	 */
 	public function is_anon() {
-		return ($this->anon || ($this->id == $config->get_int('anon_id'));
+		return ($this->anon || ($this->id == $config->get_int('anon_id')));
 	}
 	
 	public function set_owner($owner) {
