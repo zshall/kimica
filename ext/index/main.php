@@ -156,6 +156,7 @@ class Index extends SimpleExtension {
 			$search_terms = $event->get_search_terms();
 			$page_number = $event->get_page_number();
 			$page_size = $event->get_page_size();
+					
 			try {
 				$total_pages = Image::count_pages($search_terms);
 				$images = Image::find_images(($page_number-1)*$page_size, $page_size, $search_terms);
@@ -198,10 +199,13 @@ class Index extends SimpleExtension {
 
 	public function onSearchTermParse($event) {
 		global $user;
-		if ($user->is_user() || $user->is_anon()){
-			$event->add_querylet(new Querylet("images.status IN ('l','a')"));
+		
+		if($user->is_user() || $user->is_anon()){
+			if(is_null($event->term) && $this->no_status_query($event->context)) {
+				$event->add_querylet(new Querylet("status IN ('l', 'a')"));
+			}
 		}
-			
+								
 		$matches = array();
 		if(preg_match("/^size(<|>|<=|>=|=)(\d+)x(\d+)$/", $event->term, $matches)) {
 			$cmp = $matches[1];
@@ -244,6 +248,15 @@ class Index extends SimpleExtension {
 			$status = $matches[1];
 			$event->add_querylet(new Querylet("status = ?", array($status)));
 		}
+	}
+	
+	private function no_status_query($context) {
+		foreach($context as $term) {
+			if(preg_match("/^status=/", $term)) {
+				return false;
+			}
+		}
+		return true;
 	}
 }
 ?>

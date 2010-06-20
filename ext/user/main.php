@@ -295,7 +295,7 @@ class UserPage extends SimpleExtension {
 			if($user->is_admin()) {
 				log_warning("user", "Admin logged in");
 			}
-			else if($user->is_moderator()) {
+			else if($user->is_mod()) {
 				log_warning("user", "Moderator logged in");
 			}
 			else if($user->is_user()) {
@@ -445,6 +445,10 @@ class UserPage extends SimpleExtension {
 			if((!$user->is_admin()) && ($duser->name != $user->name)) {
 				$this->theme->display_error($page, "Error",
 						"You need to be an admin to change other people's addressess");
+			}
+			else if(!preg_match('/^[_a-zA-Z0-9-]+(\.[_a-zA-Z0-9-]+)*@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)+$/', $address)) {
+				$this->theme->display_error($page, "Error",
+						"Email address is not valid.");
 			}
 			else {
 				$duser->set_email($address);

@@ -844,7 +844,6 @@ class Image {
 				");
 			}
 		}
-
 		return $query;
 	}
 }

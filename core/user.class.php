@@ -16,7 +16,7 @@ class User {
 	var $join_date;
 	var $owner;
 	var $admin;
-	var $moderator;
+	var $mod;
 	var $user;
 	var $anon;
 
@@ -42,7 +42,7 @@ class User {
 		$this->join_date = $row['joindate'];
 		$this->owner = ($row['role'] == 'o');
 		$this->admin = ($row['role'] == 'a' || $row['role'] == 'o');
-		$this->moderator = ($row['role'] == 'm' || $row['role'] == 'a' || $row['role'] == 'o');
+		$this->mod = ($row['role'] == 'm' || $row['role'] == 'a' || $row['role'] == 'o');
 		$this->user = ($row['role'] == 'u');
 		$this->anon = ($row['role'] == 'g');
 	}
@@ -147,7 +147,7 @@ class User {
 	 *
 	 * @retval bool
 	 */
-	public function is_moderator() {
+	public function is_mod() {
 		return $this->moderator;
 	}
 	
@@ -160,8 +160,13 @@ class User {
 		return $this->user;
 	}
 	
+	/**
+	 * Test if this user is an verified user
+	 *
+	 * @retval bool
+	 */
 	public function is_anon() {
-		return $this->anon;
+		return ($this->anon || ($this->id == $config->get_int('anon_id'));
 	}
 	
 	public function set_owner($owner) {
@@ -180,10 +185,10 @@ class User {
 		log_info("core-user", "Made {$this->name} admin=$yn");
 	}
 	
-	public function set_moderator($moderator) {
-		assert(is_bool($moderator));
+	public function set_mod($mod) {
+		assert(is_bool($mod));
 		global $database;
-		$yn = $moderator ? 'm' : 'u';
+		$yn = $mod ? 'm' : 'u';
 		$database->Execute("UPDATE users SET role=? WHERE id=?", array($yn, $this->id));
 		log_info("core-user", "Made {$this->name} moderator=$yn");
 	}

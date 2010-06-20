@@ -108,7 +108,7 @@ class ViewImage extends SimpleExtension {
 
 			$image = Image::by_id($image_id);
 	
-			if(!is_null($image) && ($image->is_approved() || $image->is_locked() || ($user->is_admin() || $user->is_moderator()))) {
+			if(!is_null($image) && ($image->is_approved() || $image->is_locked() || ($user->is_admin() || $user->is_mod()))) {
 				send_event(new DisplayingImageEvent($image));
 				$iabbe = new ImageAdminBlockBuildingEvent($image, $user);
 				send_event($iabbe);
@@ -134,7 +134,7 @@ class ViewImage extends SimpleExtension {
 			$image_id = int_escape($_POST['image_id']);
 			$action = html_escape($_POST['status']);
 			
-			if($user->is_admin() || $user->is_moderator()){
+			if($user->is_admin() || $user->is_mod()){
 				$image = Image::by_id($image_id);
 				if($action == "l"){
 					$image->set_status("l");
@@ -157,7 +157,7 @@ class ViewImage extends SimpleExtension {
 	
 	public function onImageAdminBlockBuilding(ImageAdminBlockBuildingEvent $event) {
 		global $user;
-		if($user->is_admin()|| $user->is_moderator()){
+		if($user->is_admin()|| $user->is_mod()){
 			$event->add_part($this->theme->get_status_html($event->image, $event->image->status));
 		}
 	}
