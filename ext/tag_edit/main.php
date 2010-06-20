@@ -38,23 +38,6 @@ class TagSetEvent extends Event {
 	}
 }
 
-/*
- * LockSetEvent:
- *   $image_id
- *   $locked
- *
- */
-class LockSetEvent extends Event {
-	var $image;
-	var $locked;
-
-	public function LockSetEvent(Image $image, $locked) {
-		assert(is_bool($locked));
-		$this->image = $image;
-		$this->locked = $locked;
-	}
-}
-
 class TagEdit implements Extension {
 	var $theme;
 
@@ -84,9 +67,6 @@ class TagEdit implements Extension {
 			else {
 				$this->theme->display_error($page, "Error", "Anonymous tag editing is disabled");
 			}
-			if($user->is_admin()) {
-				send_event(new LockSetEvent($event->image, $_POST['tag_edit__locked']=="on"));
-			}
 		}
 
 		if($event instanceof TagSetEvent) {
@@ -98,13 +78,6 @@ class TagEdit implements Extension {
 		if($event instanceof SourceSetEvent) {
 			if($user->is_admin() || !$event->image->is_locked()) {
 				$event->image->set_source($event->source);
-			}
-		}
-
-		if($event instanceof LockSetEvent) {
-			if($user->is_admin()) {
-				log_debug("tag_edit", "Setting Image #{$event->image->id} lock to: {$event->locked}");
-				$event->image->set_locked($event->locked);
 			}
 		}
 
