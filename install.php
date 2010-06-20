@@ -11,7 +11,7 @@
  - and other such things that aren't ready yet
 -->
 	<head>
-		<title>Shimmie Installation</title>
+		<title>Installation</title>
 		<style>
 BODY {background: #EEE;font-family: "Arial", sans-serif;font-size: 14px;}
 H1, H3 {border: 1px solid black;background: #DDD;text-align: center;}
@@ -49,7 +49,7 @@ if(is_readable("config.php")) {
 	session_start();
 ?>
 		<div id="iblock">
-			<h1>Shimmie Repair Console</h1>
+			<h1>Repair Console</h1>
 <?php
 	include "config.php";
 	if($_SESSION['dsn'] == $database_dsn || $_POST['dsn'] == $database_dsn) {

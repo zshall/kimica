@@ -75,7 +75,7 @@ class CommentListTheme extends Themelet {
 				</tr></table>
 			";
 
-			if(($image->approved == "Y") || ($user->is_admin())) {
+			if(($image->is_approved() || $image->is_locked() || ($user->is_admin() || $user->is_moderator()))) {
 				$page->add_block(new Block("{$image->id}: ".($image->get_tag_list()), $html, "main", $position++));
 			}
 		}

@@ -127,22 +127,22 @@ class UserPage extends SimpleExtension {
 			}
 			else if($event->get_arg(0) == "validate") {
 				
-				$user = $event->get_arg(1);
+				$name = $event->get_arg(1);
 				$code = $event->get_arg(2);
 				
 				if(isset($_POST["name"]) || isset($_POST["code"])){
-					$user = $_POST["name"];
+					$name = $_POST["name"];
 					$code = $_POST["code"];
 				}
 				
-				if(!isset($user)){
+				if(!isset($name)){
 					$this->theme->display_validation_page($page);
 				}
 				else if(!isset($code) || !strlen($code) == 16){
 					$this->theme->display_validation_page($page);
 				}
 				else {
-					$this->validate($page, $user, $code);
+					$this->validate($page, $name, $code);
 				}
 			}
 			else if($event->get_arg(0) == "set_more") {
