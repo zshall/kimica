@@ -166,6 +166,7 @@ class User {
 	 * @retval bool
 	 */
 	public function is_anon() {
+		global $config;
 		return ($this->anon || ($this->id == $config->get_int('anon_id')));
 	}
 	
