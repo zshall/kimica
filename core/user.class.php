@@ -148,7 +148,7 @@ class User {
 	 * @retval bool
 	 */
 	public function is_mod() {
-		return $this->moderator;
+		return $this->mod;
 	}
 	
 	/**
