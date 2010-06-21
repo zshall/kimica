@@ -172,29 +172,43 @@ class User {
 		return ($this->anon || ($this->id == $config->get_int('anon_id')));
 	}
 	
-	public function set_owner($owner) {
-		assert(is_bool($owner));
+	public function set_role($role) {
 		global $database;
-		$yn = $owner ? 'o' : 'u';
-		$database->Execute("UPDATE users SET role=? WHERE id=?", array($yn, $this->id));
-		log_info("core-user", "Made {$this->name} owner=$yn");
+		switch($role) { // security check
+			case 'o':
+			case 'a':
+			case 'm':
+			case 'u':
+			case 'g':
+				$database->Execute("UPDATE users SET role=? WHERE id=?", array($role, $this->id));
+				log_info("core-user", "Changed user role for {$this->name}");
+				break;
+		}
 	}
 
-	public function set_admin($admin) {
-		assert(is_bool($admin));
+/*	public function set_admin() {
 		global $database;
-		$yn = $admin ? 'a' : 'u';
-		$database->Execute("UPDATE users SET role=? WHERE id=?", array($yn, $this->id));
-		log_info("core-user", "Made {$this->name} admin=$yn");
+		$database->Execute("UPDATE users SET role=? WHERE id=?", array("a", $this->id));
+		log_info("core-user", "Made {$this->name} admin");
 	}
 	
-	public function set_mod($mod) {
-		assert(is_bool($mod));
+	public function set_mod() {
 		global $database;
-		$yn = $mod ? 'm' : 'u';
-		$database->Execute("UPDATE users SET role=? WHERE id=?", array($yn, $this->id));
-		log_info("core-user", "Made {$this->name} moderator=$yn");
+		$database->Execute("UPDATE users SET role=? WHERE id=?", array("m", $this->id));
+		log_info("core-user", "Made {$this->name} moderator");
 	}
+	
+	public function set_user() {
+		global $database;
+		$database->Execute("UPDATE users SET role=? WHERE id=?", array("u", $this->id));
+		log_info("core-user", "Made {$this->name} user");
+	}
+	
+	public function set_anon() {
+		global $database;
+		$database->Execute("UPDATE users SET role=? WHERE id=?", array("g", $this->id));
+		log_info("core-user", "Made {$this->name} inactive / anonymous");
+	}*/
 	
 	/*
 	* Used in validation
