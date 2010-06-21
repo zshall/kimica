@@ -1,17 +1,14 @@
+Major Shimmie2 Fork
+~~~~~~~~~~~~~~~~~~~
+This distribution is a fork of Shish's Shimmie2 Imageboard, adding useful
+new features, a complete list of which can be found on our web site.
 
-          _________.__    .__                .__       ________  
-         /   _____/|  |__ |__| _____   _____ |__| ____ \_____  \ 
-         \_____  \ |  |  \|  |/     \ /     \|  |/ __ \ /  ____/ 
-         /        \|   Y  \  |  Y Y  \  Y Y  \  \  ___//       \ 
-        /_______  /|___|  /__|__|_|  /__|_|  /__|\___  >_______ \
-                \/      \/         \/      \/        \/        \/
+At the moment, features are constantly under development, and thus it is
+not a good idea to try running a production site with the code at this
+time.
 
-Shimmie Alpha
-~~~~~~~~~~~~~
-This code is for people who want to write extensions compatible with the
-next version of shimmie. You can run a production site with it if you're
-feeling brave, but it's not recommended.
-
+From Original README:
+~~~~~~~~~~~~~~~~~~~~~
 If there is a feature here, and not in the stable branch, that's probably
 because the feature doesn't work yet :P
 
@@ -56,10 +53,20 @@ enough to be a pain.
 
 Contact
 ~~~~~~~
-#shimmie on Freenode -- IRC
-webmaster at shishnet.org -- email
-http://redmine.shishnet.org/projects/show/shimmie2 -- bug tracker
+(No email yet!)
+(No web site yet!)
+https://www.assembla.com/spaces/shimmie/tickets -- bug tracker
 
+Acknowledgements
+~~~~~~~~~~~~~~~~
+Most of original code written by Shish [http://shishnet.org/]
+Based on the Danbooru concept [http://danbooru.donmai.us]
+
+Disclaimer
+~~~~~~~~~~
+We make NO GUARANTEES that this software will work as planned, and are
+NOT OBLIGATED to provide any support. However, if you ask nicely, we
+may be able to help :)
 
 Licence
 ~~~~~~~
@@ -68,6 +75,3 @@ someone else, you have to give them the source (which should be easy, as PHP
 is an interpreted language...). If you want to add customisations to your own
 site, then those customisations belong to you, and you can do what you want
 with them.
-
-
-
