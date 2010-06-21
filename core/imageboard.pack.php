@@ -398,6 +398,16 @@ class Image {
 		return $this->status;
 	}
 	
+	public function status_to_human() {
+		switch($this->status) {
+			case "l": return "locked";
+			case "a": return "approved";
+			case "p": return "pending";
+			case "d": return "deleted";
+			default:  return "Unknown";
+		}
+	}
+	
 	/**
 	 * Delete all tags from this image.
 	 *

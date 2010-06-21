@@ -228,9 +228,20 @@ class ImageIO extends SimpleExtension {
 			}
 		}
 		
+		/*
+		* Check for user roles or if the image contains a banned tag. It set the image as approved or deleted for review.
+		*/
 		$auto_aprove = "p";
 		if($user->is_admin() || $user->is_mod()){
 			$auto_aprove = "a";
+		}
+		
+		foreach ($image->get_tag_array() as $banned) {
+			$is_banned = $database->db->GetOne("SELECT COUNT(*) FROM tag_bans WHERE name = ?",array($banned)) > 0;
+			if($is_banned){
+				$row = $database->db->GetRow("SELECT status FROM tag_bans WHERE name = ?", $banned);
+				$auto_aprove = $row["status"];
+			}
 		}
 
 		// actually insert the info

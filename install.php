@@ -291,6 +291,11 @@ function create_tables($dsn) { // {{{
 			tag VARCHAR(64) UNIQUE NOT NULL,
 			count INTEGER NOT NULL DEFAULT 0
 		"));
+		$db->execute($engine->create_table_sql("tag_bans", "
+			id SCORE_AIPK,
+			name VARCHAR(64) UNIQUE NOT NULL,
+			status ENUM('p', 'd') NOT NULL DEFAULT 'p'
+		"));
 		$db->execute($engine->create_table_sql("image_tags", "
 			image_id INTEGER NOT NULL,
 			tag_id INTEGER NOT NULL,

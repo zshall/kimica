@@ -11,6 +11,12 @@ class TagListTheme extends Themelet {
 	public function set_tag_list($list) {
 		$this->list = $list;
 	}
+	
+	public function set_banned_list(Page $page, $banned) {		
+		$page->set_title("Banned Tags");
+		$page->set_heading("Banned Tags");
+		$page->add_block(new Block("Banned Tags", $banned, "main", 0));
+	}
 
 	public function set_navigation($nav) {
 		$this->navigation = $nav;

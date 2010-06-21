@@ -40,6 +40,26 @@ class TagList implements Extension {
 					$this->theme->set_heading("Popular Categories");
 					$this->theme->set_tag_list($this->build_tag_categories());
 					break;
+				case 'banned':
+					switch($event->get_arg(1)) {
+						case 'add':
+								$this->add_banned_tag();
+								
+								$page->set_mode("redirect");
+								$page->set_redirect(make_link("tags/banned"));
+							break;
+						case 'remove':
+								$this->remove_banned_tag();
+								
+								$page->set_mode("redirect");
+								$page->set_redirect(make_link("tags/banned"));
+							break;
+						default:
+							$this->theme->set_heading("Banned Tags");
+							$this->theme->set_banned_list($page, $this->build_tag_bans());
+							break;
+					}
+					break;
 			}
 			$this->theme->display_page($page);
 		}
@@ -114,13 +134,20 @@ class TagList implements Extension {
 // }}}
 // maps {{{
 	private function build_navigation() {
+		global $user;
+		
 		$h_index = "<a href='".make_link()."'>Index</a>";
 		$h_map = "<a href='".make_link("tags/map")."'>Map</a>";
 		$h_alphabetic = "<a href='".make_link("tags/alphabetic")."'>Alphabetic</a>";
 		$h_popularity = "<a href='".make_link("tags/popularity")."'>Popularity</a>";
 		$h_cats = "<a href='".make_link("tags/categories")."'>Categories</a>";
+		$h_bans = "";
+		if($user->is_mod()){
+			$h_bans = "<a href='".make_link("tags/banned")."'>Banned</a><br>";
+		}
 		$h_all = "<a href='?mincount=1'>Show All</a>";
-		return "$h_index<br>&nbsp;<br>$h_map<br>$h_alphabetic<br>$h_popularity<br>$h_cats<br>&nbsp;<br>$h_all";
+		
+		return "$h_index<br>&nbsp;<br>$h_map<br>$h_alphabetic<br>$h_popularity<br>$h_cats<br>$h_bans&nbsp;<br>$h_all";
 	}
 
 	private function build_tag_map() {
@@ -224,6 +251,94 @@ class TagList implements Extension {
 		$html .= "</table>";
 
 		return $html;
+	}
+	
+	private function build_tag_bans() {
+		global $user, $database;
+
+		$tags_min = $this->get_tags_min();
+		$result = $database->execute("SELECT name, status FROM tag_bans ORDER BY name ASC");
+		$tag_data = $result->GetArray();
+
+		$h_bans = "";
+		$n = 0;
+		foreach($tag_data as $row) {
+			$oe = ($n++ % 2 == 0) ? "even" : "odd";
+			
+			$h_tag = "<a href='".make_link("post/list/".url_escape($row["name"])."/1")."'>".html_escape($row["name"])."</a>";
+			$h_status = "";
+			
+			switch($row["status"]) {
+				case "p": $h_status = "pending";
+				case "d": $h_status = "deleted";
+			}
+			
+			$h_bans .= "<tr class='$oe'><td>$h_tag</td><td>$h_status</td>";
+			if($user->is_admin()) {
+				$h_bans .= "
+					<td>
+						<form action='".make_link("tags/banned/remove")."' method='POST'>
+							<input type='hidden' name='tag' value='".$row["name"]."'>
+							<input type='submit' value='Remove'>
+						</form>
+					</td>
+				";
+			}
+			$h_bans .= "</tr>";
+		}
+		
+		$add = "";
+		$actions = "";
+		if($user->is_admin()){
+			$add = "
+				<tr>
+					<form action='".make_link("tags/banned/add")."' method='POST'>
+						<td><input type='text' name='tag'></td>
+						<td>
+							<select name='status'>
+								<option value='p'>Pending</option>
+								<option value='d'>Deleted</option>
+							</select> 
+						</td>
+						<td><input type='submit' value='Add'></td>
+					</form>
+				</tr>
+			";
+			
+			$actions = "<th>Actions</th>";
+		}
+						
+		$html = "<table id='tag_bans' class='zebra'>
+					<thead><tr><th>Tag</th><th>Status</th>$actions</tr></thead>
+					<tbody>$h_bans</tbody>
+					<tfoot>$add</tfoot>
+				</table>";
+				
+		return $html;
+	}
+	
+	private function add_banned_tag(){
+		global $user, $database;
+		
+		$tag = $_POST["tag"];
+		$status= $_POST["status"];
+		
+		if($user->is_admin()){
+			$database->Execute(
+				"INSERT INTO tag_bans(
+					name, status)
+				VALUES (?, ?)",
+				array($tag, $status));
+		}
+	}
+	
+	private function remove_banned_tag(){
+		global $user, $database;
+		
+		$tag = $_POST["tag"];
+		if($user->is_admin()){
+			$database->execute("DELETE FROM tag_bans WHERE name = ?", array($tag));
+		}
 	}
 // }}}
 // blocks {{{
