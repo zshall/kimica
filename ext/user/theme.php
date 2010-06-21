@@ -187,7 +187,7 @@ class UserPageTheme extends Themelet {
 			<table style='width: 300px;'>
 				<tr><th colspan='2'>Change Email</th></tr>
 				<tr><td>Address</td><td><input type='text' name='address' value='".html_escape($duser->email)."'></td></tr>
-				<tr><td colspan='2'><input type='Submit' value='Set'></td></tr>
+				<tr><td colspan='2'><input type='Submit' value='Change Email'></td></tr>
 			</table>
 		</form>
 		";
@@ -213,6 +213,27 @@ class UserPageTheme extends Themelet {
 					  <option value='g'$h_is_anon>Anonymous / Inactive</option>
 					</select>
 				<input type='submit' value='Set'>
+				</form>
+			";
+		}
+		else if($user->is_admin() && (!$duser->is_admin())) {
+			$i_user_id = int_escape($duser->id);
+			$h_is_admin = $duser->is_admin() ? " selected='yes'" : "";
+			$h_is_mod   = $duser->is_mod()   ? " selected='yes'" : "";
+			$h_is_user  = $duser->is_user()  ? " selected='yes'" : "";
+			$h_is_anon  = $duser->is_anon()  ? " selected='yes'" : "";
+			if($h_is_admin != "") { $h_is_mod   = ""; }
+			$html .= "
+				<p><form action='".make_link("account/set_more")."' method='POST'>
+				<input type='hidden' name='id' value='$i_user_id'>
+				User Role: 
+					<select name='role'>
+					  <option value='a'$h_is_admin>Admin</option>
+					  <option value='m'$h_is_mod>Moderator</option>
+					  <option value='u'$h_is_user>User</option>
+					  <option value='g'$h_is_anon>Anonymous / Inactive</option>
+					</select>
+				<input type='submit' value='Change Role'>
 				</form>
 			";
 		}

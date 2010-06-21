@@ -95,25 +95,5 @@ class CustomUserPageTheme extends UserPageTheme {
 		$page->disable_left();
 		parent::display_user_page($duser, $stats);
 	}
-
-	protected function build_options($duser) {
-		global $database;
-		global $config;
-
-		$html = "";
-		$html .= "
-		<form action='".make_link("account/change_pass")."' method='POST'>
-			<input type='hidden' name='name' value='{$duser->name}'>
-			<input type='hidden' name='id' value='{$duser->id}'>
-			<table style='width: 300px;'>
-				<tr><td colspan='2'>Change Password</td></tr>
-				<tr><td>Password</td><td><input type='password' name='pass1'></td></tr>
-				<tr><td>Repeat Password</td><td><input type='password' name='pass2'></td></tr>
-				<tr><td colspan='2'><input type='Submit' value='Change Password'></td></tr>
-			</table>
-		</form>
-		";
-		return $html;
-	}
 }
 ?>

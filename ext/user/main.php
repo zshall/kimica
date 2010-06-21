@@ -479,10 +479,8 @@ class UserPage extends SimpleExtension {
 		$page->set_title("Error");
 		$page->set_heading("Error");
 		$page->add_block(new NavBlock());
-		if(!$user->is_owner()) {
-			$page->add_block(new Block("Not Owner", "Only owners can edit accounts"));
-		}
-		else if(!isset($_POST['id']) || !is_numeric($_POST['id'])) {
+		
+	    if(!isset($_POST['id']) || !is_numeric($_POST['id'])) {
 			$page->add_block(new Block("No ID Specified",
 					"You need to specify the account number to edit"));
 		}
@@ -491,13 +489,21 @@ class UserPage extends SimpleExtension {
 				$role = html_escape($_POST['role']);
 				if(strlen($role)==1) {
 					$duser = User::by_id($_POST['id']);
-					$duser->set_role($role);
-					$page->set_mode("redirect");
-					if($duser->id == $user->id) {
-						$page->set_redirect(make_link("user"));
+					if(!$user->is_admin()) {
+						$page->add_block(new Block("Not Admin", "Only admins can edit accounts"));
 					}
-					else {
-						$page->set_redirect(make_link("user/{$duser->name}"));
+					else if(!$user->is_admin() && !$user->is_owner()) {
+						$page->add_block(new Block("Not Owner", "Only owners can edit accounts"));
+					}
+					else{
+						$duser->set_role($role);
+						$page->set_mode("redirect");
+						if($duser->id == $user->id) {
+							$page->set_redirect(make_link("user"));
+						}
+						else {
+							$page->set_redirect(make_link("user/{$duser->name}"));
+						}
 					}
 				}
 			} else {
