@@ -246,7 +246,9 @@ class Index extends SimpleExtension {
 		}
 		else if(preg_match("/^status=(l|a|p|d)$/", $event->term, $matches)) {
 			$status = $matches[1];
-			$event->add_querylet(new Querylet("status = ?", array($status)));
+			if($user->is_admin() || $user->is_mod()){
+				$event->add_querylet(new Querylet("status = ?", array($status)));
+			}
 		}
 	}
 	
