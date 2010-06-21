@@ -33,8 +33,9 @@ class Upgrade extends SimpleExtension {
 		if($config->get_int("db_version") < 8) {
 			// if this fails, don't try again
 			$config->set_int("db_version", 8);
-			$database->execute($database->engine->scoreql_to_sql("ALTER TABLE images ADD COLUMN status ENUM('l', 'a', 'p', 'd') NOT NULL DEFAULT 'p'"));
-			$database->execute($database->engine->scoreql_to_sql("ALTER TABLE users ADD COLUMN validate VARCHAR(16) NULL"));
+			$database->execute($database->engine->scoreql_to_sql(
+				"ALTER TABLE images ADD COLUMN locked SCORE_BOOL NOT NULL DEFAULT SCORE_BOOL_N"
+			));
 			log_info("upgrade", "Database at version 8");
 		}
 	}
