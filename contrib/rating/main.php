@@ -85,6 +85,7 @@ class Ratings implements Extension {
 			$privs['Safe and Unknown'] = 'su';
 			$privs['Safe and Questionable'] = 'sq';
 			$privs['Safe, Questionable, Unknown'] = 'squ';
+			$privs['Safe, Questionable, Explicit'] = 'sqe';
 			$privs['All'] = 'sqeu';
 
 			$sb = new SetupBlock("Image Ratings");
@@ -92,6 +93,28 @@ class Ratings implements Extension {
 			$sb->add_choice_option("ext_rating_user_privs", $privs, "<br>Users: ");
 			$sb->add_choice_option("ext_rating_admin_privs", $privs, "<br>Admins: ");
 			$event->panel->add_block($sb);
+		}
+		
+		if($event instanceof PrefBuildingEvent) {
+			$privs = array();
+			
+			switch ($user->role) {
+				case "o":
+				case "a":
+				case "m":
+					$sqes = $this->privs_to_array($config->get_string("ext_rating_admin_privs"));
+					break;
+				case "u":
+					$sqes = $this->privs_to_array($config->get_string("ext_rating_user_privs"));
+					break;
+				case "g":
+					$sqes = $this->privs_to_array($config->get_string("ext_rating_anon_privs"));
+					break;
+			}
+						
+			$pb = new PrefBlock("Image Ratings");
+			$pb->add_choice_option("ext_rating_privs", $sqes, "Rating: ");
+			$event->panel->add_block($pb);
 		}
 
 		if($event instanceof ParseLinkTemplateEvent) {
@@ -134,7 +157,7 @@ class Ratings implements Extension {
 		}
 	}
 
-	public static function get_user_privs($user) {
+	public static function get_config_privs($user) {
 		global $config;
 		if($user->is_anonymous()) {
 			$sqes = $config->get_string("ext_rating_anon_privs");
@@ -146,6 +169,45 @@ class Ratings implements Extension {
 			$sqes = $config->get_string("ext_rating_user_privs");
 		}
 		return $sqes;
+	}
+	
+	public static function get_user_privs($user) {
+		global $prefs;
+		return $prefs->get_string("ext_rating_privs", "s");
+	}
+	
+	public static function privs_to_array($sqes) {
+		$privs = array();
+		
+		switch ($sqes) {
+			case "s":
+				$privs['Safe Only'] = 's';
+				break;
+			case "su":
+				$privs['Safe Only'] = 's';
+				$privs['Safe and Unknown'] = 'su';
+				break;
+			case "sq":
+				$privs['Safe Only'] = 's';
+				$privs['Safe and Questionable'] = 'sq';
+				break;
+			case "squ":
+				$privs['Safe Only'] = 's';
+				$privs['Safe and Unknown'] = 'su';
+				$privs['Safe and Questionable'] = 'sq';
+				$privs['Safe, Questionable, Unknown'] = 'squ';
+				break;
+			case "sqeu":
+				$privs['Safe Only'] = 's';
+				$privs['Safe and Unknown'] = 'su';
+				$privs['Safe and Questionable'] = 'sq';
+				$privs['Safe, Questionable, Unknown'] = 'squ';
+				$privs['Safe, Questionable, Explicit'] = 'sqe';
+				$privs['All'] = 'sqeu';
+				break;
+		}
+		
+		return $privs;
 	}
 
 	public static function privs_to_sql($sqes) {

@@ -215,7 +215,7 @@ class UserPrefsSetup extends SimpleExtension {
 						$prefs_setup = new DatabasePrefs($database, $user_id_preferences);
 						if($event->get_arg(1) == "save") {
 							send_event(new PrefSaveEvent($prefs_setup, $user_id_preferences));
-							$prefs_setup->save_prefs(NULL, $user_id_preferences);
+							$prefs_setup->save(NULL, $user_id_preferences);
 		
 							$page->set_mode("redirect");
 							$page->set_redirect(make_link("preferences/{$display_user->name}"));
