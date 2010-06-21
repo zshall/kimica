@@ -156,7 +156,7 @@ class StaticConfig extends BaseConfig {
  *
  * \code
  *  CREATE TABLE config(
- *      name VARCHAR(255) NOT NULL,
+ *      name VARCHAR(128) NOT NULL,
  *      value TEXT
  *  );
  * \endcode

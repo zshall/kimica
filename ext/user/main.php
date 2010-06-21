@@ -290,22 +290,28 @@ class UserPage extends SimpleExtension {
 
 		$duser = User::by_name_and_hash($name, $hash);
 		if(!is_null($duser)) {
-			$user = $duser;
-			$this->set_login_cookie($name, $pass);
-			if($user->is_admin()) {
-				log_warning("user", "Admin logged in");
+			if(!($duser->role == "g")){
+				$user = $duser;
+				$this->set_login_cookie($name, $pass);
+				if($user->is_admin()) {
+					log_warning("user", "Admin logged in");
+				}
+				else if($user->is_mod()) {
+					log_warning("user", "Moderator logged in");
+				}
+				else if($user->is_user()) {
+					log_info("user", "User logged in");
+				}
+				else {
+					log_info("user", "User logged in");
+				}
+				$page->set_mode("redirect");
+				$page->set_redirect(make_link("user"));
 			}
-			else if($user->is_mod()) {
-				log_warning("user", "Moderator logged in");
+			else{
+				$validate_link = "<a href='".make_link("account/validate")."'>Validate</a>";
+				$this->theme->display_error($page, "Error", "You need validate your account. $validate_link");
 			}
-			else if($user->is_user()) {
-				log_info("user", "User logged in");
-			}
-			else {
-				log_info("user", "User logged in");
-			}
-			$page->set_mode("redirect");
-			$page->set_redirect(make_link("user"));
 		}
 		else {
 			$this->theme->display_error($page, "Error", "No user with those details was found");

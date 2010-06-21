@@ -14,6 +14,7 @@ class User {
 	var $name;
 	var $email;
 	var $join_date;
+	var $role;
 	var $owner;
 	var $admin;
 	var $mod;
@@ -40,6 +41,7 @@ class User {
 		$this->name = $row['name'];
 		$this->email = $row['email'];
 		$this->join_date = $row['joindate'];
+		$this->role = $row['role'];
 		$this->owner = ($row['role'] == 'o');
 		$this->admin = ($row['role'] == 'a' || $row['role'] == 'o');
 		$this->mod = ($row['role'] == 'm' || $row['role'] == 'a' || $row['role'] == 'o');
@@ -216,6 +218,23 @@ class User {
 		global $database;
 		$database->Execute("UPDATE users SET email=? WHERE id=?", array($address, $this->id));
 		log_info("core-user", "Set email for {$this->name}");
+	}
+	
+	
+	/**
+	 * Get user role in human
+	 *
+	 * @retval string
+	 */
+	public function role_to_human(){
+		switch($this->role) {
+			case "g": return "guest";
+			case "u": return "user";
+			case "m": return "mod";
+			case "a": return "admin";
+			case "o": return "owner";
+			default:  return "Unknown";
+		}
 	}
 
 	/**
