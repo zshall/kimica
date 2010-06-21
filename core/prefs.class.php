@@ -1,14 +1,14 @@
 <?php
 /**
- * an abstract interface for altering a name:value pair list
+ * User preferences - user_id, name, value. Rename hack of config.
  */
-interface Config {
+interface Prefs {
 	/**
 	 * Save the list of name:value pairs to wherever they came from,
 	 * so that the next time a page is loaded it will use the new
 	 * configuration
 	 */
-	public function save($name=null);
+	public function save($name=null, $uid=null); //Make it easy on ourselves... don't want to change this much at all.
 
 	/** @name set_*
 	 * Set a configuration option to a new value, regardless
@@ -53,25 +53,25 @@ interface Config {
  * Common methods for manipulating the list, loading and saving is
  * left to the concrete implementation
  */
-abstract class BaseConfig implements Config {
+abstract class BasePrefs implements Prefs {
 	var $values = array();
 
-	public function set_int($name, $value) {
+	public function set_int($name, $value, $userid=null) {
 		$this->values[$name] = parse_shorthand_int($value);
-		$this->save($name);
+		$this->save($name, $userid);
 	}
-	public function set_string($name, $value) {
-		$this->values[$name] = $value;
-		$this->save($name);
+	public function set_string($name, $value, $userid=null) {
+		$this->values[$name] =  $value; //probably better to let bbcode and the extensions handle filtering.
+		$this->save($name, $userid);
 	}
-	public function set_bool($name, $value) {
+	public function set_bool($name, $value, $userid=null) {
 		$this->values[$name] = (($value == 'on' || $value === true) ? 'Y' : 'N');
-		$this->save($name);
+		$this->save($name, $userid);
 	}
-	public function set_array($name, $value) {
+	public function set_array($name, $value, $userid=null) {
 		assert(is_array($value));
 		$this->values[$name] = implode(",", $value);
-		$this->save($name);
+		$this->save($name, $userid);
 	}
 
 	public function set_default_int($name, $value) {
@@ -95,11 +95,11 @@ abstract class BaseConfig implements Config {
 			$this->values[$name] = implode(",", $value);
 		}
 	}
-
+	
 	public function get_int($name, $default=null) {
 		return (int)($this->get($name, $default));
 	}
-	public function get_string($name, $default=null) {
+	public function get_string($name, $default=null) { 
 		return $this->get($name, $default);
 	}
 	public function get_bool($name, $default=null) {
@@ -110,8 +110,8 @@ abstract class BaseConfig implements Config {
 	}
 
 	private function get($name, $default=null) {
-		if(isset($this->values[$name])) {
-			return $this->values[$name];
+		if(isset($this->values[$name])) { 
+			return $this->values[$name]; 
 		}
 		else {
 			return $default;
@@ -119,81 +119,54 @@ abstract class BaseConfig implements Config {
 	}
 }
 
-
 /**
- * Loads the config list from a PHP file; the file should be in the format:
- *
- *  <?php
- *  $config['foo'] = "bar";
- *  $config['baz'] = "qux";
- *  ?>
- */
-class StaticConfig extends BaseConfig {
-	public function __construct($filename) {
-		if(file_exists($filename)) {
-			require_once $filename;
-			if(isset($config)) {
-				$this->values = $config;
-			}
-			else {
-				throw new Exception("Config file '$filename' doesn't contain any config");
-			}
-		}
-		else {
-			throw new Exception("Config file '$filename' missing");
-		}
-	}
-
-	public function save($name=null) {
-		// static config is static
-	}
-}
-
-
-/**
- * Loads the config list from a table in a given database, the table should
- * be called config and have the schema:
+ * Loads the preferences from a table in a given database, the table should
+ * be called prefs and have the schema:
  *
  * \code
- *  CREATE TABLE config(
+ *  CREATE TABLE prefs(
+ *  	user_id INTEGER NOT NULL,
  *      name VARCHAR(128) NOT NULL,
  *      value TEXT
  *  );
  * \endcode
  */
-class DatabaseConfig extends BaseConfig {
+class DatabasePrefs extends BasePrefs {
 	var $database = null;
-
+	
 	/*
-	 * Load the config table from a database
+	 * Load user preferences from a the database.
 	 */
-	public function DatabaseConfig($database) {
+	public function DatabasePrefs($database, $userid) {
 		$this->database = $database;
-
-		$cached = $this->database->cache->get("config");
+		$cached = $this->database->cache->get("prefs");
 		if($cached) {
 			$this->values = $cached;
 		}
 		else {
-			$this->values = $this->database->db->GetAssoc("SELECT name, value FROM config");
-			$this->database->cache->set("config", $this->values);
+			$this->values = $this->database->db->GetAssoc("SELECT name, value FROM prefs WHERE user_id = $userid");
+			$this->database->cache->set("prefs", $this->values);
 		}
 	}
 
 	/*
-	 * Save the current values as the new config table
+	 * Save the current values for the current user.
 	 */
-	public function save($name=null) {
+	public function save($name=null, $uid=null) {
+		if(is_null($uid)) {
+			global $user;
+			$uid = $user->id;
+		}
 		if(is_null($name)) {
 			foreach($this->values as $name => $value) {
 				$this->save($name);
 			}
 		}
 		else {
-			$this->database->Execute("DELETE FROM config WHERE name = ?", array($name));
-			$this->database->Execute("INSERT INTO config VALUES (?, ?)", array($name, $this->values[$name]));
+			$this->database->Execute("DELETE FROM prefs WHERE name = ? AND user_id = ?", array($name, $uid));
+			$this->database->Execute("INSERT INTO prefs VALUES (?, ?, ?)", array($uid, $name, $this->values[$name]));
 		}
-		$this->database->cache->delete("config");
+		$this->database->cache->delete("prefs");
 	}
 }
 ?>

@@ -53,7 +53,7 @@ class UserPageTheme extends Themelet {
 		$page->set_title("Validate Account");
 		$page->set_heading("Validate Account");
 		$page->add_block(new NavBlock());
-		$page->add_block(new Block("Validate", $html));
+		$page->add_block(new Block("Validate Account", $html));
 	}
 	
 	public function display_signup_page(Page $page) {
@@ -87,7 +87,7 @@ class UserPageTheme extends Themelet {
 		$page->set_title("Create Account");
 		$page->set_heading("Create Account");
 		$page->add_block(new NavBlock());
-		$page->add_block(new Block("Signup", $html));
+		$page->add_block(new Block("Create Account", $html));
 	}
 
 	public function display_signups_disabled(Page $page) {
@@ -203,7 +203,7 @@ class UserPageTheme extends Themelet {
 				</form>
 			";
 		}
-		return $html;
+	return $html;
 	}
 // }}}
 }

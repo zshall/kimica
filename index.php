@@ -125,6 +125,7 @@ try {
 	// start the page generation waterfall
 	$page = class_exists("CustomPage") ? new CustomPage() : new Page();
 	$user = _get_user($config, $database);
+	$prefs = new DatabasePrefs($database, $user->id);
 	send_event(new InitExtEvent());
 	send_event(_get_page_request());
 	$page->display();
