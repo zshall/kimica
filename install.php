@@ -257,7 +257,9 @@ function create_tables($dsn) { // {{{
 		$db->execute($engine->create_table_sql("prefs", "
 			user_id INTEGER NOT NULL,
 			name VARCHAR(128) NOT NULL PRIMARY KEY,
-			value TEXT
+			value TEXT,
+			INDEX(user_id),
+			FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 		"));
 		$db->execute($engine->create_table_sql("users", "
 			id SCORE_AIPK,
