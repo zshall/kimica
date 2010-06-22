@@ -7,27 +7,7 @@
 * Description: Provides an interface for sending and receiving mail.
 */
 
-class Mail extends SimpleExtension {
-	public function send($to, $subject, $header, $body) {
-		global $config;
-		// default data
-		$subject = $config->get_string("mail_sub");
-		$header_img = $config->get_string("mail_img");
-		$footer = $config->get_string("mail_fot");
-		$sitename = $config->get_string("title");
-		$sitedomain = make_http(make_link());
-		$siteemail = $config->get_string("contact_link");
-		$date = date("F j, Y");
-		// escapes
-		$to = html_escape($to);
-		$subject .= " " . html_escape($subject);
-		$header = html_escape($header);
-		// send email
-		$email = new Email($to, $subject, $header, $header_img, $sitename, $sitedomain, $siteemail, $date, $body, $footer);
-		$email->send();
-		log_info("mail", "Sent message '$subject' to '$to'");
-	}
-	
+class Mail extends SimpleExtension {	
 	public function onSetupBuilding($event) {
 		$sb = new SetupBlock("Mailing Options");
 		$sb->add_text_option("mail_sub", "<br>Subject prefix: ");
@@ -48,14 +28,16 @@ class MailTest extends SimpleExtension {
 	public function onPageRequest($event) {
 		if($event->page_matches("mail/test")) {
 			global $page;
-			echo "Alert: uncomment this page's code on /ext/mail/main.php starting on line 52, and change the email address. Make sure you're using a server with a domain, not localhost.";
-/*			$page->set_mode("data");
+			$page->set_mode("data");
+			echo "Alert: uncomment this page's code on /ext/mail/main.php starting on line 33, and change the email address. Make sure you're using a server with a domain, not localhost.";
+			/*
 			echo "Preparing to send message:<br>";
-			$email = new Mail();
 			echo "created new mail object. sending now... ";
-			$email->send("test@localhost", "hello", "hello world", "this is a test message.");
+			$email = new Email("example@localhost.com", "hello", "hello world", "this is a test message.");
+			$email->send();
 			echo "sent.";
-*/		}
+			*/
+		}
 	}
 }
 ?>

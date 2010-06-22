@@ -14,19 +14,28 @@ class Email {
 	var $date;
 	var $body;
 	var $footer;
-	var $message;
-	
-	public function __construct($to, $subject, $header, $header_img, $sitename, $sitedomain, $siteemail, $date, $body, $footer) {
+		
+	public function __construct($to, $subject, $header, $body) {
+		global $config;
 		$this->to = $to;
-		$this->subject = $subject;
-		$this->header = $header;
-		$this->header_img = $header_img;
-		$this->sitename = $sitename;
-		$this->sitedomain = $sitedomain;
-		$this->siteemail = $siteemail;
-		$this->date = $date;
+		
+		$sub_prefix = $config->get_string("mail_sub");
+		
+		if(!isset($sub_prefix)){
+			$this->subject = $subject;
+		}
+		else{
+			$this->subject = $sub_prefix." ".$subject;
+		}
+		
+		$this->header = html_escape($header);
+		$this->header_img = $config->get_string("mail_img");
+		$this->sitename = $config->get_string("title");
+		$this->sitedomain = make_http(make_link(""));
+		$this->siteemail = $config->get_string("contact_link");
+		$this->date = date("F j, Y");
 		$this->body = $body;
-		$this->footer = $footer;
+		$this->footer = $config->get_string("mail_fot");
 	}
 	
 	public function send() {
@@ -37,9 +46,7 @@ class Email {
 		$headers .= "Date: " . date(DATE_RFC2822);
 		$headers .= 'MIME-Version: 1.0' . "\r\n";
 		$headers .= 'Content-type: text/html; charset=iso-8859-1' . "\r\n";
-		$this->message = '
-		
-		
+		$message = '
 		
 <html> 
 <body leftmargin="0" marginwidth="0" topmargin="0" marginheight="0" offset="0" bgcolor="#EEEEEE" > 
@@ -67,7 +74,7 @@ class Email {
 <table width="550" cellpadding="0" cellspacing="0"> 
  
 <tr> 
-<td style="background-color:#FFFFFF;border-top:0px solid #333333;border-bottom:10px solid #FFFFFF;"><center><a href=""><IMG SRC="'.$this->header_img.'"  alt="'.$this->sitename.'" name="Header" BORDER="0" align="center" title="'.$this->sitename.'"></a> 
+<td style="background-color:#FFFFFF;border-top:0px solid #333333;border-bottom:10px solid #FFFFFF;"><center><a href="'.$this->sitedomain.'"><IMG SRC="'.$this->header_img.'"  alt="'.$this->sitename.'" name="Header" BORDER="0" align="center" title="'.$this->sitename.'"></a> 
 </center></td> 
 </tr> 
 
@@ -89,7 +96,7 @@ class Email {
 <tr> 
 <td style="background-color:#FFFFCC;border-top:10px solid #FFFFFF;" valign="top"> 
 <span style="font-size:10px;color:#996600;line-height:100%;font-family:verdana;"> 
-This email was sent to you since you are a member of <a href="'.$this->sitedomain.'">'.$this->sitename.'</a>. To change your email preferences, visit your <a href="'.$this->sitedomain.'account">Account</a> page.<br /> 
+This email was sent to you since you are a member of <a href="'.$this->sitedomain.'">'.$this->sitename.'</a>. To change your email preferences, visit your <a href="'.make_http(make_link("preferences")).'">Account preferences</a>.<br /> 
  
 <br /> 
 Contact us:<br /> 
@@ -107,7 +114,15 @@ Copyright (C) <a href="'.$this->sitedomain.'">'.$this->sitename.'</a><br />
 </body> 
 </html>
 		';
-		mail($this->to, $this->subject, $this->message, $headers);
+		$sent = mail($this->to, $this->subject, $message, $headers);
+		if($sent){
+			log_info("mail", "Sent message '$this->subject' to '$this->to'");
+		}
+		else{
+			log_info("mail", "Error sending message '$this->subject' to '$this->to'");
+		}
+		
+	return $sent;
 	}
 }
 ?>
