@@ -135,9 +135,9 @@ class UserPageTheme extends Themelet {
 			</form>
 		";
 		if($config->get_bool("login_signup_enabled")) {
-			$html .= "<small><a href='".make_link("account/create")."'>Create Account</a></small>";
+			$html .= "<small><a href='".make_link("account/create")."'>Signup</a></small>&nbsp;|&nbsp;";
 		}
-		$html .= "&nbsp;<small><a href='".make_link("account/recover")."'>Recover Password</a></small>";
+		$html .= "<small><a href='".make_link("account/recover")."'>Recover Password</a></small>";
 		$page->add_block(new Block("Login", $html, "left", 90));
 	}
 
