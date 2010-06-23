@@ -368,22 +368,15 @@ class UserPage extends SimpleExtension {
 		$site = $config->get_string("title");
 		$site_email = $config->get_string("account_email");
 		
-		$headers  = "From: $site <$site_email>\r\n";
-		$headers .= "Reply-To: $site_email\r\n";
-		$headers .= "X-Mailer: PHP/" . phpversion(). "\r\n";
-		$headers .= "errors-to: $site_email\r\n";
-		$headers .= "Date: " . date(DATE_RFC2822);
-		$headers .= 'MIME-Version: 1.0' . "\r\n";
-		$headers .= 'Content-type: text/html; charset=iso-8859-1' . "\r\n";
-		
-		$sent = mail($email,"Validation Code",$activation_link,$headers);
+		$email = new Email($email, "Validation Code", "Validation Code", "You need validate your account. Please follow the next link<br><br>".$activation_link);
+		$sent = $email->send();
 		
 		$ip = $_SERVER['REMOTE_ADDR'];
 		
 		if($sent){
 			$database->Execute(
 					"INSERT INTO users (ip, name, pass, joindate, validate, role, email) VALUES (?, ?, ?, now(), ?, ?, ?)",
-					array($ip, $event->username, $hash, $validate, $role, $email));
+					array($ip, $event->username, $hash, $validate, $role, $email->to));
 			$uid = $database->db->Insert_ID();
 			log_info("user", "Created User #$uid ({$event->username})");
 		}
