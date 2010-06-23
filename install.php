@@ -263,6 +263,7 @@ function create_tables($dsn) { // {{{
 		"));
 		$db->execute($engine->create_table_sql("users", "
 			id SCORE_AIPK,
+			ip SCORE_INET NOT NULL,
 			name VARCHAR(32) UNIQUE NOT NULL,
 			pass CHAR(32),
 			joindate SCORE_DATETIME NOT NULL DEFAULT SCORE_NOW,

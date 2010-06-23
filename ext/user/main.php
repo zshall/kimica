@@ -282,7 +282,7 @@ class UserPage extends SimpleExtension {
 	}
 	
 	private function login($page)  {
-		global $user;
+		global $user, $database;
 
 		$name = $_POST['user'];
 		$pass = $_POST['pass'];
@@ -293,18 +293,26 @@ class UserPage extends SimpleExtension {
 			if(!($duser->role == "g")){
 				$user = $duser;
 				$this->set_login_cookie($name, $pass);
-				if($user->is_admin()) {
-					log_warning("user", "Admin logged in");
+				
+				switch ($user->role) {
+					case "o":
+						log_warning("user", "Owner logged in");
+						break;
+					case "a":
+						log_warning("user", "Admin logged in");
+						break;
+					case "m":
+						log_warning("user", "Moderator logged in");
+						break;
+					case "u":
+						log_info("user", "User logged in");
+						break;
 				}
-				else if($user->is_mod()) {
-					log_warning("user", "Moderator logged in");
-				}
-				else if($user->is_user()) {
-					log_info("user", "User logged in");
-				}
-				else {
-					log_info("user", "User logged in");
-				}
+				
+				$ip = $_SERVER['REMOTE_ADDR'];
+				
+				$database->Execute("UPDATE users SET ip = ? WHERE id = ?", array($ip, $duser->id));
+				
 				$page->set_mode("redirect");
 				$page->set_redirect(make_link("user"));
 			}
@@ -370,10 +378,12 @@ class UserPage extends SimpleExtension {
 		
 		$sent = mail($email,"Validation Code",$activation_link,$headers);
 		
+		$ip = $_SERVER['REMOTE_ADDR'];
+		
 		if($sent){
 			$database->Execute(
-					"INSERT INTO users (name, pass, joindate, validate, role, email) VALUES (?, ?, now(), ?, ?, ?)",
-					array($event->username, $hash, $validate, $role, $email));
+					"INSERT INTO users (ip, name, pass, joindate, validate, role, email) VALUES (?, ?, ?, now(), ?, ?, ?)",
+					array($ip, $event->username, $hash, $validate, $role, $email));
 			$uid = $database->db->Insert_ID();
 			log_info("user", "Created User #$uid ({$event->username})");
 		}
