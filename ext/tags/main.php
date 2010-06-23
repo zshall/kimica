@@ -329,6 +329,16 @@ class TagList implements Extension {
 					name, status)
 				VALUES (?, ?)",
 				array($tag, $status));
+				
+			$n = 0;
+			while(true) {
+				$images = Image::find_images($n, 100, Tag::explode($_POST["tag"]));
+				if(count($images) == 0) break;
+				foreach($images as $image) {
+					send_event(new ImageTagBanEvent($user, $image));
+				}
+			$n += 100;
+			}
 		}
 	}
 	
@@ -338,6 +348,16 @@ class TagList implements Extension {
 		$tag = $_POST["tag"];
 		if($user->is_admin()){
 			$database->execute("DELETE FROM tag_bans WHERE name = ?", array($tag));
+			
+			$n = 0;
+			while(true) {
+				$images = Image::find_images($n, 100, Tag::explode($_POST["tag"]));
+				if(count($images) == 0) break;
+				foreach($images as $image) {
+					send_event(new ImageTagUnBanEvent($image));
+				}
+			$n += 100;
+			}
 		}
 	}
 // }}}

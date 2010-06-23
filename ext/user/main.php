@@ -90,15 +90,6 @@ class UserPage extends SimpleExtension {
 			else if($event->get_arg(0) == "change_email") {
 				$this->change_email_wrapper($page);
 			}
-			else if($event->get_arg(0) == "recover") {
-				$user = User::by_name($_POST['username']);
-				if(is_null($user)) {
-					$this->theme->display_error($page, "Error", "There's no user with that name");
-				}
-				else {
-					$this->theme->display_login_page($page);
-				}
-			}
 			else if($event->get_arg(0) == "create") {
 				if(!$config->get_bool("login_signup_enabled")) {
 					$this->theme->display_signups_disabled($page);
@@ -135,14 +126,31 @@ class UserPage extends SimpleExtension {
 					$code = $_POST["code"];
 				}
 				
-				if(!isset($name)){
+				if(!preg_match('/^[a-zA-Z0-9-_]+$/', $name)){
 					$this->theme->display_validation_page($page);
 				}
-				else if(!isset($code) || !strlen($code) == 16){
+				else if(!preg_match('/^[a-fA-F0-9]{16}$/', $code)){
 					$this->theme->display_validation_page($page);
 				}
 				else {
 					$this->validate($page, $name, $code);
+				}
+			}
+			else if($event->get_arg(0) == "recover") {
+								
+				if(isset($_POST["name"]) || isset($_POST["email"])){
+					$name = $_POST["name"];
+					$email = $_POST["email"];
+				}
+				
+				if(!preg_match('/^[a-zA-Z0-9-_]+$/', $name)){
+					$this->theme->display_recover_page($page);
+				}
+				else if(!isset($email) || !preg_match('/^[_a-zA-Z0-9-]+(\.[_a-zA-Z0-9-]+)*@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)+$/', $email)){
+					$this->theme->display_recover_page($page);
+				}
+				else {
+					$this->recover($page, $name, $email);
 				}
 			}
 			else if($event->get_arg(0) == "set_more") {
@@ -281,6 +289,29 @@ class UserPage extends SimpleExtension {
 		}
 	}
 	
+	private function recover($page, $name, $email)  {
+		global $database, $user;
+				
+		$duser = User::by_name($name);
+		if(!is_null($duser) && ($duser->email == $email)) {
+			
+			$pass = substr(md5(microtime()), 0, 16);
+			
+			$email = new Email($duser->email, "New Password", "New Password", "Your new password is: $pass");
+			$sent = $email->send();
+			
+			if($sent){
+				$database->Execute("UPDATE users SET pass = ? WHERE id = ?", array(md5($duser->name.$pass), $duser->id));
+			}
+			
+			$page->set_mode("redirect");
+			$page->set_redirect(make_link("account/login"));
+		}
+		else{
+			$this->theme->display_error($page, "Error", "No user with those details was found.");
+		}
+	}
+	
 	private function login($page)  {
 		global $user, $database;
 
@@ -291,21 +322,21 @@ class UserPage extends SimpleExtension {
 		$duser = User::by_name_and_hash($name, $hash);
 		if(!is_null($duser)) {
 			if(!($duser->role == "g")){
-				$user = $duser;
+			
 				$this->set_login_cookie($name, $pass);
 				
-				switch ($user->role) {
+				switch ($duser->role) {
 					case "o":
-						log_warning("user", "Owner logged in");
+						log_warning("user", "Owner logged in ({$duser->name})");
 						break;
 					case "a":
-						log_warning("user", "Admin logged in");
+						log_warning("user", "Admin logged in ({$duser->name})");
 						break;
 					case "m":
-						log_warning("user", "Moderator logged in");
+						log_warning("user", "Moderator logged in ({$duser->name})");
 						break;
 					case "u":
-						log_info("user", "User logged in");
+						log_info("user", "User logged in ({$duser->name})");
 						break;
 				}
 				
@@ -368,22 +399,15 @@ class UserPage extends SimpleExtension {
 		$site = $config->get_string("title");
 		$site_email = $config->get_string("account_email");
 		
-		$headers  = "From: $site <$site_email>\r\n";
-		$headers .= "Reply-To: $site_email\r\n";
-		$headers .= "X-Mailer: PHP/" . phpversion(). "\r\n";
-		$headers .= "errors-to: $site_email\r\n";
-		$headers .= "Date: " . date(DATE_RFC2822);
-		$headers .= 'MIME-Version: 1.0' . "\r\n";
-		$headers .= 'Content-type: text/html; charset=iso-8859-1' . "\r\n";
-		
-		$sent = mail($email,"Validation Code",$activation_link,$headers);
+		$email = new Email($email, "Validation Code", "Validation Code", "You need validate your account. Please follow the next link<br><br>".$activation_link);
+		$sent = $email->send();
 		
 		$ip = $_SERVER['REMOTE_ADDR'];
 		
 		if($sent){
 			$database->Execute(
 					"INSERT INTO users (ip, name, pass, joindate, validate, role, email) VALUES (?, ?, ?, now(), ?, ?, ?)",
-					array($ip, $event->username, $hash, $validate, $role, $email));
+					array($ip, $event->username, $hash, $validate, $role, $email->to));
 			$uid = $database->db->Insert_ID();
 			log_info("user", "Created User #$uid ({$event->username})");
 		}

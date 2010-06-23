@@ -48,12 +48,45 @@ class ImageDeletionEvent extends Event {
 
 
 /*
+ * ImageTagBanEvent:
+ *   $image -- the image being deleted
+ *
+ * An image is being deleted. Used by things like tags
+ * and comments handlers to clean out related rows in
+ * their tables
+ */
+class ImageTagBanEvent extends Event {
+	var $user, $image;
+
+	public function ImageTagBanEvent(User $user, Image $image) {
+		$this->image = $image;
+		$this->user = $user;
+	}
+}
+
+/*
+ * ImageTagUnBanEvent:
+ *   $image -- the image being deleted
+ *
+ * An image is being deleted. Used by things like tags
+ * and comments handlers to clean out related rows in
+ * their tables
+ */
+class ImageTagUnBanEvent extends Event {
+	var $image;
+
+	public function ImageTagUnBanEvent(Image $image) {
+		$this->image = $image;
+	}
+}
+
+
+/*
  * ThumbnailGenerationEvent:
  * Request a thumb be made for an image
  */
 class ThumbnailGenerationEvent extends Event {
-	var $hash;
-	var $type;
+	var $hash, $type;
 
 	public function ThumbnailGenerationEvent($hash, $type) {
 		$this->hash = $hash;
@@ -149,7 +182,25 @@ class ImageIO extends SimpleExtension {
 	public function onImageDeletion($event) {
 		$event->image->delete();
 	}
-
+	
+	public function onImageTagBan($event) {
+		global $database;
+		foreach ($event->image->get_tag_array() as $banned) {
+			$is_banned = $database->db->GetOne("SELECT COUNT(*) FROM tag_bans WHERE name = ?", array($banned)) > 0;
+			if($is_banned){
+				$row = $database->db->GetRow("SELECT status FROM tag_bans WHERE name = ?", $banned);
+				$event->image->set_status($row["status"]);
+			}
+		}
+	}
+	
+	public function onImageTagUnBan($event) {
+		global $database;
+		foreach ($event->image->get_tag_array() as $image) {
+			$event->image->set_status("a");
+		}
+	}
+	
 	public function onUserPageBuilding($event) {
 		$u_id = url_escape($event->display_user->id);
 		$i_image_count = Image::count_images(array("user_id={$event->display_user->id}"));
