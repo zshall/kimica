@@ -126,10 +126,10 @@ class UserPage extends SimpleExtension {
 					$code = $_POST["code"];
 				}
 				
-				if(!isset($name)){
+				if(!preg_match('/^[a-zA-Z0-9-_]+$/', $name)){
 					$this->theme->display_validation_page($page);
 				}
-				else if(!isset($code) || !strlen($code) == 16){
+				else if(!preg_match('/^[a-fA-F0-9]{16}$/', $code)){
 					$this->theme->display_validation_page($page);
 				}
 				else {
@@ -143,7 +143,7 @@ class UserPage extends SimpleExtension {
 					$email = $_POST["email"];
 				}
 				
-				if(!isset($name)){
+				if(!preg_match('/^[a-zA-Z0-9-_]+$/', $name)){
 					$this->theme->display_recover_page($page);
 				}
 				else if(!isset($email) || !preg_match('/^[_a-zA-Z0-9-]+(\.[_a-zA-Z0-9-]+)*@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)+$/', $email)){
@@ -322,21 +322,21 @@ class UserPage extends SimpleExtension {
 		$duser = User::by_name_and_hash($name, $hash);
 		if(!is_null($duser)) {
 			if(!($duser->role == "g")){
-				$user = $duser;
+			
 				$this->set_login_cookie($name, $pass);
 				
-				switch ($user->role) {
+				switch ($duser->role) {
 					case "o":
-						log_warning("user", "Owner logged in");
+						log_warning("user", "Owner logged in ({$duser->name})");
 						break;
 					case "a":
-						log_warning("user", "Admin logged in");
+						log_warning("user", "Admin logged in ({$duser->name})");
 						break;
 					case "m":
-						log_warning("user", "Moderator logged in");
+						log_warning("user", "Moderator logged in ({$duser->name})");
 						break;
 					case "u":
-						log_info("user", "User logged in");
+						log_info("user", "User logged in ({$duser->name})");
 						break;
 				}
 				
