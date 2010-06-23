@@ -2,7 +2,7 @@
 /**
  * User preferences - user_id, name, value. Rename hack of config.
  */
-interface Prefs {
+interface iPrefs {
 	/**
 	 * Save the list of name:value pairs to wherever they came from,
 	 * so that the next time a page is loaded it will use the new
@@ -53,7 +53,7 @@ interface Prefs {
  * Common methods for manipulating the list, loading and saving is
  * left to the concrete implementation
  */
-abstract class BasePrefs implements Prefs {
+abstract class BasePrefs implements iPrefs {
 	var $values = array();
 
 	public function set_int($name, $value, $userid=null) {
@@ -167,6 +167,15 @@ class DatabasePrefs extends BasePrefs {
 			$this->database->Execute("INSERT INTO prefs VALUES (?, ?, ?)", array($uid, $name, $this->values[$name]));
 		}
 		$this->database->cache->delete("prefs");
+	}
+}
+
+class Prefs {
+	public static function by_id($id) {
+		assert(is_numeric($id));
+		global $database;
+		$user_prefs = new DatabasePrefs($database, $id);
+		return $user_prefs;
 	}
 }
 ?>
