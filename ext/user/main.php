@@ -90,15 +90,6 @@ class UserPage extends SimpleExtension {
 			else if($event->get_arg(0) == "change_email") {
 				$this->change_email_wrapper($page);
 			}
-			else if($event->get_arg(0) == "recover") {
-				$user = User::by_name($_POST['username']);
-				if(is_null($user)) {
-					$this->theme->display_error($page, "Error", "There's no user with that name");
-				}
-				else {
-					$this->theme->display_login_page($page);
-				}
-			}
 			else if($event->get_arg(0) == "create") {
 				if(!$config->get_bool("login_signup_enabled")) {
 					$this->theme->display_signups_disabled($page);
@@ -143,6 +134,23 @@ class UserPage extends SimpleExtension {
 				}
 				else {
 					$this->validate($page, $name, $code);
+				}
+			}
+			else if($event->get_arg(0) == "recover") {
+								
+				if(isset($_POST["name"]) || isset($_POST["email"])){
+					$name = $_POST["name"];
+					$email = $_POST["email"];
+				}
+				
+				if(!isset($name)){
+					$this->theme->display_recover_page($page);
+				}
+				else if(!isset($email) || !preg_match('/^[_a-zA-Z0-9-]+(\.[_a-zA-Z0-9-]+)*@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)+$/', $email)){
+					$this->theme->display_recover_page($page);
+				}
+				else {
+					$this->recover($page, $name, $email);
 				}
 			}
 			else if($event->get_arg(0) == "set_more") {
@@ -273,6 +281,29 @@ class UserPage extends SimpleExtension {
 		$duser = User::by_validation_and_name($name, $code);
 		if(!is_null($duser)) {
 			$duser->set_user(TRUE);
+			$page->set_mode("redirect");
+			$page->set_redirect(make_link("account/login"));
+		}
+		else{
+			$this->theme->display_error($page, "Error", "No user with those details was found.");
+		}
+	}
+	
+	private function recover($page, $name, $email)  {
+		global $database, $user;
+				
+		$duser = User::by_name($name);
+		if(!is_null($duser) && ($duser->email == $email)) {
+			
+			$pass = substr(md5(microtime()), 0, 16);
+			
+			$email = new Email($duser->email, "New Password", "New Password", "Your new password is: $pass");
+			$sent = $email->send();
+			
+			if($sent){
+				$database->Execute("UPDATE users SET pass = ? WHERE id = ?", array(md5($duser->name.$pass), $duser->id));
+			}
+			
 			$page->set_mode("redirect");
 			$page->set_redirect(make_link("account/login"));
 		}

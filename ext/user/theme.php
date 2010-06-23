@@ -56,6 +56,25 @@ class UserPageTheme extends Themelet {
 		$page->add_block(new Block("Validate Account", $html));
 	}
 	
+	public function display_recover_page(Page $page) {
+		global $config;
+
+		$html = "
+		<form action='".make_link("account/recover")."' method='POST'>
+			<table style='width: 300px;'>
+				<tr><td>User</td><td><input type='text' name='name'></td></tr>
+				<tr><td>Email</td><td><input type='text' name='email'></td></tr>
+				<tr><td colspan='2'><input type='Submit' value='Recover'></td></tr>
+			</table>
+		</form>
+		";
+
+		$page->set_title("Recover Password");
+		$page->set_heading("Recover Password");
+		$page->add_block(new NavBlock());
+		$page->add_block(new Block("Recover Password", $html));
+	}
+	
 	public function display_signup_page(Page $page) {
 		global $config;
 		$tac = $config->get_string("login_tac", "");
@@ -118,6 +137,7 @@ class UserPageTheme extends Themelet {
 		if($config->get_bool("login_signup_enabled")) {
 			$html .= "<small><a href='".make_link("account/create")."'>Create Account</a></small>";
 		}
+		$html .= "&nbsp;<small><a href='".make_link("account/recover")."'>Recover Password</a></small>";
 		$page->add_block(new Block("Login", $html, "left", 90));
 	}
 
