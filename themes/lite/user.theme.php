@@ -24,6 +24,7 @@ class CustomUserPageTheme extends UserPageTheme {
 		if($config->get_bool("login_signup_enabled")) {
 			$html .= "<small><a href='".make_link("account/create")."'>Create Account</a></small>";
 		}
+		$html .= "&nbsp;<small><a href='".make_link("account/recover")."'>Recover Password</a></small>";
 		$page->add_block(new Block("Login", $html, "main", 90));
 	}
 
