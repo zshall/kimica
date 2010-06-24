@@ -250,6 +250,16 @@ function create_tables($dsn) { // {{{
 			newtag VARCHAR(128) NOT NULL,
 			INDEX(newtag)
 		"));
+		$db->execute($engine->create_table_sql("users", "
+			id SCORE_AIPK,
+			ip SCORE_INET NOT NULL,
+			name VARCHAR(32) UNIQUE NOT NULL,
+			pass CHAR(32),
+			joindate SCORE_DATETIME NOT NULL DEFAULT SCORE_NOW,
+			validate CHAR(16),
+			role ENUM('g', 'u', 'm', 'a', 'o') NOT NULL DEFAULT 'g',
+			email VARCHAR(128)
+		"));
 		$db->execute($engine->create_table_sql("config", "
 			name VARCHAR(128) NOT NULL PRIMARY KEY,
 			value TEXT
@@ -261,15 +271,19 @@ function create_tables($dsn) { // {{{
 			INDEX(user_id),
 			FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 		"));
-		$db->execute($engine->create_table_sql("users", "
+		$db->execute($engine->create_table_sql("private_message", "
 			id SCORE_AIPK,
-			ip SCORE_INET NOT NULL,
-			name VARCHAR(32) UNIQUE NOT NULL,
-			pass CHAR(32),
-			joindate SCORE_DATETIME NOT NULL DEFAULT SCORE_NOW,
-			validate CHAR(16),
-			role ENUM('g', 'u', 'm', 'a', 'o') NOT NULL DEFAULT 'g',
-			email VARCHAR(128)
+			from_id INTEGER NOT NULL,
+			from_ip SCORE_INET NOT NULL,
+			to_id INTEGER NOT NULL,
+			sent_date DATETIME NOT NULL,
+			subject VARCHAR(64) NOT NULL,
+			message TEXT NOT NULL,
+			status ENUM('r', 'u', 's', 'd') NOT NULL DEFAULT 'u',
+			priority ENUM('l', 'n', 'h') NOT NULL DEFAULT 'n',
+			INDEX (to_id),
+			INDEX (from_id),
+			FOREIGN KEY (from_id) REFERENCES users(id) ON DELETE CASCADE
 		"));
 		$db->execute($engine->create_table_sql("images", "
 			id SCORE_AIPK,

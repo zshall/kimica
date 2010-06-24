@@ -23,11 +23,7 @@ class UserPageTheme extends Themelet {
 		$html .= "</table>";
 		$page->add_block(new Block("Users", $html));
 	}
-
-	public function display_user_links(Page $page, User $user, $parts) {
-		# $page->add_block(new Block("User Links", join(", ", $parts), "main", 10));
-	}
-
+	
 	public function display_user_block(Page $page, User $user, $parts) {
 		$h_name = html_escape($user->name);
 		$html = "Logged in as $h_name";
@@ -258,6 +254,132 @@ class UserPageTheme extends Themelet {
 			";
 		}
 	return $html;
+	}
+	
+	
+	public function display_sidebar(Page $page, $unread) {
+		
+		$html = "<a href='".make_link("account/messages/new")."'>New</a><br><br>";
+		$html .= "<a href='".make_link("account/messages/inbox")."'>Inbox (".$unread.")</a><br>";
+		$html .= "<a href='".make_link("account/messages/outbox")."'>Outbox</a><br>";
+		$html .= "<a href='".make_link("account/messages/deleted")."'>Deleted</a> (<a href='".make_link("account/messages/empty")."'>empty</a>)<br>";
+		$html .= "<a href='".make_link("account/messages/saved")."'>Saved</a>";
+		
+		$page->add_block(new Block("Messages", $html, "left", 10));
+	}
+	
+	public function display_viewer(Page $page, $subject, $message) {
+		$tfe = new TextFormattingEvent($message);
+        send_event($tfe);
+        $message = $tfe->formatted;
+		
+		$page->add_block(new Block("Message:".$subject, $message, "main", 10));
+	}
+	
+	public function display_composer(Page $page, $duser, $subject = NULL) {
+		$title = "";
+		if(isset($subject)){
+			$subject = "Re:".$subject;
+		}
+		
+		$html = "
+			<form method='POST' action=".make_link("account/messages/action").">
+				<input type='hidden' name='to_id' value='{$duser->id}'>
+				<table style='width: 500px;'>
+					<tbody>
+						<tr><td>Priority:</td><td><select name='priority'><option value='l'>Low</option><option value='n' selected='selected'>Normal</option><option value='h'>High</option></select></td></tr>
+						<tr><td>Subject:</td><td><input type='text' value='{$subject}' name='subject'></td></tr>
+						<tr><td>Message:</td><td><textarea rows='10' name='message'></textarea>
+						<tr><td colspan='2'><input type='submit' name='action' value='Send'></td></tr>
+					</tbody>
+				</table>
+				</form>
+		";
+		$page->add_block(new Block("New Message", $html, "main", 20));
+	}
+		
+	public function display_inbox(Page $page, $pms, $inbox) {
+		$html = "
+			<script>
+			$(document).ready(function() {
+				$(\"#pms\").tablesorter();
+			});
+			</script>
+			<form action='".make_link("account/messages/action")."' method='POST'>
+			<table id='pms' class='zebra'>
+				<thead><tr><th>Subject</th><th>From</th><th>Date</th><th>Select</th></tr></thead>
+				<tbody>";
+		$n = 0;
+		foreach($pms as $pm) {
+			$oe = ($n++ % 2 == 0) ? "even" : "odd";
+			$h_subject = html_escape($pm["subject"]);
+			if(strlen(trim($h_subject)) == 0) $h_subject = "(No subject)";
+			$from_name = $pm["from_name"];
+			$h_from = html_escape($from_name);
+			$from_url = make_link("user/".url_escape($from_name));
+			$pm_url = make_link("account/messages/view/".$pm["id"]);
+			$h_date = html_escape($pm["sent_date"]);
+			$html .= "<tr class='$oe'><td><a href='$pm_url'>$h_subject</a></td>
+			<td><a href='$from_url'>$h_from</a></td><td>$h_date</td>
+			<td>
+				<input name='id[]' type='checkbox' value='".$pm["id"]."' />
+			</td></tr>";
+		}
+		$html .= "
+				</tbody>
+			</table>";
+			
+		if($inbox == "inbox"){
+			$html .="<input type='submit' name='action' value='Save'>
+					 <input type='submit' name='action' value='Delete'>";
+		}
+		else if($inbox == "saved"){
+			$html .="<input type='submit' name='action' value='Un-Save'>
+					 <input type='submit' name='action' value='Delete'>";
+		}
+		else if($inbox == "deleted"){
+			$html .="<input type='submit' name='action' value='Un-Delete'>";
+		}
+		$html .="
+			</form>
+		";
+		
+		$page->add_block(new Block("Private Messages", $html, "main", 10));
+	}
+	
+	public function display_outbox(Page $page, $pms) {
+		$html = "
+			<script>
+			$(document).ready(function() {
+				$(\"#pms\").tablesorter();
+			});
+			</script>
+			<form action='".make_link("account/messages/action")."' method='POST'>
+			<table id='pms' class='zebra'>
+				<thead><tr><th>Subject</th><th>To</th><th>Date</th><th>Select</th></tr></thead>
+				<tbody>";
+		$n = 0;
+		foreach($pms as $pm) {
+			$oe = ($n++ % 2 == 0) ? "even" : "odd";
+			$h_subject = html_escape($pm["subject"]);
+			if(strlen(trim($h_subject)) == 0) $h_subject = "(No subject)";
+			$from_name = $pm["to_name"];
+			$h_from = html_escape($from_name);
+			$from_url = make_link("user/".url_escape($from_name));
+			$pm_url = make_link("account/messages/view/".$pm["id"]);
+			$h_date = html_escape($pm["sent_date"]);
+			$html .= "<tr class='$oe'><td><a href='$pm_url'>$h_subject</a></td>
+			<td><a href='$from_url'>$h_from</a></td><td>$h_date</td>
+			<td>
+				<input name='id[]' type='checkbox' value='".$pm["id"]."' />
+			</td></tr>";
+		}
+		$html .= "
+				</tbody>
+			</table>
+			</form>
+		";
+		$page->add_block(new Block("Private Messages", $html, "main", 10));
 	}
 // }}}
 }

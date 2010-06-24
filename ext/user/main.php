@@ -167,6 +167,61 @@ class UserPage extends SimpleExtension {
 // join (select owner_id,count(*) as comment_count from comments group by owner_id) as _comments on _comments.owner_id=users.id;
 				$this->theme->display_user_list($page, User::by_list(0), $user);
 			}
+			else if($event->get_arg(0) == "messages") {
+				switch ($event->get_arg(1)) {
+					case "new":
+						$duser = User::by_id($event->get_arg(2));
+						$this->theme->display_composer($page, $duser);
+						break;
+					case "inbox":
+						$this->theme->display_inbox($page, $this->get_inbox($user, "r, u"), "inbox");
+						break;
+					case "outbox":
+						$this->theme->display_outbox($page, $this->get_outbox($user));
+						break;
+					case "saved":
+						$this->theme->display_inbox($page, $this->get_inbox($user, "s"), "saved");
+						break;
+					case "deleted":
+						$this->theme->display_inbox($page, $this->get_inbox($user, "d"), "deleted");
+						break;
+					case "view":
+						$message = $this->view_pm($event->get_arg(2));
+						$this->theme->display_viewer($page, $message["subject"], $message["message"]);
+						$duser = User::by_id($message["from_id"]);
+						$this->theme->display_composer($page, $duser, $message["subject"]);
+						break;
+					case "empty":
+						$this->real_delete_pm($user);
+						$page->set_mode("redirect");
+						$page->set_redirect(make_link("account/messages"));
+						break;
+					case "action":
+						switch ($_POST["action"]) {
+							case "Send":
+								$this->add_pm();
+							break;
+							case "Save":
+								$this->save_pm();
+							break;
+							case "Delete":
+								$this->remove_pm();
+							break;
+							case "Un-Save":
+							case "Un-Delete":
+								$this->undone_pm();
+							break;
+						}
+						$page->set_mode("redirect");
+						$page->set_redirect(make_link("account/messages"));
+						break;
+					default:
+						$page->set_mode("redirect");
+						$page->set_redirect(make_link("account/messages"));
+						break;
+				}
+				$this->theme->display_sidebar($page, $this->get_count_unread($user));
+			}
 		}
 
 		if(($event instanceof PageRequestEvent) && $event->page_matches("user")) {
@@ -572,6 +627,96 @@ class UserPage extends SimpleExtension {
 				GROUP BY owner_ip
 				ORDER BY most_recent DESC", array($duser->id), false, true);
 		return $rows;
+	}
+	
+// }}}
+// private messages {{{
+	private function add_pm() {
+		global $user, $database;
+		
+		$to_id = $_POST["to_id"];
+		$subject = $_POST["subject"];
+		$message = $_POST["message"];
+		$priority = $_POST["message"];
+		
+		$priority = "n";
+		if(in_array($_POST["priority"], array("l","n","h"))){
+			$priority = $_POST["priority"];
+		}
+		
+		$ip = $_SERVER['REMOTE_ADDR'];
+		
+		$database->execute("
+				INSERT INTO private_message(
+					from_id, from_ip, to_id,
+					sent_date, subject, message, priority)
+				VALUES(?, ?, ?, now(), ?, ?, ?)",
+			array($user->id, $ip,	$to_id, $subject, $message, $priority)
+		);
+		log_info("pm", "Sent PM to User #{$event->pm->to_id}");
+	}
+	
+	private function view_pm($id) {
+		global $database;
+		$database->execute("UPDATE private_message SET status = 'r' WHERE id = ?", array($id));
+		$pm = $database->get_row("SELECT * FROM private_message WHERE id = ?", array($id));
+		return $pm;
+	}
+	
+	private function remove_pm() {
+		global $database;
+		foreach($_POST['id'] as $id) {
+			$database->execute("UPDATE private_message SET status = 'd' WHERE id = ?", array($id));
+		}
+	}
+	
+	private function real_delete_pm() {
+		global $user, $database;
+		$database->execute("DELETE FROM private_message WHERE to_id = ? AND status = 'd'", array($user->id));
+	}
+	
+	private function save_pm() {
+		global $database;
+		foreach($_POST['id'] as $id) {
+			$database->execute("UPDATE private_message SET status = 's' WHERE id = ?", array($id));
+		}
+	}
+	
+	private function undone_pm() {
+		global $database;
+		foreach($_POST['id'] as $id) {
+			$database->execute("UPDATE private_message SET status = 'r' WHERE id = ?", array($id));
+		}
+	}
+	
+	private function get_inbox($user, $status) {
+		global $database;
+		$arr = $database->get_all("
+			SELECT private_message.*,user_from.name AS from_name
+			FROM private_message
+			JOIN users AS user_from ON user_from.id=from_id
+			WHERE to_id = ? AND status IN (?)
+			", array($user->id, $status));
+			
+		return $arr;
+	}
+	
+	private function get_outbox($user) {
+		global $database;
+		$arr = $database->get_all("
+			SELECT private_message.*,user_to.name AS to_name
+			FROM private_message
+			JOIN users AS user_to ON user_to.id=to_id
+			WHERE from_id = ?
+			", array($user->id));
+			
+		return $arr;
+	}
+		
+	private function get_count_unread($user) {
+		global $database;
+		$arr = $database->db->GetOne("SELECT COUNT(*) FROM private_message WHERE to_id = ? AND status = 'u'", array($user->id));
+		return $arr;
 	}
 // }}}
 }
