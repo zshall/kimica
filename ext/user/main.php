@@ -170,26 +170,44 @@ class UserPage extends SimpleExtension {
 			else if($event->get_arg(0) == "messages") {
 				switch ($event->get_arg(1)) {
 					case "new":
-						$duser = User::by_id($event->get_arg(2));
-						$this->theme->display_composer($page, $duser);
+						$user_id = $event->get_arg(2);
+						if(!is_null($user_id)){
+							$duser = User::by_id($user_id);
+							$user_name = $duser->name;
+						}
+						else{
+							$user_name = NULL;
+						}
+						$this->theme->display_composer($page, $user_name);
 						break;
 					case "inbox":
-						$this->theme->display_inbox($page, $this->get_inbox($user, "r, u"), "inbox");
+						$this->theme->display_inbox($page, $this->get_inbox($user, "'r','u'"), "inbox");
 						break;
 					case "outbox":
 						$this->theme->display_outbox($page, $this->get_outbox($user));
 						break;
 					case "saved":
-						$this->theme->display_inbox($page, $this->get_inbox($user, "s"), "saved");
+						$this->theme->display_inbox($page, $this->get_inbox($user, "'s'"), "saved");
 						break;
 					case "deleted":
-						$this->theme->display_inbox($page, $this->get_inbox($user, "d"), "deleted");
+						$this->theme->display_inbox($page, $this->get_inbox($user, "'d'"), "deleted");
 						break;
 					case "view":
-						$message = $this->view_pm($event->get_arg(2));
+						$pm_id = $event->get_arg(2);
+					
+						$message = $this->view_pm($pm_id);
 						$this->theme->display_viewer($page, $message["subject"], $message["message"]);
-						$duser = User::by_id($message["from_id"]);
-						$this->theme->display_composer($page, $duser, $message["subject"]);
+						
+						$user_id = $message["from_id"];
+						
+						if(!is_null($user_id)){
+							$duser = User::by_id($user_id);
+							$user_name = $duser->name;
+						}
+						else{
+							$user_name = NULL;
+						}
+						$this->theme->display_composer($page, $user_name, $message["subject"]);
 						break;
 					case "empty":
 						$this->real_delete_pm($user);
@@ -212,12 +230,9 @@ class UserPage extends SimpleExtension {
 								$this->undone_pm();
 							break;
 						}
-						$page->set_mode("redirect");
-						$page->set_redirect(make_link("account/messages"));
-						break;
 					default:
 						$page->set_mode("redirect");
-						$page->set_redirect(make_link("account/messages"));
+						$page->set_redirect(make_link("account/messages/inbox"));
 						break;
 				}
 				$this->theme->display_sidebar($page, $this->get_count_unread($user));
@@ -632,12 +647,14 @@ class UserPage extends SimpleExtension {
 // }}}
 // private messages {{{
 	private function add_pm() {
-		global $user, $database;
+		global $database;
 		
-		$to_id = $_POST["to_id"];
+		$to = $_POST["to"];
 		$subject = $_POST["subject"];
 		$message = $_POST["message"];
 		$priority = $_POST["message"];
+		
+		$user = User::by_name($to);
 		
 		$priority = "n";
 		if(in_array($_POST["priority"], array("l","n","h"))){
@@ -651,9 +668,9 @@ class UserPage extends SimpleExtension {
 					from_id, from_ip, to_id,
 					sent_date, subject, message, priority)
 				VALUES(?, ?, ?, now(), ?, ?, ?)",
-			array($user->id, $ip,	$to_id, $subject, $message, $priority)
+			array($user->id, $ip, $user->id, $subject, $message, $priority)
 		);
-		log_info("pm", "Sent PM to User #{$event->pm->to_id}");
+		log_info("pm", "Sent PM to User #{$user->id}");
 	}
 	
 	private function view_pm($id) {
@@ -695,8 +712,8 @@ class UserPage extends SimpleExtension {
 			SELECT private_message.*,user_from.name AS from_name
 			FROM private_message
 			JOIN users AS user_from ON user_from.id=from_id
-			WHERE to_id = ? AND status IN (?)
-			", array($user->id, $status));
+			WHERE to_id = ? AND private_message.status IN (".$status.")
+			", array($user->id));
 			
 		return $arr;
 	}

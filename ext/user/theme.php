@@ -280,25 +280,29 @@ class UserPageTheme extends Themelet {
 		$page->add_block(new Block("Message:".$subject, $message, "main", 10));
 	}
 	
-	public function display_composer(Page $page, $duser, $subject = NULL) {
+	public function display_composer(Page $page, $user_name = NULL, $subject = NULL) {
 		$title = "";
 		if(isset($subject)){
 			$subject = "Re:".$subject;
 		}
 		
-		$html = "
-			<form method='POST' action=".make_link("account/messages/action").">
-				<input type='hidden' name='to_id' value='{$duser->id}'>
-				<table style='width: 500px;'>
-					<tbody>
-						<tr><td>Priority:</td><td><select name='priority'><option value='l'>Low</option><option value='n' selected='selected'>Normal</option><option value='h'>High</option></select></td></tr>
-						<tr><td>Subject:</td><td><input type='text' value='{$subject}' name='subject'></td></tr>
-						<tr><td>Message:</td><td><textarea rows='10' name='message'></textarea>
-						<tr><td colspan='2'><input type='submit' name='action' value='Send'></td></tr>
-					</tbody>
-				</table>
-				</form>
-		";
+		$html = "<form method='POST' action=".make_link("account/messages/action").">";
+		if(!is_null($user_name)){
+			$html .="<input type='hidden' name='to' value='{$user_name}'>";
+		}
+		$html .="<table style='width: 500px;'>";
+		$html .="<tbody>";
+		if(is_null($user_name)){
+			$html .= "<tr><td>To:</td><td><input type='text' value='{$user_name}' name='to'></td></tr>";
+		}
+		$html .= "<tr><td>Priority:</td><td><select name='priority'><option value='l'>Low</option><option value='n' selected='selected'>Normal</option><option value='h'>High</option></select></td></tr>";
+		$html .= "<tr><td>Subject:</td><td><input type='text' value='{$subject}' name='subject'></td></tr>";
+		$html .= "<tr><td>Message:</td><td><textarea rows='10' name='message'></textarea>";
+		$html .= "<tr><td colspan='2'><input type='submit' name='action' value='Send'></td></tr>";
+		$html .= "</tbody>";
+		$html .= "</table>";
+		$html .= "</form>";
+		
 		$page->add_block(new Block("New Message", $html, "main", 20));
 	}
 		
