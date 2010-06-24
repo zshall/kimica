@@ -32,6 +32,10 @@ class UserPageTheme extends Themelet {
 		}
 		$page->add_block(new Block("User Links", $html, "left", 90));
 	}
+	
+	public function display_user_links(Page $page, User $user, $parts) {
+                # $page->add_block(new Block("User Links", join(", ", $parts), "main", 10));
+    }
 
 	public function display_validation_page(Page $page) {
 		global $config;
