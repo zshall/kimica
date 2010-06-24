@@ -196,7 +196,7 @@ class UserPrefsSetup extends SimpleExtension {
 
 	public function onPageRequest($event) {
 		global $prefs_setup, $page, $user, $database;
-		if($event->page_matches("preferences")) { // Ah-ha! Here's how we do it.
+		if($event->page_matches("account/preferences")) { // Ah-ha! Here's how we do it.
 			if($event->get_arg(0) == NULL) {
 				$display_user = User::by_name($user->name);
 			} else {
