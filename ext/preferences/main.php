@@ -203,10 +203,10 @@ class UserPrefsSetup extends SimpleExtension {
 				$display_user = User::by_name($event->get_arg(0)); 
 			}
 			
-			if(is_null($display_user)) { $this->theme->display_error($page, ";_;", "Did you enter a proper username?"); } else {
+			if(is_null($display_user)) { $this->theme->display_error($page, "Error", "Wrong username"); } else {
 				$GLOBALS['uid-preferences'] = int_escape($display_user->id); // Need this first.
 				$user_id_preferences = $GLOBALS['uid-preferences'];
-				if($user->id != $user_id_preferences && !$user->is_admin()) { $this->theme->display_error($page, ";_;", "Who do you think you are?"); }
+				if($user->id != $user_id_preferences && !$user->is_admin()) { $this->theme->display_error($page, "Error", "You don't have privileges"); }
 				else {
 				if($user->is_anonymous()) {
 					$this->theme->display_permission_denied($page);
