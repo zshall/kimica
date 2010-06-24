@@ -371,6 +371,8 @@ class UserPageTheme extends Themelet {
 			</form>
 		";
 		
+		$page->set_title("Messages");
+		$page->set_heading(ucfirst($inbox));
 		$page->add_block(new Block("Private Messages", $html, "main", 10));
 	}
 	
@@ -406,6 +408,9 @@ class UserPageTheme extends Themelet {
 			</table>
 			</form>
 		";
+		
+		$page->set_title("Messages");
+		$page->set_heading("Outbox");
 		$page->add_block(new Block("Private Messages", $html, "main", 10));
 	}
 // }}}

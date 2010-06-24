@@ -29,6 +29,8 @@ class AdminPageTheme extends Themelet {
 				<input type='submit' value='Go'>
 			</form>
 		";
+		$page->set_title("Admin Tools");
+		$page->set_heading("Admin Tools");
 		$page->add_block(new Block("Misc Admin Tools", $html));
 	}
 }

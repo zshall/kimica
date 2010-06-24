@@ -215,9 +215,9 @@ class TagEdit implements Extension {
 		if($event instanceof ImageInfoSetEvent) {
 			if($this->can_tag($event->image)) {
 				send_event(new TagSetEvent($event->image, $_POST['tag_edit__tags']));
-			}
-			else if($this->can_source($event->image)) {
-				send_event(new SourceSetEvent($event->image, $_POST['tag_edit__source']));
+				if($this->can_source($event->image)) {
+					send_event(new SourceSetEvent($event->image, $_POST['tag_edit__source']));
+				}
 			}
 			else {
 				$this->theme->display_error($page, "Error", "Anonymous tag editing is disabled");

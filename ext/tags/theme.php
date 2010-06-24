@@ -188,6 +188,8 @@ class TagListTheme extends Themelet {
 			</table>
 		</form>
 		";
+		$page->set_title("Tag Tools");
+		$page->set_heading("Tag Tools");
 		$page->add_block(new Block("Mass Tag Edit", $html));
 	}
 	
@@ -201,6 +203,8 @@ class TagListTheme extends Themelet {
 			</table>
 		</form>
 		";
+		$page->set_title("Tag Tools");
+		$page->set_heading("Tag Tools");
 		$page->add_block(new Block("Mass Source Edit", $html));
 	}
 }
