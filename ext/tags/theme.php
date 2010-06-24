@@ -207,5 +207,52 @@ class TagListTheme extends Themelet {
 		$page->set_heading("Tag Tools");
 		$page->add_block(new Block("Mass Source Edit", $html));
 	}
+	
+	public function display_history_editor(Page $page, $image_id = NULL, $history) {
+		global $user;
+		$start_string = "
+			<div style='text-align: left'>
+				<form enctype='multipart/form-data' action='".make_link("tags/histories/revert")."' method='POST'>
+					<ul style='list-style-type:none;'>
+		";
+
+		$history_list = "";
+		$n = 0;
+		foreach($history as $fields)
+		{
+			$n++;
+			$current_id = $fields['id'];
+			$current_tags = html_escape($fields['tags']);
+			$name = $fields['name'];
+			$setter = "<a href='".make_link("user/".url_escape($name))."'>".html_escape($name)."</a>";
+			if($user->is_admin()) {
+				$setter .= " / " . $fields['user_ip'];
+			}
+			$selected = ($n == 2) ? " checked" : "";
+			$history_list .= "
+				<li>
+					<input type='radio' name='revert' id='$current_id' value='$current_id'$selected>
+					<label for='$current_id'>$current_tags (Set by $setter)</label>
+				</li>\n";
+		}
+
+		$end_string = "
+					</ul>
+					<input type='submit' value='Revert'>
+				</form>
+			</div>
+		";
+		$history_html = $start_string . $history_list . $end_string;
+		
+		$heading = "Tag History";
+		if(!is_null($image_id)){
+			$heading = "Tag History: Image $image_id";
+		}
+		
+		$page->set_title($heading);
+		$page->set_heading($heading);
+		$page->add_block(new NavBlock());
+		$page->add_block(new Block("Tag History", $history_html, "main", 10));
+	}
 }
 ?>

@@ -9,7 +9,7 @@ class TagList implements Extension {
 	var $theme = null;
 
 // event handling {{{
-	public function receive_event(Event $event) {
+public function receive_event(Event $event) {
 		global $config, $database, $page, $user;
 		if($this->theme == null) $this->theme = get_theme_object($this);
 
@@ -43,6 +43,28 @@ class TagList implements Extension {
 					$this->theme->set_heading("Popular Categories");
 					$this->theme->set_tag_list($this->build_tag_categories());
 					$this->theme->display_page($page);
+					break;
+				case 'histories':
+					if(!$config->get_bool('tag_history_enabled')) {
+						$page->set_mode("redirect");
+						$page->set_redirect(make_link("post/list"));
+					}
+					
+					switch($event->get_arg(1)) {
+						case 'revert':
+								// this is a request to revert to a previous version of the tags
+								if($config->get_bool("tag_edit_anon") || !$user->is_anonymous()) {
+									$this->process_revert_request($_POST['revert']);
+								}
+							break;
+						case 'view':
+								$image_id = $event->get_arg(2);
+								$this->theme->display_history_editor($page, $image_id, $this->get_tag_history_from_id($image_id));
+							break;
+						default:
+							$this->theme->display_history_editor($page, NULL, $this->get_global_tag_history());
+							break;
+					}
 					break;
 				case 'banned':
 					switch($event->get_arg(1)) {
@@ -145,7 +167,17 @@ class TagList implements Extension {
 				}
 			}
 		}
-
+		
+		if(($event instanceof TagSetEvent)) {
+			if($config->get_bool('tag_history_enabled')) {
+				$this->add_tag_history($event->image, $event->tags);
+			}
+		}
+		
+		if($event instanceof ImageDeletionEvent) {
+			$this->delete_all_tag_history($event->image->id());
+		}
+			
 		if($event instanceof SetupBuildingEvent) {
 			$sb = new SetupBlock("Tag Map Options");
 			$sb->add_int_option("tags_min", "Only show tags used at least "); $sb->add_label(" times");
@@ -159,6 +191,14 @@ class TagList implements Extension {
 				"Show related" => "related"
 			), "<br>Image tag list: ");
 			$sb->add_bool_option("tag_list_numbers", "<br>Show tag counts: ");
+			$event->panel->add_block($sb);
+			
+			$sb = new SetupBlock("Tag History");
+			$sb->add_bool_option("tag_history_enabled", "Enable Tag History: ");
+			$sb->add_label("<br>Limit to ");
+			$sb->add_int_option("history_limit");
+			$sb->add_label(" entires per image");
+			$sb->add_label("<br>(-1 for unlimited)");
 			$event->panel->add_block($sb);
 		}
 	}
@@ -586,6 +626,130 @@ class TagList implements Extension {
 			}
 			$n += 100;
 		}
+	}
+// }}}
+// {{{ Tag Histories
+	public function get_global_tag_history()
+	{
+		global $database;
+		$row = $database->get_all("
+				SELECT tag_histories.*, users.name
+				FROM tag_histories
+				JOIN users ON tag_histories.user_id = users.id
+				ORDER BY tag_histories.id DESC
+				LIMIT 100");
+		return ($row ? $row : array());
+	}
+	
+	public function get_tag_history_from_id($image_id)
+	{
+		global $database;
+		$row = $database->get_all("
+				SELECT tag_histories.*, users.name
+				FROM tag_histories
+				JOIN users ON tag_histories.user_id = users.id
+				WHERE image_id = ?
+				ORDER BY tag_histories.id DESC",
+				array($image_id));
+		return ($row ? $row : array());
+	}
+	
+	public function get_tag_history_from_revert($revert_id)
+	{
+		global $database;
+		$row = $database->execute("
+				SELECT tag_histories.*, users.name
+				FROM tag_histories
+				JOIN users ON tag_histories.user_id = users.id
+				WHERE tag_histories.id = ?", array($revert_id));
+		return ($row ? $row : null);
+	}
+	
+	/*
+	 * this function is called just before an images tag are changed
+	 */
+	private function add_tag_history($image, $tags)
+	{
+		global $database;
+		global $config;
+		global $user;
+
+		$new_tags = Tag::implode($tags);
+		$old_tags = Tag::implode($image->get_tag_array());
+		log_debug("tag_history", "adding tag history: [$old_tags] -> [$new_tags]");
+		
+		if($new_tags == $old_tags) return;
+
+		// add a history entry		
+		$allowed = $config->get_int("history_limit");
+		if($allowed == 0) return;
+
+		$row = $database->execute("
+				INSERT INTO tag_histories(image_id, tags, user_id, user_ip, date_set)
+				VALUES (?, ?, ?, ?, now())",
+				array($image->id, $new_tags, $user->id, $_SERVER['REMOTE_ADDR']));
+		
+		// if needed remove oldest one
+		if($allowed == -1) return;
+		$entries = $database->db->GetOne("SELECT COUNT(*) FROM tag_histories WHERE image_id = ?", array($image->id));
+		if($entries > $allowed)
+		{
+			// TODO: Make these queries better
+			$min_id = $database->db->GetOne("SELECT MIN(id) FROM tag_histories WHERE image_id = ?", array($image->id));
+			$database->execute("DELETE FROM tag_histories WHERE id = ?", array($min_id));
+		}
+	}
+	
+	/*
+	 * this function is called when a revert request is received
+	 */
+	private function process_revert_request($revert_id)
+	{
+		global $page;
+		// check for the nothing case
+		if($revert_id=="nothing")
+		{
+			// tried to set it too the same thing so ignore it (might be a bot)
+			// go back to the index page with you
+			$page->set_mode("redirect");
+			$page->set_redirect(make_link());
+			return;
+		}
+		
+		$revert_id = int_escape($revert_id);
+		
+		// lets get this revert id assuming it exists
+		$result = $this->get_tag_history_from_revert($revert_id);
+		
+		if($result==null)
+		{
+			// there is no history entry with that id so either the image was deleted
+			// while the user was viewing the history, someone is playing with form
+			// variables or we have messed up in code somewhere.
+			die("Error: No tag history with specified id was found.");
+		}
+		
+		// lets get the values out of the result
+		$stored_result_id = $result->fields['id'];
+		$stored_image_id = $result->fields['image_id'];
+		$stored_tags = $result->fields['tags'];
+		
+		log_debug("tag_history", "Reverting tags of $stored_image_id to [$stored_tags]");
+		// all should be ok so we can revert by firing the SetUserTags event.
+		send_event(new TagSetEvent(Image::by_id($stored_image_id), $stored_tags));
+		
+		// all should be done now so redirect the user back to the image
+		$page->set_mode("redirect");
+		$page->set_redirect(make_link("post/view/$stored_image_id"));
+	}
+	
+	/*
+	 * this function is called when an image has been deleted
+	 */
+	private function delete_all_tag_history($image_id)
+	{
+		global $database;
+		$database->execute("DELETE FROM tag_histories WHERE image_id = ?", array($image_id));
 	}
 // }}}
 }
