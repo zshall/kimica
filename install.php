@@ -277,7 +277,7 @@ function create_tables($dsn) { // {{{
 			from_ip SCORE_INET NOT NULL,
 			to_id INTEGER NOT NULL,
 			sent_date DATETIME NOT NULL,
-			subject VARCHAR(64) NOT NULL,
+			subject VARCHAR(128) NOT NULL,
 			message TEXT NOT NULL,
 			status ENUM('r', 'u', 's', 'd') NOT NULL DEFAULT 'u',
 			priority ENUM('l', 'n', 'h') NOT NULL DEFAULT 'n',

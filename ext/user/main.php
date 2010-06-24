@@ -171,7 +171,7 @@ class UserPage extends SimpleExtension {
 				switch ($event->get_arg(1)) {
 					case "new":
 						$user_id = $event->get_arg(2);
-						if(!isset($user_id)){
+						if(!is_null($user_id)){
 							$duser = User::by_id($user_id);
 							$user_name = $duser->name;
 						}
@@ -195,8 +195,8 @@ class UserPage extends SimpleExtension {
 					case "view":
 						$pm_id = $event->get_arg(2);
 					
-						$message = $this->view_pm($pm_id);
-						$this->theme->display_viewer($page, $message["subject"], $message["message"]);
+						$message = $this->view_message($user, $pm_id);
+						$this->theme->display_messages_viewer($page, $message["subject"], $message["message"]);
 						
 						$user_id = $message["from_id"];
 						
@@ -207,29 +207,32 @@ class UserPage extends SimpleExtension {
 						else{
 							$user_name = NULL;
 						}
-						$this->theme->display_composer($page, $user_name, $message["subject"]);
+						$this->theme->display_composer($page, $user_name, $message["subject"], $message["message"]);
 						break;
 					case "empty":
-						$this->real_delete_pm($user);
+						$this->real_delete_message($user);
 						$page->set_mode("redirect");
-						$page->set_redirect(make_link("account/messages"));
+						$page->set_redirect(make_link("account/messages/inbox"));
 						break;
 					case "action":
 						switch ($_POST["action"]) {
 							case "Send":
-								$this->add_pm();
+								$this->add_message();
 							break;
 							case "Save":
-								$this->save_pm();
+								$this->save_message();
 							break;
 							case "Delete":
-								$this->remove_pm();
+								$this->remove_message();
 							break;
 							case "Un-Save":
 							case "Un-Delete":
-								$this->undone_pm();
+								$this->undone_message();
 							break;
 						}
+						$page->set_mode("redirect");
+						$page->set_redirect(make_link("account/messages/inbox"));
+						break;
 					case "complete":
 						if(isset($_GET['s'])) {
 							$all = $database->get_all(
@@ -249,7 +252,7 @@ class UserPage extends SimpleExtension {
 						$page->set_redirect(make_link("account/messages/inbox"));
 						break;
 				}
-				$this->theme->display_sidebar($page, $this->get_count_unread($user));
+				$this->theme->display_messages_sidebar($page, $this->get_count_unread($user));
 			}
 		}
 
@@ -329,9 +332,16 @@ class UserPage extends SimpleExtension {
 
 		$event->panel->add_block($sb);
 	}
+	
+	public function onPrefBuilding(Event $event) {
+			$pb = new PrefBlock("Email Options");
+			$pb->add_bool_option("send_mail_messages", "Notify Me On New Message: ");
+			$event->panel->add_block($pb);
+		}
 
 	public function onUserBlockBuilding(Event $event) {
 		global $user;
+		$event->add_link("Messages", make_link("account/messages/inbox"));
 		$event->add_link("My Profile", make_link("user/$user->name"));
 		$event->add_link("Log Out", make_link("account/logout"), 99);
 	}
@@ -530,8 +540,7 @@ class UserPage extends SimpleExtension {
 			$duser = User::by_id($id);
 
 			if((!$user->is_admin()) && ($duser->name != $user->name)) {
-				$this->theme->display_error($page, "Error",
-						"You need to be an admin to change other people's passwords");
+				$this->theme->display_error($page, "Error", "You need to be an admin to change other people's passwords");
 			}
 			else if($pass1 != $pass2) {
 				$this->theme->display_error($page, "Error", "Passwords don't match");
@@ -542,13 +551,10 @@ class UserPage extends SimpleExtension {
 
 				if($id == $user->id) {
 					$this->set_login_cookie($duser->name, $pass1);
-					$page->set_mode("redirect");
-					$page->set_redirect(make_link("user"));
 				}
-				else {
-					$page->set_mode("redirect");
-					$page->set_redirect(make_link("user/{$duser->name}"));
-				}
+				
+				$page->set_mode("redirect");
+				$page->set_redirect(make_link("user/{$duser->name}"));
 			}
 		}
 	}
@@ -578,14 +584,8 @@ class UserPage extends SimpleExtension {
 			else {
 				$duser->set_email($address);
 
-				if($id == $user->id) {
-					$page->set_mode("redirect");
-					$page->set_redirect(make_link("user"));
-				}
-				else {
-					$page->set_mode("redirect");
-					$page->set_redirect(make_link("user/{$duser->name}"));
-				}
+				$page->set_mode("redirect");
+				$page->set_redirect(make_link("user/{$duser->name}"));
 			}
 		}
 	}
@@ -617,12 +617,7 @@ class UserPage extends SimpleExtension {
 					else{
 						$duser->set_role($role);
 						$page->set_mode("redirect");
-						if($duser->id == $user->id) {
-							$page->set_redirect(make_link("user"));
-						}
-						else {
-							$page->set_redirect(make_link("user/{$duser->name}"));
-						}
+						$page->set_redirect(make_link("user/{$duser->name}"));
 					}
 				}
 			} else {
@@ -661,16 +656,19 @@ class UserPage extends SimpleExtension {
 	
 // }}}
 // private messages {{{
-	private function add_pm() {
-		global $database;
+	private function add_message() {
+		global $user, $database;
 		
 		$to = $_POST["to"];
 		$subject = $_POST["subject"];
 		$message = $_POST["message"];
 		$priority = $_POST["message"];
 		
-		$user = User::by_name($to);
+		$duser = User::by_name($to);
+		$prefs = Prefs::by_id($duser->id);
 		
+		$send_email = $prefs->get_bool("send_mail_messages");
+			
 		$priority = "n";
 		if(in_array($_POST["priority"], array("l","n","h"))){
 			$priority = $_POST["priority"];
@@ -683,38 +681,52 @@ class UserPage extends SimpleExtension {
 					from_id, from_ip, to_id,
 					sent_date, subject, message, priority)
 				VALUES(?, ?, ?, now(), ?, ?, ?)",
-			array($user->id, $ip, $user->id, $subject, $message, $priority)
+			array($user->id, $ip, $duser->id, $subject, $message, $priority)
 		);
 		log_info("pm", "Sent PM to User #{$user->id}");
+		
+		$insert = $database->get_row("SELECT LAST_INSERT_ID() AS id", array());
+		
+		if($send_email){
+			$link = make_http(make_link("account/messages/view/".$insert["id"]));
+			$view_link = '<a href="'.$link.'">Answer</a>';
+		
+			$email = new Email($duser->email, "New Message", "New Message", "You got a new message from $user->name.<br><br>Subject: $subject<br>Message: $message<br><br>".$view_link);
+			$sent = $email->send();
+		}
 	}
 	
-	private function view_pm($id) {
+	private function view_message($user, $id) {
 		global $database;
-		$database->execute("UPDATE private_message SET status = 'r' WHERE id = ?", array($id));
-		$pm = $database->get_row("SELECT * FROM private_message WHERE id = ?", array($id));
+		$owner = $database->get_row("SELECT to_id FROM private_message WHERE id = ?", array($id));
+		$pm = NULL;
+		if($owner["to_id"] == $user->id || $user->is_admin()){
+			$database->execute("UPDATE private_message SET status = 'r' WHERE id = ?", array($id));
+			$pm = $database->get_row("SELECT * FROM private_message WHERE id = ?", array($id));
+		}
 		return $pm;
 	}
 	
-	private function remove_pm() {
+	private function remove_message() {
 		global $database;
 		foreach($_POST['id'] as $id) {
 			$database->execute("UPDATE private_message SET status = 'd' WHERE id = ?", array($id));
 		}
 	}
 	
-	private function real_delete_pm() {
+	private function real_delete_message() {
 		global $user, $database;
 		$database->execute("DELETE FROM private_message WHERE to_id = ? AND status = 'd'", array($user->id));
 	}
 	
-	private function save_pm() {
+	private function save_message() {
 		global $database;
 		foreach($_POST['id'] as $id) {
 			$database->execute("UPDATE private_message SET status = 's' WHERE id = ?", array($id));
 		}
 	}
 	
-	private function undone_pm() {
+	private function undone_message() {
 		global $database;
 		foreach($_POST['id'] as $id) {
 			$database->execute("UPDATE private_message SET status = 'r' WHERE id = ?", array($id));
@@ -728,7 +740,7 @@ class UserPage extends SimpleExtension {
 			FROM private_message
 			JOIN users AS user_from ON user_from.id=from_id
 			WHERE to_id = ? AND private_message.status IN (".$status.")
-			", array($user->id));
+			ORDER BY private_message.sent_date DESC", array($user->id));
 			
 		return $arr;
 	}
@@ -740,7 +752,7 @@ class UserPage extends SimpleExtension {
 			FROM private_message
 			JOIN users AS user_to ON user_to.id=to_id
 			WHERE from_id = ?
-			", array($user->id));
+			ORDER BY private_message.sent_date DESC", array($user->id));
 			
 		return $arr;
 	}

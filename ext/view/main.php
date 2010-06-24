@@ -222,6 +222,18 @@ class TagEdit implements Extension {
 					$page->set_redirect(make_link("admin"));
 				}
 			}
+			
+			if($event->get_arg(0) == "replace") {
+				if($event->get_arg(1) == "source") {
+					if($user->is_admin() && isset($_POST['search']) && isset($_POST['source'])) {
+						$search = $_POST['search'];
+						$source = $_POST['source'];
+						$this->mass_source_edit($search, $source);
+						$page->set_mode("redirect");
+						$page->set_redirect(make_link("admin"));
+					}
+				}
+			}
 		}
 
 		if($event instanceof ImageInfoSetEvent) {
@@ -251,11 +263,7 @@ class TagEdit implements Extension {
 		if($event instanceof ImageDeletionEvent) {
 			$event->image->delete_tags_from_image();
 		}
-
-		if($event instanceof AdminBuildingEvent) {
-			$this->theme->display_mass_editor($page);
-		}
-
+		
 		// When an alias is added, oldtag becomes inaccessable
 		if($event instanceof AddAliasEvent) {
 			$this->mass_tag_edit($event->oldtag, $event->newtag);
@@ -332,6 +340,22 @@ class TagEdit implements Extension {
 
 				$last_id = $image->id;
 			}
+		}
+	}
+	
+	private function mass_source_edit($search, $source) {
+		global $database;
+		
+		$search_set = Tag::explode($search);
+		
+		$n = 0;
+		while(true) {
+			$images = Image::find_images($n, 100, $search_set);
+			if(count($images) == 0) break;
+			foreach($images as $image) {
+				$image->set_source($source);
+			}
+			$n += 100;
 		}
 	}
 }

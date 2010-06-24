@@ -261,7 +261,7 @@ class UserPageTheme extends Themelet {
 	}
 	
 	
-	public function display_sidebar(Page $page, $unread) {
+	public function display_messages_sidebar(Page $page, $unread) {
 		
 		$html = "<a href='".make_link("account/messages/new")."'>New</a><br><br>";
 		$html .= "<a href='".make_link("account/messages/inbox")."'>Inbox (".$unread.")</a><br>";
@@ -272,7 +272,7 @@ class UserPageTheme extends Themelet {
 		$page->add_block(new Block("Messages", $html, "left", 10));
 	}
 	
-	public function display_viewer(Page $page, $subject, $message) {
+	public function display_messages_viewer(Page $page, $subject, $message) {
 		$tfe = new TextFormattingEvent($message);
         send_event($tfe);
         $message = $tfe->formatted;
@@ -280,10 +280,14 @@ class UserPageTheme extends Themelet {
 		$page->add_block(new Block("Message:".$subject, $message, "main", 10));
 	}
 	
-	public function display_composer(Page $page, $user_name = NULL, $subject = NULL) {
+	public function display_composer(Page $page, $user_name = NULL, $subject = NULL, $message = NULL) {
 		$title = "";
 		if(isset($subject)){
 			$subject = "Re:".$subject;
+		}
+		
+		if(isset($message)){
+			$message = "[quote=".$user_name."]".$message."[/quote]";
 		}
 		
 		$html = "<form method='POST' action=".make_link("account/messages/action").">";
@@ -312,7 +316,7 @@ class UserPageTheme extends Themelet {
 		}
 		$html .= "<tr><td>Priority:</td><td><select name='priority'><option value='l'>Low</option><option value='n' selected='selected'>Normal</option><option value='h'>High</option></select></td></tr>";
 		$html .= "<tr><td>Subject:</td><td><input type='text' value='{$subject}' name='subject'></td></tr>";
-		$html .= "<tr><td>Message:</td><td><textarea rows='10' name='message'></textarea>";
+		$html .= "<tr><td>Message:</td><td><textarea rows='10' name='message'>$message</textarea>";
 		$html .= "<tr><td colspan='2'><input type='submit' name='action' value='Send'></td></tr>";
 		$html .= "</tbody>";
 		$html .= "</table>";

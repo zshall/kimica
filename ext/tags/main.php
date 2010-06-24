@@ -27,18 +27,22 @@ class TagList implements Extension {
 				case 'map':
 					$this->theme->set_heading("Tag Map");
 					$this->theme->set_tag_list($this->build_tag_map());
+					$this->theme->display_page($page);
 					break;
 				case 'alphabetic':
 					$this->theme->set_heading("Alphabetic Tag List");
 					$this->theme->set_tag_list($this->build_tag_alphabetic());
+					$this->theme->display_page($page);
 					break;
 				case 'popularity':
 					$this->theme->set_heading("Tag List by Popularity");
 					$this->theme->set_tag_list($this->build_tag_popularity());
+					$this->theme->display_page($page);
 					break;
 				case 'categories':
 					$this->theme->set_heading("Popular Categories");
 					$this->theme->set_tag_list($this->build_tag_categories());
+					$this->theme->display_page($page);
 					break;
 				case 'banned':
 					switch($event->get_arg(1)) {
@@ -60,8 +64,46 @@ class TagList implements Extension {
 							break;
 					}
 					break;
+				case 'tools':
+						if($user->is_admin()){
+							$this->theme->display_mass_editor($page);
+							$this->theme->display_source_editor($page);
+						}
+						else{
+							$page->set_mode("redirect");
+							$page->set_redirect(make_link("tags/list"));
+						}
+					break;
+				case 'replace':
+					if($user->is_admin()){
+						switch($event->get_arg(1)) {
+							case 'tags':
+									if(isset($_POST['search']) && isset($_POST['replace'])) {
+										$search = $_POST['search'];
+										$replace = $_POST['replace'];
+										$this->mass_tag_edit($search, $replace);
+										$page->set_mode("redirect");
+										$page->set_redirect(make_link("tags/tools"));
+									}
+								break;
+							case 'source':
+									if(isset($_POST['search']) && isset($_POST['source'])) {
+										$search = $_POST['search'];
+										$source = $_POST['source'];
+										$this->mass_source_edit($search, $source);
+										$page->set_mode("redirect");
+										$page->set_redirect(make_link("tags/tools"));
+									}
+								break;
+						}
+					}
+					else{
+						$page->set_mode("redirect");
+						$page->set_redirect(make_link("tags/list"));
+					}
+					break;
 			}
-			$this->theme->display_page($page);
+			$this->theme->display_navigation($page);
 		}
 
 		if(($event instanceof PageRequestEvent) && $event->page_matches("api/internal/tag_list/complete")) {
@@ -75,6 +117,11 @@ class TagList implements Extension {
 			$page->set_mode("data");
 			$page->set_type("text/plain");
 			$page->set_data(implode("\n", $res));
+		}
+		
+		if($event instanceof AdminBuildingEvent) {
+			$this->theme->display_mass_editor($page);
+			$this->theme->display_source_editor($page);
 		}
 
 		if($event instanceof PostListBuildingEvent) {
@@ -145,9 +192,12 @@ class TagList implements Extension {
 		if($user->is_mod()){
 			$h_bans = "<a href='".make_link("tags/banned")."'>Banned</a><br>";
 		}
+		if($user->is_admin()){
+			$h_tools = "<a href='".make_link("tags/tools")."'>Tools</a><br>";
+		}
 		$h_all = "<a href='?mincount=1'>Show All</a>";
 		
-		return "$h_index<br>&nbsp;<br>$h_map<br>$h_alphabetic<br>$h_popularity<br>$h_cats<br>$h_bans&nbsp;<br>$h_all";
+		return "$h_index<br>&nbsp;<br>$h_map<br>$h_alphabetic<br>$h_popularity<br>$h_cats<br>$h_bans&nbsp;$h_tools<br>$h_all";
 	}
 
 	private function build_tag_map() {
@@ -478,6 +528,63 @@ class TagList implements Extension {
 			if(count($related_tags) > 0) {
 				$this->theme->display_refine_block($page, $related_tags, $wild_tags);
 			}
+		}
+	}
+// }}}
+// {{{ Mass Editor
+	private function mass_tag_edit($search, $replace) {
+		global $database;
+		global $config;
+
+		$search_set = Tag::explode($search);
+		$replace_set = Tag::explode($replace);
+
+		$last_id = -1;
+		while(true) {
+			// make sure we don't look at the same images twice.
+			// search returns high-ids first, so we want to look
+			// at images with lower IDs than the previous.
+			$search_forward = $search_set;
+			if($last_id >= 0) $search_forward[] = "id<$last_id";
+
+			$images = Image::find_images(0, 100, $search_forward);
+			if(count($images) == 0) break;
+
+			foreach($images as $image) {
+				// remove the search'ed tags
+				$before = $image->get_tag_array();
+				$after = array();
+				foreach($before as $tag) {
+					if(!in_array($tag, $search_set)) {
+						$after[] = $tag;
+					}
+				}
+
+				// add the replace'd tags
+				foreach($replace_set as $tag) {
+					$after[] = $tag;
+				}
+
+				$image->set_tags($after);
+
+				$last_id = $image->id;
+			}
+		}
+	}
+	
+	private function mass_source_edit($search, $source) {
+		global $database;
+		
+		$search_set = Tag::explode($search);
+		
+		$n = 0;
+		while(true) {
+			$images = Image::find_images($n, 100, $search_set);
+			if(count($images) == 0) break;
+			foreach($images as $image) {
+				$image->set_source($source);
+			}
+			$n += 100;
 		}
 	}
 // }}}

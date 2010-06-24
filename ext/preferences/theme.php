@@ -42,7 +42,7 @@ class UserPrefsSetupTheme extends Themelet {
 		}
 
 		$table = "
-			<form action='".make_link("preferences/$username/save")."' method='POST'><table>
+			<form action='".make_link("account/preferences/$username/save")."' method='POST'><table>
 			<tr><td>$prefblock_html1</td><td>$prefblock_html2</td></tr>
 			<tr><td colspan='2'><input type='submit' value='Save Settings'></td></tr>
 			</table></form>

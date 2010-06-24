@@ -42,7 +42,7 @@ class AdminPage implements Extension {
 		global $config, $database, $page, $user;
 		if(is_null($this->theme)) $this->theme = get_theme_object($this);
 
-		if(($event instanceof PageRequestEvent) && $event->page_matches("admin")) {
+		if(($event instanceof PageRequestEvent) && $event->page_matches("tools")) {
 			if(!$user->is_admin()) {
 				$this->theme->display_permission_denied($page);
 			}
@@ -51,7 +51,7 @@ class AdminPage implements Extension {
 			}
 		}
 
-		if(($event instanceof PageRequestEvent) && $event->page_matches("admin_utils")) {
+		if(($event instanceof PageRequestEvent) && $event->page_matches("tools/action")) {
 			if($user->is_admin()) {
 				log_info("admin", "Util: {$_POST['action']}");
 				set_time_limit(0);
@@ -81,7 +81,7 @@ class AdminPage implements Extension {
 
 				if($redirect) {
 					$page->set_mode("redirect");
-					$page->set_redirect(make_link("admin"));
+					$page->set_redirect(make_link("tools"));
 				}
 			}
 		}
@@ -93,7 +93,7 @@ class AdminPage implements Extension {
 
 		if($event instanceof UserBlockBuildingEvent) {
 			if($user->is_admin()) {
-				$event->add_link("Board Admin", make_link("admin"));
+				$event->add_link("Board Tools", make_link("tools"));
 			}
 		}
 	}

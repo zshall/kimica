@@ -26,6 +26,9 @@ class TagListTheme extends Themelet {
 		$page->set_title("Tag List");
 		$page->set_heading($this->heading);
 		$page->add_block(new Block("Tags", $this->list));
+	}
+	
+	public function display_navigation(Page $page) {
 		$page->add_block(new Block("Navigation", $this->navigation, "left", 0));
 	}
 
@@ -173,6 +176,32 @@ class TagListTheme extends Themelet {
 	protected function tag_link($tag) {
 		$u_tag = url_escape($tag);
 		return make_link("post/list/$u_tag/1");
+	}
+	
+	public function display_mass_editor(Page $page) {
+		$html = "
+		<form action='".make_link("tags/replace/tags")."' method='POST'>
+			<table style='width: 300px;'>
+				<tr><td>Search</td><td><input type='text' name='search'></tr>
+				<tr><td>Replace</td><td><input type='text' name='replace'></td></tr>
+				<tr><td colspan='2'><input type='submit' value='Replace'></td></tr>
+			</table>
+		</form>
+		";
+		$page->add_block(new Block("Mass Tag Edit", $html));
+	}
+	
+	public function display_source_editor(Page $page) {
+		$html = "
+		<form action='".make_link("tags/replace/source")."' method='POST'>
+			<table style='width: 300px;'>
+				<tr><td>Search</td><td><input type='text' name='search'></tr>
+				<tr><td>Source</td><td><input type='text' name='source'></td></tr>
+				<tr><td colspan='2'><input type='submit' value='Set Source'></td></tr>
+			</table>
+		</form>
+		";
+		$page->add_block(new Block("Mass Source Edit", $html));
 	}
 }
 ?>
