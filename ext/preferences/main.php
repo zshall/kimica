@@ -219,7 +219,7 @@ class UserPrefsSetup extends SimpleExtension {
 							$prefs_setup->save(NULL, $user_id_preferences);
 		
 							$page->set_mode("redirect");
-							$page->set_redirect(make_link("preferences/{$display_user->name}"));
+							$page->set_redirect(make_link("account/preferences/{$display_user->name}"));
 						}
 						else if($event->get_arg(1) == "advanced") {
 							//$this->theme->display_advanced($page, $prefs_setup->values); //Uncomment for debugging.
@@ -280,7 +280,7 @@ class UserPrefsSetup extends SimpleExtension {
 	public function onUserBlockBuilding($event) {
 		global $user;
 		$userid = $user->name;
-			$event->add_link("Preferences", make_link("preferences/$userid"));
+			$event->add_link("Preferences", make_link("account/preferences/$userid"));
 	}
 }
 ?>
