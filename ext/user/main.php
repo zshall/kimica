@@ -171,7 +171,7 @@ class UserPage extends SimpleExtension {
 				switch ($event->get_arg(1)) {
 					case "new":
 						$user_id = $event->get_arg(2);
-						if(!is_null($user_id)){
+						if(!isset($user_id)){
 							$duser = User::by_id($user_id);
 							$user_name = $duser->name;
 						}
@@ -230,6 +230,20 @@ class UserPage extends SimpleExtension {
 								$this->undone_pm();
 							break;
 						}
+					case "complete":
+						if(isset($_GET['s'])) {
+							$all = $database->get_all(
+								"SELECT name FROM users WHERE name LIKE ? LIMIT 10",
+								array($_GET["s"]."%"));
+				
+							$res = array();
+							foreach($all as $row) {$res[] = $row["name"];}
+				
+							$page->set_mode("data");
+							$page->set_type("text/plain");
+							$page->set_data(implode("\n", $res));
+						}
+						break;
 					default:
 						$page->set_mode("redirect");
 						$page->set_redirect(make_link("account/messages/inbox"));

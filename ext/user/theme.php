@@ -293,7 +293,22 @@ class UserPageTheme extends Themelet {
 		$html .="<table style='width: 500px;'>";
 		$html .="<tbody>";
 		if(is_null($user_name)){
-			$html .= "<tr><td>To:</td><td><input type='text' value='{$user_name}' name='to'></td></tr>";
+			$html .= "
+			<script type='text/javascript'> 
+			$().ready(function() {
+				$('#to').autocomplete('./index.php?q=/account/messages/complete', {
+					width: 320,
+					max: 15,
+					highlight: false,
+					multiple: false,
+					scroll: true,
+					scrollHeight: 300,
+					selectFirst: false
+				});
+			});
+			</script> 
+			
+			<tr><td>To:</td><td><input type='text' value='{$user_name}' name='to' id='to'></td></tr>";
 		}
 		$html .= "<tr><td>Priority:</td><td><select name='priority'><option value='l'>Low</option><option value='n' selected='selected'>Normal</option><option value='h'>High</option></select></td></tr>";
 		$html .= "<tr><td>Subject:</td><td><input type='text' value='{$subject}' name='subject'></td></tr>";
