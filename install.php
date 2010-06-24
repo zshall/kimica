@@ -252,7 +252,7 @@ function create_tables($dsn) { // {{{
 		"));
 		$db->execute($engine->create_table_sql("users", "
 			id SCORE_AIPK,
-			ip SCORE_INET NOT NULL,
+			ip CHAR(15) NOT NULL,
 			name VARCHAR(32) UNIQUE NOT NULL,
 			pass CHAR(32),
 			joindate SCORE_DATETIME NOT NULL DEFAULT SCORE_NOW,
@@ -271,10 +271,10 @@ function create_tables($dsn) { // {{{
 			INDEX(user_id),
 			FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 		"));
-		$db->execute($engine->create_table_sql("private_message", "
+		$db->execute($engine->create_table_sql("messages", "
 			id SCORE_AIPK,
 			from_id INTEGER NOT NULL,
-			from_ip SCORE_INET NOT NULL,
+			from_ip CHAR(15) NOT NULL,
 			to_id INTEGER NOT NULL,
 			sent_date DATETIME NOT NULL,
 			subject VARCHAR(128) NOT NULL,
@@ -288,7 +288,7 @@ function create_tables($dsn) { // {{{
 		$db->execute($engine->create_table_sql("images", "
 			id SCORE_AIPK,
 			owner_id INTEGER NOT NULL,
-			owner_ip SCORE_INET NOT NULL,
+			owner_ip CHAR(15) NOT NULL,
 			filename VARCHAR(64) NOT NULL,
 			filesize INTEGER NOT NULL,
 			hash CHAR(32) UNIQUE NOT NULL,
@@ -312,6 +312,17 @@ function create_tables($dsn) { // {{{
 			id SCORE_AIPK,
 			name VARCHAR(64) UNIQUE NOT NULL,
 			status ENUM('p', 'd') NOT NULL DEFAULT 'p'
+		"));
+		$db->execute($engine->create_table_sql("tag_histories", "
+			id SCORE_AIPK,
+			image_id INTEGER NOT NULL,
+			user_id INTEGER NOT NULL,
+			user_ip CHAR(15) NOT NULL,
+			tags TEXT NOT NULL,
+			date_set DATETIME NOT NULL,
+			INDEX(image_id),
+			FOREIGN KEY (image_id) REFERENCES images(id) ON DELETE CASCADE,
+			FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 		"));
 		$db->execute($engine->create_table_sql("image_tags", "
 			image_id INTEGER NOT NULL,

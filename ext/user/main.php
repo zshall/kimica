@@ -677,7 +677,7 @@ class UserPage extends SimpleExtension {
 		$ip = $_SERVER['REMOTE_ADDR'];
 		
 		$database->execute("
-				INSERT INTO private_message(
+				INSERT INTO messages(
 					from_id, from_ip, to_id,
 					sent_date, subject, message, priority)
 				VALUES(?, ?, ?, now(), ?, ?, ?)",
@@ -698,11 +698,11 @@ class UserPage extends SimpleExtension {
 	
 	private function view_message($user, $id) {
 		global $database;
-		$owner = $database->get_row("SELECT to_id FROM private_message WHERE id = ?", array($id));
+		$owner = $database->get_row("SELECT to_id FROM messages WHERE id = ?", array($id));
 		$pm = NULL;
 		if($owner["to_id"] == $user->id || $user->is_admin()){
-			$database->execute("UPDATE private_message SET status = 'r' WHERE id = ?", array($id));
-			$pm = $database->get_row("SELECT * FROM private_message WHERE id = ?", array($id));
+			$database->execute("UPDATE messages SET status = 'r' WHERE id = ?", array($id));
+			$pm = $database->get_row("SELECT * FROM messages WHERE id = ?", array($id));
 		}
 		return $pm;
 	}
@@ -710,37 +710,37 @@ class UserPage extends SimpleExtension {
 	private function remove_message() {
 		global $database;
 		foreach($_POST['id'] as $id) {
-			$database->execute("UPDATE private_message SET status = 'd' WHERE id = ?", array($id));
+			$database->execute("UPDATE messages SET status = 'd' WHERE id = ?", array($id));
 		}
 	}
 	
 	private function real_delete_message() {
 		global $user, $database;
-		$database->execute("DELETE FROM private_message WHERE to_id = ? AND status = 'd'", array($user->id));
+		$database->execute("DELETE FROM messages WHERE to_id = ? AND status = 'd'", array($user->id));
 	}
 	
 	private function save_message() {
 		global $database;
 		foreach($_POST['id'] as $id) {
-			$database->execute("UPDATE private_message SET status = 's' WHERE id = ?", array($id));
+			$database->execute("UPDATE messages SET status = 's' WHERE id = ?", array($id));
 		}
 	}
 	
 	private function undone_message() {
 		global $database;
 		foreach($_POST['id'] as $id) {
-			$database->execute("UPDATE private_message SET status = 'r' WHERE id = ?", array($id));
+			$database->execute("UPDATE messages SET status = 'r' WHERE id = ?", array($id));
 		}
 	}
 	
 	private function get_inbox($user, $status) {
 		global $database;
 		$arr = $database->get_all("
-			SELECT private_message.*,user_from.name AS from_name
-			FROM private_message
+			SELECT messages.*,user_from.name AS from_name
+			FROM messages
 			JOIN users AS user_from ON user_from.id=from_id
-			WHERE to_id = ? AND private_message.status IN (".$status.")
-			ORDER BY private_message.sent_date DESC", array($user->id));
+			WHERE to_id = ? AND messages.status IN (".$status.")
+			ORDER BY messages.sent_date DESC", array($user->id));
 			
 		return $arr;
 	}
@@ -748,18 +748,18 @@ class UserPage extends SimpleExtension {
 	private function get_outbox($user) {
 		global $database;
 		$arr = $database->get_all("
-			SELECT private_message.*,user_to.name AS to_name
-			FROM private_message
+			SELECT messages.*,user_to.name AS to_name
+			FROM messages
 			JOIN users AS user_to ON user_to.id=to_id
 			WHERE from_id = ?
-			ORDER BY private_message.sent_date DESC", array($user->id));
+			ORDER BY messages.sent_date DESC", array($user->id));
 			
 		return $arr;
 	}
 		
 	private function get_count_unread($user) {
 		global $database;
-		$arr = $database->db->GetOne("SELECT COUNT(*) FROM private_message WHERE to_id = ? AND status = 'u'", array($user->id));
+		$arr = $database->db->GetOne("SELECT COUNT(*) FROM messages WHERE to_id = ? AND status = 'u'", array($user->id));
 		return $arr;
 	}
 // }}}
