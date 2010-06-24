@@ -1,5 +1,9 @@
-Major Shimmie2 Fork
-~~~~~~~~~~~~~~~~~~~
+  ___        _                
+ / (_)      | | o             
+|      __,  | |     __   __,  
+|     /  |  |/  |  /    /  |  
+ \___/\_/|_/|__/|_/\___/\_/|_/
+
 This distribution is a fork of Shish's Shimmie2 Imageboard, adding useful
 new features, a complete list of which can be found on our web site.
 
