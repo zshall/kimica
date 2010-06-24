@@ -1,6 +1,8 @@
 <?php
 
 class UploadTheme extends Themelet {
+	var $messages = array();
+
 	public function display_block(Page $page) {
 		$page->add_block(new Block("Upload", $this->build_upload_block(), "left", 20));
 	}
@@ -10,7 +12,7 @@ class UploadTheme extends Themelet {
 	}
 
 	public function display_page(Page $page) {
-		global $config;
+		global $config,$user;
 		$tl_enabled = ($config->get_string("transload_engine", "none") != "none");
 
 		$upload_list = "";
@@ -34,6 +36,14 @@ class UploadTheme extends Themelet {
 		}
 		$max_size = $config->get_int('upload_size');
 		$max_kb = to_shorthand_int($max_size);
+		if($user->is_admin()) {
+			$bulk_zip = "<form enctype='multipart/form-data' action='".make_link("bulk_zip")."' method='POST'>";
+			$bulk_zip .="<h3>Bulk Upload</h3>
+						 <p>Upload a .ZIP file containing multiple images to add them all at once.</p>
+						 <input accept='application/zip' id='data' name='data' type='file'>
+						 <input id='uploadbutton' type='submit' value='Upload'>
+						 </form>";
+		} else { $bulk_zip = ""; }
 		$html = "
 			<script>
 			$(document).ready(function() {
@@ -58,7 +68,8 @@ class UploadTheme extends Themelet {
 					<tr><td colspan='4'><input id='uploadbutton' type='submit' value='Post'></td></tr>
 				</table>
 			</form>
-			<small>(Max file size is $max_kb)</small>
+			<small>(Max file size is $max_kb)</small><br />
+			$bulk_zip
 		";
 
 		if($tl_enabled) {
@@ -128,6 +139,43 @@ class UploadTheme extends Themelet {
 			<div id='upload_completions' style='clear: both;'><small>(Max file size is $max_kb)</small></div>
 			<noscript><a href='".make_link("upload")."'>Larger Form</a></noscript>
 		";
+	}
+	
+	/*
+	 * Show a standard page for results to be put into
+	 */
+	public function display_upload_results(Page $page) {
+		$page->set_title("Adding folder");
+		$page->set_heading("Adding folder");
+		$page->add_block(new NavBlock());
+		foreach($this->messages as $block) {
+			$page->add_block($block);
+		}
+	}
+	
+	/*
+	 * Add a section to the admin page. This should contain a form which
+	 * links to bulk_add with POST[dir] set to the name of a server-side
+	 * directory full of images
+	 */
+	
+	public function display_admin_block(Page $page) {
+		$html = "
+			Add a folder full of images; any subfolders will have their names
+			used as tags for the images within.
+			<br>Note: this is the folder as seen by the server -- you need to
+			upload via FTP or something first.
+
+			<p><form action='".make_link("bulk_add")."' method='POST'>
+				Directory to add: <input type='text' name='dir' size='40'>
+				<input type='submit' value='Add'>
+			</form>
+		";
+		$page->add_block(new Block("Bulk Add", $html));
+	}
+	
+	public function add_status($title, $body) {
+		$this->messages[] = new Block($title, $body);
 	}
 }
 ?>

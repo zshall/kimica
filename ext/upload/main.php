@@ -101,6 +101,29 @@ class Upload implements Extension {
 				}
 			}
 		}
+		if(($event instanceof PageRequestEvent) && $event->page_matches("bulk_zip")) {
+			global $page;
+			if(file_exists($_FILES['data']['tmp_name'])) {
+				$td = "";
+				for ($i=0; $i<6; $i++) { 
+					$d=rand(1,30)%2; 
+					$td .= $d ? chr(rand(65,90)) : chr(rand(48,57)); 
+				}
+				$tmp_dir = $_SERVER["DOCUMENT_ROOT"].'/data/'.$td.'/';
+				$zip = new ZipArchive;
+				$res = $zip->open($_FILES['data']['tmp_name']);
+				if ($res === TRUE) {
+					$zip->extractTo($tmp_dir);
+					$zip->close();
+					set_time_limit(0);
+					$this->add_dir($tmp_dir);
+					$this->theme->display_upload_results($page);
+					$this->delete_directory($tmp_dir);
+				} else {
+					echo 'failed';
+				}
+			}
+		}
 
 		if($event instanceof SetupBuildingEvent) {
 			$sb = new SetupBlock("Upload");
@@ -126,6 +149,21 @@ class Upload implements Extension {
 				$limit = to_shorthand_int($config->get_int('upload_size'));
 				throw new UploadException("File too large ($size &gt; $limit)");
 			}
+		}
+		
+		if($event instanceof AdminBuildingEvent) {
+			global $page;
+			$this->theme->display_admin_block($page);
+		}
+
+		
+		if(($event instanceof PageRequestEvent) && $event->page_matches("bulk_add")) {
+			if($user->is_admin() && isset($_POST['dir'])) {
+				set_time_limit(0);
+
+				$this->add_dir($_POST['dir']);
+				$this->theme->display_upload_results($page);
+			}		
 		}
 	}
 // }}}
@@ -250,7 +288,86 @@ class Upload implements Extension {
 
 		return $ok;
 	}
+	
+	public function add_dir($base, $subdir="") {
+		global $page;
+
+		if(!is_dir($base)) {
+			$this->theme->add_status("Error", "$base is not a directory");
+			return;
+		}
+
+		$list = "";
+
+		foreach(glob("$base/$subdir/*") as $fullpath) {
+			$fullpath = str_replace("//", "/", $fullpath);
+			$shortpath = str_replace($base, "", $fullpath);
+
+			if(is_link($fullpath)) {
+				// ignore
+			}
+			else if(is_dir($fullpath)) {
+				$this->add_dir($base, str_replace($base, "", $fullpath));
+			}
+			else {
+				$pathinfo = pathinfo($fullpath);
+				$tags = $subdir;
+				$tags = str_replace("/", " ", $tags);
+				$tags = str_replace("__", " ", $tags);
+				$tags = trim($tags);
+				$list .= "<br>".html_escape("$shortpath (".str_replace(" ", ", ", $tags).")... ");
+				try{
+					$this->add_image($fullpath, $pathinfo["basename"], $tags);
+					$list .= "ok\n";
+				}
+				catch(Exception $ex) {
+					$list .= "failed:<br>". $ex->getMessage();
+				}
+			}
+		}
+
+		if(strlen($list) > 0) {
+			$this->theme->add_status("Adding $subdir", $list);
+		}
+	}
+
+	
+	private function add_image($tmpname, $filename, $tags) {
+		assert(file_exists($tmpname));
+
+		global $user;
+		$pathinfo = pathinfo($filename);
+		if(!array_key_exists('extension', $pathinfo)) {
+			throw new UploadException("File has no extension");
+		}
+		$metadata['filename'] = $pathinfo['basename'];
+		$metadata['extension'] = $pathinfo['extension'];
+		$metadata['tags'] = $tags;
+		$metadata['source'] = null;
+		$event = new DataUploadEvent($user, $tmpname, $metadata);
+		send_event($event);
+		if($event->image_id == -1) {
+			throw new UploadException("File type not recognised");
+		}
+	}
+	
+	private function delete_directory($dirname) {
+		if (is_dir($dirname))
+			$dir_handle = opendir($dirname);
+			if (!$dir_handle)
+				return false;
+			while($file = readdir($dir_handle)) {
+				if ($file != "." && $file != "..") {
+					if (!is_dir($dirname."/".$file)) unlink($dirname."/".$file);
+					else delete_directory($dirname.'/'.$file);     
+				}
+			}
+			closedir($dir_handle);
+			rmdir($dirname);
+			return true;
+	}
 // }}}
 }
+
 add_event_listener(new Upload(), 40); // early, so it can stop the DataUploadEvent before any data handlers see it
 ?>
