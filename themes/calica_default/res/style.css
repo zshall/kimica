@@ -1,0 +1,274 @@
+.noleft{
+padding-left:20px;
+}
+div#header {
+margin-bottom:1em;
+}
+div#header #site-title {
+padding:10px 20px 0;
+}
+div#header ul#navbar {
+margin:0;
+padding:5px 20px 2px 10px;
+}
+div#header ul#navbar li {
+font-size:120%;
+margin:0;
+padding:0 10px 2px;
+}
+div#header ul#navbar li.current-page {
+background-color:#F7F7FF;
+}
+div#header ul#navbar li.current-page a {
+font-weight:bold;
+}
+div#header ul#subnavbar {
+background-color:#F7F7FF;
+margin:0 0 1em;
+padding:5px 20px 5px 15px;
+}
+div#header ul#subnavbar li {
+padding:0 5px;
+}
+div#header #site-title {
+padding:10px 20px 0;
+}
+body {
+-x-system-font:none;
+font-size:80%;
+font-size-adjust:none;
+font-stretch:normal;
+font-style:normal;
+font-variant:normal;
+font-weight:normal;
+line-height:normal;
+}
+h1 {
+font-size:2em;
+margin-bottom:0;
+margin-top:0;
+padding:2px;
+}
+h1 a {
+color:black;
+}
+h3 {
+font-size:1.2em;
+margin-bottom:0;
+margin-top:0.5em;
+padding:1px;
+}
+h4 {
+font-size:1.4em;
+}
+h5 {
+font-size:1.2em;
+}
+table.zebra {border-collapse: collapse;border-spacing: 0;}
+table.zebra > tbody > tr:hover {background: #FFD;}
+table.zebra th {color: #171BB3; padding-right: 8px;}
+table.zebra td {border: 1px dotted #EEE;margin: 0;padding-right: 8px;}
+table.zebra th {margin: 0;text-align: left;}
+thead {
+-moz-background-clip:border;
+-moz-background-inline-policy:continuous;
+-moz-background-origin:padding;
+font-weight:bold;
+}
+td {
+vertical-align:top;
+}
+#subtitle {
+border-top:medium none;
+font-size:0.75em;
+margin:auto;
+text-align:center;
+width:256px;
+}
+#body select {
+width:150px;
+}
+td > input[type="submit"] {width: 100%;}
+td > input[type="text"] {width: 100%;}
+td > input[type="password"] {width: 100%;}
+#footer {
+clear:both;
+font-size:0.9em;
+padding-left:10px;
+padding-top:8px;
+}
+[onclick] {
+cursor:pointer;
+}
+img {
+border:medium none;
+}
+form {
+margin:0;
+}
+a {
+text-decoration:none;
+}
+a:hover {
+text-decoration:underline;
+}
+#nav {
+float:left;
+text-align:left;
+width:150px;
+padding:5px 20px 2px 10px;
+}
+#nav table {
+width:150px;
+}
+#nav td {
+vertical-align:middle;
+}
+#nav input {
+padding:0;
+width:100%;
+}
+#nav select {
+padding:0;
+width:100%;
+}
+#nav h3 {
+text-align:left;
+}
+#comments p {
+max-width:150px;
+overflow:hidden;
+text-align:left;
+width:150px;
+}
+.tag_count {
+color:#AAAAAA;
+}
+.more {
+content:"More Å‚";
+}
+.comment {
+margin-bottom:8px;
+}
+.comment .meta {
+width: 150px;
+color: gray;
+}
+.comment TD {
+text-align: left;
+}
+.withleft {
+margin-left:180px;
+}
+div#paginator {
+clear:both;
+display:block;
+font-size:1em;
+font-weight:bold;
+padding:2em 0 1em;
+text-align:center;
+}
+.paginator {
+margin:16px;
+text-align:center;
+}
+div#paginator b {
+margin:3px;
+padding:4px 8px;
+}
+div#paginator a {
+border:1px solid #EEEEEE;
+margin:3px;
+padding:4px 8px;
+}
+div#paginator a:hover {
+-moz-background-clip:border;
+-moz-background-inline-policy:continuous;
+-moz-background-origin:padding;
+background:blue none repeat scroll 0 0;
+border:1px solid #EEEEEE;
+color:white;
+}
+span.thumb {
+display:inline-block;
+float:left;
+height:220px;
+text-align:center;
+width:220px;
+}
+#pagelist {
+margin-top:32px;
+}
+#tagmap a {
+padding:8px 4px;
+}
+#large_upload_form {
+width:600px;
+}
+.setupblock {
+border:1px solid #AAAAAA;
+margin:16px;
+padding:8px;
+width:350px;
+}
+.helpable {
+border-bottom:1px dashed gray;
+}
+.ok {
+-moz-background-clip:border;
+-moz-background-inline-policy:continuous;
+-moz-background-origin:padding;
+background:#AAFFAA none repeat scroll 0 0;
+}
+.bad {
+-moz-background-clip:border;
+-moz-background-inline-policy:continuous;
+-moz-background-origin:padding;
+background:#FFAAAA none repeat scroll 0 0;
+}
+.comment .username {
+font-size:1.5em;
+font-weight:bold;
+}
+div#header {
+text-align:left;
+}
+div#header h1 {
+text-align:left;
+}
+* {
+margin:0;
+padding:0;
+}
+ul.flat-list {
+display:block;
+margin:0;
+padding:0;
+}
+ul.flat-list * {
+display:inline;
+text-align:left;
+}
+ul.flat-list li {
+font-weight:bold;
+list-style-type:none;
+margin:0 1.3em 0 0;
+text-align:left;
+}
+ul.flat-list li a {
+font-weight:normal;
+}
+#tips {
+margin-left:16px;
+}
+#blotter1 {
+margin-left:16px;
+margin-right:16px;
+font-size: 90%;
+position: relative;
+}
+#blotter2 {
+margin-left:16px;
+margin-right:16px;
+font-size: 90%;
+}

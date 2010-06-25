@@ -1,0 +1,209 @@
+html, body {
+background-color:#EEE;
+padding:20px;
+}
+body {
+color:#6F8288;
+font-weight:bold;
+font:13px/1.231 arial,helvetica,clean,sans-serif;
+}
+a {
+	color:#a28a78;
+}
+#wrap {
+-moz-border-radius:2px 2px 2px 2px;
+background:url("/themes/calica_default/res/topbar.png") repeat scroll 0 0 transparent;
+border:1px solid #C6D8DC;
+margin:0px;
+width:auto;
+min-width:1px;
+}
+#hd {
+padding:120px 33px 10px;
+min-height:40px;
+position:relative;
+font-size:36px;
+}
+#hd a { color:#FFFFFF; }
+#hd form {
+position:absolute;
+right:20px;
+top:173px;
+z-index:100;
+font-size:14px;
+}
+#bd {
+background-color:#EEF4F4;
+padding:6px 20px 20px;
+}
+#ft {
+background-color: #f2e6dd;
+color:#9C836F;
+font-family:verdana;
+font-size:11px;
+padding:20px;
+}
+#ft p, #ft ul {
+margin:0 0 8px;
+}
+#ft h5 {
+font-weight:bold;
+margin-bottom:4px;
+}
+#ft a {
+text-decoration:none;
+color:#0A93FC;
+}
+#ft a:hover {
+text-decoration:underline;
+}
+#ft #trough {
+margin-bottom:32px;
+}
+#topline {
+border-bottom:1px solid #172528;
+margin:0;
+padding-left:20px;
+}
+#topline li a {
+	-moz-border-radius:2px 2px 0 0;
+	border:0 solid #FFFFFF;
+	color:#FFFFFF;
+	display:block;
+	font-size:14px;
+	padding:6px 16px 2px;
+	text-decoration:none;
+}
+#topline li.selected a {
+background-color:#C6D8DC;
+border-color:#000000 #000000 #C6D8DC;
+border-style:solid;
+border-width:1px;
+color:#000000;
+font-weight:bold;
+padding:4px 16px;
+position:relative;
+top:1px;
+}
+#topline li {
+float:left;
+}
+#botline li {
+float:left;
+}
+#botline {
+background:url("/themes/calica_default/res/botline.png") repeat-x scroll 0 0 #F8F5EA;
+padding-left:23px;
+}
+#botline li {
+padding-left:10px;
+}
+#botline li a {
+color:#000000;
+display:block;
+font-size:12px;
+padding:8px 4px 12px;
+}
+#main {
+float:left;
+margin-right:-25em;
+}
+.sidebar {
+position:relative;
+float:right;
+width:18.4615em;
+}
+.sidebar .mod {
+border-left:1px solid #C6D8DC;
+margin-bottom:32px;
+padding:0 8px 0 16px;
+}
+.sidebar .hd {
+color:#4D4840;
+font-family:Helvetica;
+font-size:14px;
+margin-bottom:16px;
+}
+.sidebar ul {
+margin-bottom:0;
+}
+.sidebar ul li img {
+vertical-align:middle;
+}
+.sidebar #site-notice {
+margin-left:20px;
+}
+.note {
+-moz-border-radius:2px 2px 2px 2px;
+background:url("/themes/calica_default/res/note.png") repeat-x scroll 0 0 #f2e6dd;
+border:1px solid #9C836F;
+margin-bottom:1em;
+padding:0.5em;
+position:relative;
+text-align:left;
+}
+.note ul {
+margin-left:10px;
+margin-top:5px;
+}
+h1, h2, h3 {
+color:#93B0B6;
+font-family:Helvetica;
+}
+h1 {
+font-size:24px;
+}
+h2 {
+font-size:20px;
+}
+h3 {
+font-size:16px;
+}
+h1, h2, h3, p, ul, ol, dl {
+margin:0 0 16px;
+}
+blockquote {
+margin:16px;
+}
+.clearfix:after {
+clear:both;
+content:".";
+display:block;
+height:0;
+visibility:hidden;
+}
+
+body, div, dl, dt, dd, ul, ol, li, h1, h2, h3, h4, h5, h6, pre, code, form, fieldset, input, button, textarea, p, blockquote, th, td {
+margin:0;
+padding:0;
+}
+table {
+border-collapse:collapse;
+border-spacing:0;
+}
+fieldset, img {
+border:0 none;
+}
+li {
+list-style:none outside none;
+}
+h1, h2, h3, h4, h5, h6 {
+font-weight:normal;
+}
+input, button, textarea, select, optgroup, option {
+font-family:inherit;
+font-size:inherit;
+font-style:inherit;
+font-weight:inherit;
+}
+select, input, button, textarea, button {
+font:99% arial,helvetica,clean,sans-serif;
+}
+
+#hd:after, #bd:after, #ft:after, .yui-g:after, .yui-gb:after, .yui-gc:after, .yui-gd:after, .yui-ge:after, .yui-gf:after {
+clear:both;
+content:".";
+display:block;
+height:0;
+visibility:hidden;
+}
