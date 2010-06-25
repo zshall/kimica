@@ -311,7 +311,7 @@ class Upload implements Extension {
 			}
 			else {
 				$pathinfo = pathinfo($fullpath);
-				$tags = trim($pathinfo["basename"]);
+				$tags = implode('.', explode('.', trim($pathinfo["basename"]), -1)); // Remove extension from filename
 				$list .= "<br>".html_escape("$shortpath (".str_replace(" ", ", ", $tags).")... ");
 				try{
 					$this->add_image($fullpath, $pathinfo["basename"], $tags);
