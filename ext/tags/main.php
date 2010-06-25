@@ -127,6 +127,7 @@ class TagList extends SimpleExtension {
 		}
 		
 		if($event->page_matches("api/internal/tag_list/complete")) {
+			global $database;
 			$all = $database->get_all(
 					"SELECT tag FROM tags WHERE tag LIKE ? AND count > 0 LIMIT 10",
 					array($_GET["s"]."%"));
