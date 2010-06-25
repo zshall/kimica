@@ -16,7 +16,7 @@ class TagList extends SimpleExtension {
 	}
 	
 	public function onPageRequest($event) {
-		global $page, $user;
+		global $config, $page, $user;
 		
 		if($event->page_matches("tags")) {
 			$this->theme->set_navigation($this->build_navigation());
