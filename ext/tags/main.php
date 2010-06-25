@@ -4,23 +4,21 @@
  * Author: Shish
  * Description: Show the tags in various ways
  */
-
-class TagList implements Extension {
-	var $theme = null;
+class TagList extends SimpleExtension {
 
 // event handling {{{
-public function receive_event(Event $event) {
-		global $config, $database, $page, $user;
-		if($this->theme == null) $this->theme = get_theme_object($this);
-
-		if($event instanceof InitExtEvent) {
-			$config->set_default_int("tag_list_length", 15);
-			$config->set_default_int("tags_min", 3);
-			$config->set_default_string("info_link", 'http://en.wikipedia.org/wiki/$tag');
-			$config->set_default_string("tag_list_image_type", 'related');
-		}
-
-		if(($event instanceof PageRequestEvent) && $event->page_matches("tags")) {
+	public function onInitExt($event) {
+		global $config;
+		$config->set_default_int("tag_list_length", 15);
+		$config->set_default_int("tags_min", 3);
+		$config->set_default_string("info_link", 'http://en.wikipedia.org/wiki/$tag');
+		$config->set_default_string("tag_list_image_type", 'related');
+	}
+	
+	public function onPageRequest($event) {
+		global $page, $user;
+		
+		if($event->page_matches("tags")) {
 			$this->theme->set_navigation($this->build_navigation());
 			switch($event->get_arg(0)) {
 				default:
@@ -127,12 +125,11 @@ public function receive_event(Event $event) {
 			}
 			$this->theme->display_navigation($page);
 		}
-
-		if(($event instanceof PageRequestEvent) && $event->page_matches("api/internal/tag_list/complete")) {
+		
+		if($event->page_matches("api/internal/tag_list/complete")) {
 			$all = $database->get_all(
 					"SELECT tag FROM tags WHERE tag LIKE ? AND count > 0 LIMIT 10",
 					array($_GET["s"]."%"));
-
 			$res = array();
 			foreach($all as $row) {$res[] = $row["tag"];}
 
@@ -140,67 +137,76 @@ public function receive_event(Event $event) {
 			$page->set_type("text/plain");
 			$page->set_data(implode("\n", $res));
 		}
-		
-		if($event instanceof AdminBuildingEvent) {
-			$this->theme->display_mass_editor($page);
-			$this->theme->display_source_editor($page);
-		}
+	}
+	
+	public function onAdminBuilding($event) {
+		global $page;
+		$this->theme->display_mass_editor($page);
+		$this->theme->display_source_editor($page);
+	}
 
-		if($event instanceof PostListBuildingEvent) {
-			if($config->get_int('tag_list_length') > 0) {
-				if(!empty($event->search_terms)) {
-					$this->add_refine_block($page, $event->search_terms);
-				}
-				else {
-					$this->add_popular_block($page);
-				}
+	public function onPostListBuilding($event) {
+		global $config, $page;
+		if($config->get_int('tag_list_length') > 0) {
+			if(!empty($event->search_terms)) {
+				$this->add_refine_block($page, $event->search_terms);
+			}
+			else {
+				$this->add_popular_block($page);
 			}
 		}
+	}
 
-		if($event instanceof DisplayingImageEvent) {
-			if($config->get_int('tag_list_length') > 0) {
-				if($config->get_string('tag_list_image_type') == 'related') {
-					$this->add_related_block($page, $event->image);
-				}
-				else {
-					$this->add_tags_block($page, $event->image);
-				}
+	public function onDisplayingImage($event) {
+		global $config, $page;
+		if($config->get_int('tag_list_length') > 0) {
+			if($config->get_string('tag_list_image_type') == 'related') {
+				$this->add_related_block($page, $event->image);
+			}
+			else {
+				$this->add_tags_block($page, $event->image);
 			}
 		}
-		
-		if(($event instanceof TagSetEvent)) {
-			if($config->get_bool('tag_history_enabled')) {
-				$this->add_tag_history($event->image, $event->tags);
-			}
+	}
+	
+	public function onTagSet($event) {
+		global $config;
+		if($config->get_bool('tag_history_enabled')) {
+			$this->add_tag_history($event->image, $event->tags);
 		}
-		
-		if($event instanceof ImageDeletionEvent) {
-			$this->delete_all_tag_history($event->image->id());
+	}
+	
+	//FIXME: The image is deleted and the event returns no id so the deletion from tag_histories doesn't work.
+	public function onImageDeletion($event) {
+		global $database;
+		$image = Image::by_id($event->image->id());
+		if($image) {
+			$database->execute("DELETE FROM tag_histories WHERE image_id = ?", array($image->id));
 		}
+	}
 			
-		if($event instanceof SetupBuildingEvent) {
-			$sb = new SetupBlock("Tag Map Options");
-			$sb->add_int_option("tags_min", "Only show tags used at least "); $sb->add_label(" times");
-			$event->panel->add_block($sb);
+	public function onSetupBuilding(SetupBuildingEvent $event) {
+		$sb = new SetupBlock("Tag Map Options");
+		$sb->add_int_option("tags_min", "Only show tags used at least "); $sb->add_label(" times");
+		$event->panel->add_block($sb);
 
-			$sb = new SetupBlock("Popular / Related Tag List");
-			$sb->add_int_option("tag_list_length", "Show top "); $sb->add_label(" tags");
-			$sb->add_text_option("info_link", "<br>Tag info link: ");
-			$sb->add_choice_option("tag_list_image_type", array(
-				"Image's tags only" => "tags",
-				"Show related" => "related"
-			), "<br>Image tag list: ");
-			$sb->add_bool_option("tag_list_numbers", "<br>Show tag counts: ");
-			$event->panel->add_block($sb);
-			
-			$sb = new SetupBlock("Tag History");
-			$sb->add_bool_option("tag_history_enabled", "Enable Tag History: ");
-			$sb->add_label("<br>Limit to ");
-			$sb->add_int_option("history_limit");
-			$sb->add_label(" entires per image");
-			$sb->add_label("<br>(-1 for unlimited)");
-			$event->panel->add_block($sb);
-		}
+		$sb = new SetupBlock("Popular / Related Tag List");
+		$sb->add_int_option("tag_list_length", "Show top "); $sb->add_label(" tags");
+		$sb->add_text_option("info_link", "<br>Tag info link: ");
+		$sb->add_choice_option("tag_list_image_type", array(
+			"Image's tags only" => "tags",
+			"Show related" => "related"
+		), "<br>Image tag list: ");
+		$sb->add_bool_option("tag_list_numbers", "<br>Show tag counts: ");
+		$event->panel->add_block($sb);
+		
+		$sb = new SetupBlock("Tag History");
+		$sb->add_bool_option("tag_history_enabled", "Enable Tag History: ");
+		$sb->add_label("<br>Limit to ");
+		$sb->add_int_option("history_limit");
+		$sb->add_label(" entires per image");
+		$sb->add_label("<br>(-1 for unlimited)");
+		$event->panel->add_block($sb);
 	}
 // }}}
 // misc {{{
@@ -742,16 +748,6 @@ public function receive_event(Event $event) {
 		$page->set_mode("redirect");
 		$page->set_redirect(make_link("post/view/$stored_image_id"));
 	}
-	
-	/*
-	 * this function is called when an image has been deleted
-	 */
-	private function delete_all_tag_history($image_id)
-	{
-		global $database;
-		$database->execute("DELETE FROM tag_histories WHERE image_id = ?", array($image_id));
-	}
 // }}}
 }
-add_event_listener(new TagList());
 ?>
