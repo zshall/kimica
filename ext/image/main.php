@@ -138,6 +138,7 @@ class ImageIO extends SimpleExtension {
 	}
 
 	public function onPageRequest($event) {
+		global $page, $user;
 		$num = $event->get_arg(0);
 		$matches = array();
 		if(!is_null($num) && preg_match("/(\d+)/", $num, $matches)) {
@@ -151,7 +152,6 @@ class ImageIO extends SimpleExtension {
 			}
 		}
 		if($event->page_matches("image_admin/delete")) {
-			global $page, $user;
 			if($user->is_admin() && isset($_POST['image_id'])) {
 				$image = Image::by_id($_POST['image_id']);
 				if($image) {
@@ -161,12 +161,24 @@ class ImageIO extends SimpleExtension {
 				}
 			}
 		}
+		if($event->page_matches("image_admin/regen")) {
+			if($user->is_admin() && isset($_POST['image_id'])) {
+				$image = Image::by_id(int_escape($_POST['image_id']));
+				if($image) {
+					send_event(new ThumbnailGenerationEvent($image->hash, $image->ext));
+					$this->theme->display_results($page, $image);
+				}
+			}
+		}
 	}
 
 	public function onImageAdminBlockBuilding($event) {
 		global $user;
 		if($user->is_admin()) {
 			$event->add_part($this->theme->get_deleter_html($event->image->id));
+		}
+		if($user->is_admin()) {
+			$event->add_part($this->theme->get_regen_html($event->image->id));
 		}
 	}
 
