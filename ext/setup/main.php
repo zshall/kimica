@@ -35,6 +35,22 @@ class SetupBuildingEvent extends Event {
 	}
 }
 // }}}
+/* EasySetupBuildingEvent {{{
+ *
+ * For use right after installation.
+ */
+class EasySetupBuildingEvent extends Event {
+	var $panel;
+
+	public function EasySetupBuildingEvent($panel) {
+		$this->panel = $panel;
+	}
+
+	public function get_panel() {
+		return $this->panel;
+	}
+}
+// }}}
 /* SetupPanel {{{
  *
  */
@@ -188,12 +204,21 @@ class Setup extends SimpleExtension {
 				$this->theme->display_permission_denied($page);
 			}
 			else {
-				if($event->get_arg(0) == "save") {
+				if($event->get_arg(0) == "easy") {
+					$panel = new SetupPanel();
+					send_event(new EasySetupBuildingEvent($panel));
+					$this->theme->display_easy($page, $panel);
+				}
+				else if($event->get_arg(0) == "save") {
 					send_event(new ConfigSaveEvent($config));
 					$config->save();
 
 					$page->set_mode("redirect");
-					$page->set_redirect(make_link("setup"));
+					if(isset($_POST['easysetup_finished'])) {
+						$page->set_redirect(make_link());
+					} else { 
+						$page->set_redirect(make_link("setup"));
+					}
 				}
 				else if($event->get_arg(0) == "advanced") {
 					$this->theme->display_advanced($page, $config->values);
@@ -271,6 +296,60 @@ class Setup extends SimpleExtension {
 			"'>ReCAPTCHA</a>");
 		$sb->add_text_option("api_recaptcha_privkey", "<br>Private key: ");
 		$sb->add_text_option("api_recaptcha_pubkey", "<br>Public key: ");
+		$event->panel->add_block($sb);
+	}
+	
+	public function onEasySetupBuilding($event) {
+		$themes = array();
+		foreach(glob("themes/*") as $theme_dirname) {
+			$name = str_replace("themes/", "", $theme_dirname);
+			$human = str_replace("_", " ", $name);
+			$human = ucwords($human);
+			$themes[$human] = $name;
+		}
+
+		$full = "http://" . $_SERVER["SERVER_NAME"] . $_SERVER["PHP_SELF"];
+		$test_url = str_replace("/index.php", "/nicetest", $full);
+
+		$nicescript = "<script language='javascript'>
+			function getHTTPObject() {
+				if (window.XMLHttpRequest){
+					return new XMLHttpRequest();
+				}
+				else if(window.ActiveXObject){
+					return new ActiveXObject('Microsoft.XMLHTTP');
+				}
+			}
+
+			checkbox = document.getElementById('nice_urls');
+			out_span = document.getElementById('nicetest');
+
+			checkbox.disabled = true;
+			out_span.innerHTML = '(testing...)';
+
+			$(document).ready(function() {
+				http_request = getHTTPObject();
+				http_request.open('GET', '$test_url', false);
+				http_request.send(null);
+
+				if(http_request.status == 200 && http_request.responseText == 'ok') {
+					checkbox.disabled = false;
+					out_span.innerHTML = '(tested ok)';
+				}
+				else {
+					checkbox.disabled = true;
+					out_span.innerHTML = '(test failed)';
+				}
+			});
+		</script>";
+		$sb = new SetupBlock("General");
+		$sb->position = 0;
+		$sb->add_text_option("title", "Site title: ");
+		$sb->add_text_option("contact_link", "<br>Contact URL: ");
+		$sb->add_choice_option("theme", $themes, "<br>Theme: ");
+		//$sb->add_multichoice_option("testarray", array("a" => "b", "c" => "d"), "<br>Test Array: ");
+		$sb->add_bool_option("nice_urls", "<br>Nice URLs: ");
+		$sb->add_label("<span id='nicetest'>(Javascript inactive, can't test!)</span>$nicescript");
 		$event->panel->add_block($sb);
 	}
 

@@ -145,8 +145,12 @@ function eok($name, $value) {
 }
 // }}}
 function do_install() { // {{{
-	if(isset($_POST['database_dsn'])) {
-		install_process($_POST['database_dsn']);
+	if(isset($_POST['database_type']) && isset($_POST['database_host']) && isset($_POST['database_name']) && isset($_POST['database_user']) && isset($_POST['database_pass']) && isset($_POST['admin_name']) && isset($_POST['admin_pass']) && isset($_POST['admin_mail'])) {
+		$database_dsn = $_POST['database_type']."://".$_POST['database_user'].":".$_POST['database_pass']."@".$_POST['database_host']."/".$_POST['database_name']."?persist";
+		$account['username'] = $_POST['admin_name'];
+		$account['password'] = $_POST['admin_pass'];
+		$account['email'] = $_POST['admin_mail'];
+		install_process($database_dsn,$account);
 	}
 	else if(file_exists("auto_install.conf")) {
 		install_process(trim(file_get_contents("auto_install.conf")));
@@ -201,8 +205,18 @@ function begin() { // {{{
 			<form action="install.php" method="POST">
 				<center>
 					<table>
-						<tr><td>Database:</td><td><input type="text" name="database_dsn" size="40"></td></tr>
-						<tr><td colspan="2"><center><input type="submit" value="Go!"></center></td></tr>
+						<tr><td colspan="2"><b>Database Details</b></td></tr>
+						<tr><td>Protocol:</td><td><select name="database_type"><option value="mysql">Mysql</option><option 
+						value="pgsql">Pgsql</option><option value="sqlite">Sqlite</option></select></td></tr>
+						<tr><td>Hostname:</td><td><input type="text" name="database_host" size="40"></td></tr>
+						<tr><td>Database:</td><td><input type="text" name="database_name" size="40"></td></tr>
+						<tr><td>Username:</td><td><input type="text" name="database_user" size="40"></td></tr>
+						<tr><td>Password:</td><td><input type="text" name="database_pass" size="40"></td></tr>
+						<tr><td colspan="2"><b>Create Administrator Account</b></td></tr>
+						<tr><td>Username:</td><td><input type="text" name="admin_name" size="40"></td></tr>
+						<tr><td>Password:</td><td><input type="text" name="admin_pass" size="40"></td></tr>
+						<tr><td>Email:</td><td><input type="text" name="admin_mail" size="40"></td></tr>
+						<tr><td colspan="2"><center><input type="submit" value="Next >>"></center></td></tr>
 					</table>
 				</center>
 			</form>
@@ -215,13 +229,11 @@ function begin() { // {{{
 		</div>
 EOD;
 } // }}}
-function install_process($database_dsn) { // {{{
+function install_process($database_dsn, $account) { // {{{
 	build_dirs();
 	create_tables($database_dsn);
-	insert_defaults($database_dsn);
 	write_config($database_dsn);
-	
-	header("Location: index.php");
+	insert_defaults($database_dsn, $account);
 } // }}}
 function create_tables($dsn) { // {{{
 	if(substr($dsn, 0, 5) == "mysql") {
@@ -326,7 +338,7 @@ function create_tables($dsn) { // {{{
 	}
 	$db->Close();
 } // }}}
-function insert_defaults($dsn) { // {{{
+function insert_defaults($dsn, $account) { // {{{
 	$db = NewADOConnection($dsn);
 	if(!$db) {
 		die("Couldn't connect to \"$dsn\"");
@@ -346,18 +358,57 @@ function insert_defaults($dsn) { // {{{
 			(mysql://), with hacks for Postgres (pgsql://) and SQLite (sqlite://)");
 		}
 		$engine->init($db);
-
+		
+		assert(is_array($account));
+		assert(is_string($account['username']));
+		assert(is_string($account['password']));
+		assert(is_string($account['email']));
+		
+		$username = $account['username'];
+		$password = $account['password'];
+		$email = $account['email'];
+		
+		$hash = md5(strtolower($username) . $password);
+		
 		$config_insert = $db->Prepare("INSERT INTO config(name, value) VALUES(?, ?)");
-		$user_insert = $db->Prepare("INSERT INTO users(name, pass, joindate,validate, role) VALUES(?, ?, now(), ?, ?)");
+		$user_insert = $db->Prepare("INSERT INTO users(name, pass, joindate,validate, role, email) VALUES(?, ?, now(), ?, ?, ?)");
 
-		$db->Execute($user_insert, Array('Anonymous', null, null, 'g'));
+		$db->Execute($user_insert, Array('Anonymous', null, null, 'g', null));
 		$db->Execute($config_insert, Array('anon_id', $db->Insert_ID()));
+		$db->Execute($user_insert, Array($username, $hash, null, 'o', $email));
 
 		if(check_im_version() > 0) {
 			$db->Execute($config_insert, Array('thumb_engine', 'convert'));
 		}
 
 		$db->Close();
+		print <<<EOD
+		<div id="iblock">
+			<h1>Step 2</h1>
+
+			$err
+			$thumberr
+			$dberr
+
+			<h3>Install</h3>
+			<form action="index.php?q=/account/login&easysetup=1" method="POST">
+				<center>
+					<table>
+						<tr><td colspan="2"><b>Use these details to log in:</b></td></tr>
+						<tr><td>Username:</td><td><code>$username</code><input type="hidden" name="user" value="$username"></td></tr>
+						<tr><td>Password:</td><td><code>$password</code><input type="hidden" name="pass" value="$password"></td></tr>
+						<tr><td colspan="2"><center><input type="submit" value="Next >>"></center></td></tr>
+					</table>
+				</center>
+			</form>
+
+			<h3>Help</h3>
+					
+			<p>Databases should be specified like so:
+			<br>ie: <code>protocol://username:password@host/database?options</code>
+			<br>eg: <code>mysql://shimmie:pw123@localhost/shimmie?persist</code>
+		</div>
+EOD;
 	}
 } // }}}
 function build_dirs() { // {{{

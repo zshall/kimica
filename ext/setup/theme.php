@@ -51,6 +51,29 @@ class SetupTheme extends Themelet {
 		$page->add_block(new Block("Navigation", $this->build_navigation(), "left", 0));
 		$page->add_block(new Block("Setup", $table));
 	}
+	
+	public function display_easy(Page $page, SetupPanel $panel) {
+		$setupblock_html = "";
+
+		foreach($panel->blocks as $block) {
+			if($block instanceof SetupBlock) {
+				$html = $this->sb_to_html_easy($block);
+				$setupblock_html .= $this->sb_to_html_easy($block);
+			}
+		}
+
+		$table = "
+			<form action='".make_link("setup/save")."' method='POST'><table width='80%'>
+			<tr><td>$setupblock_html</td></tr>
+			<input type='hidden' name = 'easysetup_finished' value='1'>
+			<tr><td><input type='submit' value='Finish Installation >>'></td></tr>
+			</table></form>
+			";
+
+		$page->set_title("Step 3");
+		$page->set_heading("Step 3");
+		$page->add_block(new Block("Setup", $table));
+	}
 
 	public function display_advanced(Page $page, $options) {
 		$rows = "";
@@ -101,6 +124,10 @@ class SetupTheme extends Themelet {
 
 	protected function sb_to_html(SetupBlock $block) {
 		return "<div class='setupblock'><b>{$block->header}</b><br>{$block->body}</div>\n";
+	}
+	
+	protected function sb_to_html_easy(SetupBlock $block) {
+		return "<b>{$block->header}</b><br>{$block->body}\n";
 	}
 }
 ?>

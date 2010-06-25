@@ -407,7 +407,7 @@ class UserPage extends SimpleExtension {
 		}
 	}
 	
-	private function login($page)  {
+	public function login($page)  {
 		global $database;
 
 		$name = $_POST['user'];
@@ -440,7 +440,11 @@ class UserPage extends SimpleExtension {
 				$database->Execute("UPDATE users SET ip = ? WHERE id = ?", array($ip, $duser->id));
 				
 				$page->set_mode("redirect");
-				$page->set_redirect(make_link("user/$duser->name"));
+				if(!isset($_GET['easysetup'])) {
+					$page->set_redirect(make_link("user/$duser->name"));
+				} else {
+					$page->set_redirect(make_link("setup/easy"));
+				}
 			}
 			else{
 				$validate_link = "<a href='".make_link("account/validate")."'>Validate</a>";
