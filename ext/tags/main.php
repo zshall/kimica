@@ -179,7 +179,7 @@ class TagList extends SimpleExtension {
 	//FIXME: The image is deleted and the event returns no id so the deletion from tag_histories doesn't work.
 	public function onImageDeletion($event) {
 		global $database;
-		$image = Image::by_id($event->image->id());
+		$image = Image::by_id($event->image->id);
 		if($image) {
 			$database->execute("DELETE FROM tag_histories WHERE image_id = ?", array($image->id));
 		}
