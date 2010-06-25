@@ -311,10 +311,7 @@ class Upload implements Extension {
 			}
 			else {
 				$pathinfo = pathinfo($fullpath);
-				$tags = $subdir;
-				$tags = str_replace("/", " ", $tags);
-				$tags = str_replace("__", " ", $tags);
-				$tags = trim($tags);
+				$tags = trim($pathinfo["basename"]);
 				$list .= "<br>".html_escape("$shortpath (".str_replace(" ", ", ", $tags).")... ");
 				try{
 					$this->add_image($fullpath, $pathinfo["basename"], $tags);
