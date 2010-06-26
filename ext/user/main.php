@@ -485,12 +485,7 @@ class UserPage extends SimpleExtension {
 
 		$hash = md5(strtolower($event->username) . $event->password);
 		$email = (!empty($event->email)) ? $event->email : null;
-		$code = substr(md5(microtime()), 0, 16);
-
-		// if there are currently no admins, the new user should be one (a for admin, g for non validated users)
-		$need_admin = ($database->db->GetOne("SELECT COUNT(*) FROM users WHERE role IN ('o', 't', '1')") == 0);
-		$role = $need_admin ? 'o' : 'g';
-		$validate = $need_admin ? null : $code;
+		$validate = substr(md5(microtime()), 0, 16);
 				
 		$link = make_http(make_link("account/validate/$event->username/$validate"));
 		$activation_link = '<a href="'.$link.'">'.$link.'</a>';
@@ -505,8 +500,8 @@ class UserPage extends SimpleExtension {
 		
 		if($sent){
 			$database->Execute(
-					"INSERT INTO users (ip, name, pass, joindate, validate, role, email) VALUES (?, ?, ?, now(), ?, ?, ?)",
-					array($ip, $event->username, $hash, $validate, $role, $email->to));
+					"INSERT INTO users (ip, name, pass, joindate, validate, email) VALUES (?, ?, ?, now(), ?, ?)",
+					array($ip, $event->username, $hash, $validate, $email->to));
 			$uid = $database->db->Insert_ID();
 			log_info("user", "Created User #$uid ({$event->username})");
 		}
