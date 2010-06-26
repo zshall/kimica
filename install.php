@@ -209,31 +209,27 @@ function begin() { // {{{
 			$thumberr
 			$dberr
 
-			<h3>Install</h3>
+			
 			<form action="install.php" method="POST">
 				<center>
+					<h3>Install</h3>
 					<table>
-						<tr><td colspan="2"><b>Database Details</b></td></tr>
 						<tr><td>Protocol:</td><td><select name="database_type"><option value="mysql">Mysql</option><option 
 						value="pgsql">Pgsql</option><option value="sqlite">Sqlite</option></select></td></tr>
 						<tr><td>Hostname:</td><td><input type="text" name="database_host" size="40"></td></tr>
 						<tr><td>Database:</td><td><input type="text" name="database_name" size="40"></td></tr>
 						<tr><td>Username:</td><td><input type="text" name="database_user" size="40"></td></tr>
 						<tr><td>Password:</td><td><input type="text" name="database_pass" size="40"></td></tr>
-						<tr><td colspan="2"><b>Create Administrator Account</b></td></tr>
+					</table>
+					<h3>Account</h3>
+					<table>
 						<tr><td>Username:</td><td><input type="text" name="admin_name" size="40"></td></tr>
 						<tr><td>Password:</td><td><input type="text" name="admin_pass" size="40"></td></tr>
 						<tr><td>Email:</td><td><input type="text" name="admin_mail" size="40"></td></tr>
-						<tr><td colspan="2"><center><input type="submit" value="Next >>"></center></td></tr>
 					</table>
+					<input type="submit" value="Next >>">
 				</center>
 			</form>
-
-			<h3>Help</h3>
-					
-			<p>Databases should be specified like so:
-			<br>ie: <code>protocol://username:password@host/database?options</code>
-			<br>eg: <code>mysql://shimmie:pw123@localhost/shimmie?persist</code>
 		</div>
 EOD;
 } // }}}
@@ -420,12 +416,6 @@ function insert_defaults($dsn, $account) { // {{{
 					</table>
 				</center>
 			</form>
-
-			<h3>Help</h3>
-					
-			<p>Databases should be specified like so:
-			<br>ie: <code>protocol://username:password@host/database?options</code>
-			<br>eg: <code>mysql://shimmie:pw123@localhost/shimmie?persist</code>
 		</div>
 EOD;
 	}
@@ -453,11 +443,14 @@ function build_dirs() { // {{{
 	}
 } // }}}
 function write_config($db_type, $db_host, $db_name, $db_user, $db_pass) { // {{{
-	$file_content = "<?php \$db_type='$db_type';
-							\$db_host='$db_host';
-							\$db_name='$db_name';
-							\$db_user='$db_user';
-							\$db_pass='$db_pass'; ?>";
+$file_content = '<?php'."\n";
+$file_content .= '// Database settings.'."\n";
+$file_content .= '$db_type = "'.$db_type.'";'."\n";
+$file_content .= '$db_host = "'.$db_host.'";'."\n";
+$file_content .= '$db_name = "'.$db_name.'";'."\n";
+$file_content .= '$db_user = "'.$db_user.'";'."\n";
+$file_content .= '$db_pass = "'.$db_pass.'";'."\n";
+$file_content .= '?>';
 	
 	if(is_writable("./") && file_put_contents("config.php", $file_content)) {
 		assert(file_exists("config.php"));
