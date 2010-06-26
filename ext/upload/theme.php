@@ -36,14 +36,6 @@ class UploadTheme extends Themelet {
 		}
 		$max_size = $config->get_int('upload_size');
 		$max_kb = to_shorthand_int($max_size);
-		if($user->is_admin()) {
-			$bulk_zip = "<form enctype='multipart/form-data' action='".make_link("bulk_zip")."' method='POST'>";
-			$bulk_zip .="<h3>Bulk Upload</h3>
-						 <p>Upload a .ZIP file containing multiple images to add them all at once.</p>
-						 <input accept='application/zip' id='data' name='data' type='file'>
-						 <input id='uploadbutton' type='submit' value='Upload'>
-						 </form>";
-		} else { $bulk_zip = ""; }
 		$html = "
 			<script>
 			$(document).ready(function() {
@@ -69,7 +61,7 @@ class UploadTheme extends Themelet {
 				</table>
 			</form>
 			<small>(Max file size is $max_kb)</small><br />
-			$bulk_zip
+			
 		";
 
 		if($tl_enabled) {
@@ -83,7 +75,17 @@ class UploadTheme extends Themelet {
 		$page->set_title("Upload");
 		$page->set_heading("Upload");
 		$page->add_block(new NavBlock());
-		$page->add_block(new Block("Upload", $html, "main", 20));
+		$page->add_block(new Block("Upload", $html, "main", 10));
+		
+		
+		if($user->is_admin()) {
+			$bulk_zip = "<form enctype='multipart/form-data' action='".make_link("bulk_zip")."' method='POST'>";
+			$bulk_zip .="<p>Upload a .ZIP file containing multiple images to add them all at once.</p>
+						 <input accept='application/zip' id='data' name='data' type='file'>
+						 <input id='uploadbutton' type='submit' value='Upload'>
+						 </form>";
+			$page->add_block(new Block("Bulk Upload", $bulk_zip, "main", 20));
+		}
 	}
 
 	public function display_upload_status(Page $page, $ok) {
