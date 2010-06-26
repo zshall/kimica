@@ -59,7 +59,7 @@ define("VERSION", 'trunk');
 define("SCORE_VERSION", 's2hack/'.VERSION);
 define("COOKIE_PREFIX", 'shm');
 
-if(empty($database_dsn) && !file_exists("config.php")) {
+if(!file_exists("config.php")) {
 	header("Location: install.php");
 	exit;
 }

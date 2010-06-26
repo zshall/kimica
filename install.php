@@ -146,11 +146,19 @@ function eok($name, $value) {
 // }}}
 function do_install() { // {{{
 	if(isset($_POST['database_type']) && isset($_POST['database_host']) && isset($_POST['database_name']) && isset($_POST['database_user']) && isset($_POST['database_pass']) && isset($_POST['admin_name']) && isset($_POST['admin_pass']) && isset($_POST['admin_mail'])) {
+		// for convienence:
 		$database_dsn = $_POST['database_type']."://".$_POST['database_user'].":".$_POST['database_pass']."@".$_POST['database_host']."/".$_POST['database_name']."?persist";
+		// for config file:
+		$db_type = $_POST['database_type'];
+		$db_user = $_POST['database_user'];
+		$db_pass = $_POST['database_pass'];
+		$db_host = $_POST['database_host'];
+		$db_name = $_POST['database_name'];
+		// for first account
 		$account['username'] = $_POST['admin_name'];
 		$account['password'] = $_POST['admin_pass'];
 		$account['email'] = $_POST['admin_mail'];
-		install_process($database_dsn,$account);
+		install_process($database_dsn, $db_type, $db_host, $db_name, $db_user, $db_pass, $account);
 	}
 	else if(file_exists("auto_install.conf")) {
 		install_process(trim(file_get_contents("auto_install.conf")));
@@ -229,10 +237,10 @@ function begin() { // {{{
 		</div>
 EOD;
 } // }}}
-function install_process($database_dsn, $account) { // {{{
+function install_process($database_dsn, $db_type, $db_host, $db_name, $db_user, $db_pass, $account) { // {{{
 	build_dirs();
 	create_tables($database_dsn);
-	write_config($database_dsn);
+	write_config($db_type, $db_host, $db_name, $db_user, $db_pass);
 	insert_defaults($database_dsn, $account);
 } // }}}
 function create_tables($dsn) { // {{{
@@ -444,8 +452,12 @@ function build_dirs() { // {{{
 		exit;
 	}
 } // }}}
-function write_config($dsn) { // {{{
-	$file_content = "<?php \$database_dsn='$dsn'; ?>";
+function write_config($db_type, $db_host, $db_name, $db_user, $db_pass) { // {{{
+	$file_content = "<?php \$db_type='$db_type';
+							\$db_host='$db_host';
+							\$db_name='$db_name';
+							\$db_user='$db_user';
+							\$db_pass='$db_pass'; ?>";
 	
 	if(is_writable("./") && file_put_contents("config.php", $file_content)) {
 		assert(file_exists("config.php"));

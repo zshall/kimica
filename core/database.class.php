@@ -274,8 +274,8 @@ class Database {
 	 * stored in config.php in the root shimmie folder
 	 */
 	public function Database() {
-		global $database_dsn, $cache_dsn;
-
+		global $db_type, $db_host, $db_name, $db_user, $db_pass, $cache_dsn;
+		$database_dsn = $db_type."://".$db_user.":".$db_pass."@".$db_host."/".$db_name."?persist";
 		if(substr($database_dsn, 0, 5) == "mysql") {
 			$this->engine = new MySQL();
 		}
