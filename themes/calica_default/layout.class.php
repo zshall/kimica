@@ -50,7 +50,9 @@ class Layout {
 		$base_href = $config->get_string('base_href');
 		$data_href = get_base_href();
 		$contact_link = $config->get_string('contact_link');
-
+		
+		$page_title = $page->title;
+		if($page_title == $config->get_string("title") || $page_title == "") unset($page_title);
 
 		$header_html = "";
 		ksort($page->headers);
@@ -176,7 +178,8 @@ class Layout {
 		//$title_link = "<h1><a href='".make_link($main_page)."'>$site_name</a>/$this->heading</h1>";
 
 		// bzchan: prepare main title link
-		$title_link = "<h1 id='site-title'><a href='".make_link($main_page)."'>$site_name</a></h1>";
+		if(isset($page_title)) $page_title_text = " / " . $page_title;
+		$title_link = "<h1 id='site-title'><a href='".make_link($main_page)."'>$site_name</a>$page_title_text</h1>";
 
 		if($page->left_enabled) {
 			$left = "<div class='sidebar'>$left_block_html</div>";

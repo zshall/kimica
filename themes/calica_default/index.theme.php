@@ -3,17 +3,21 @@
 class CustomIndexTheme extends IndexTheme {
 	public function display_page($page, $images) {
 		global $config;
-
-		if(count($this->search_terms) == 0) {
-			$query = null;
-			$page_title = $config->get_string('title');
+		if(count($this->search_terms) != 0) {
+			$search_string = "";
+			$i = 1;
+			foreach ($this->search_terms as $search_term) {
+				$search_string .= "<a href='post/list/".$search_term."/1'>".$search_term."</a>";
+				if($i < count($this->search_terms)) $search_string .= " + ";
+				$i++;
+			}
+			$query = url_escape($search_string);
+			$page_title = $search_string;
 		}
 		else {
-			$search_string = implode(' ', $this->search_terms);
-			$query = url_escape($search_string);
-			$page_title = html_escape($search_string);
+			$query = null;
+			$page_title = $config->get_string('title');	
 		}
-
 		$nav = $this->build_navigation($this->page_number, $this->total_pages, $this->search_terms);
 		$page->set_title($page_title);
 		$page->set_heading($page_title);
