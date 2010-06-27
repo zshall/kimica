@@ -137,7 +137,8 @@ class UserPage extends SimpleExtension {
 				}
 			}
 			else if($event->get_arg(0) == "recover") {
-								
+				$name = NULL;
+				$email = NULL;
 				if(isset($_POST["name"]) || isset($_POST["email"])){
 					$name = $_POST["name"];
 					$email = $_POST["email"];
@@ -168,6 +169,10 @@ class UserPage extends SimpleExtension {
 				$this->theme->display_user_list($page, User::by_list(0), $user);
 			}
 			else if($event->get_arg(0) == "messages") {
+				if($user->is_anon()){
+					$page->set_mode("redirect");
+					$page->set_redirect(make_link("post/list"));
+				}
 				switch ($event->get_arg(1)) {
 					case "new":
 						$user_id = $event->get_arg(2);
