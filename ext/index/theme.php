@@ -20,8 +20,8 @@ and of course start organising your images :-)
 <p>This message will go away once your first image is uploaded~
 </div>
 EOD;
-		$page->set_title("Welcome to Shimmie ".VERSION);
-		$page->set_heading("Welcome to Shimmie");
+		$page->set_title("Welcome to Kimica ".VERSION);
+		$page->set_heading("Welcome to Kimica");
 		$page->add_block(new Block("Installation Succeeded!", $text, "main", 0));
 	}
 

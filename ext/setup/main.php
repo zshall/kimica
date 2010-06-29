@@ -180,7 +180,7 @@ class SetupBlock extends Block {
 class Setup extends SimpleExtension {
 	public function onInitExt($event) {
 		global $config;
-		$config->set_default_string("title", "Shimmie");
+		$config->set_default_string("title", "Kimica");
 		$config->set_default_string("front_page", "post/list");
 		$config->set_default_string("main_page", "post/list");
 		$config->set_default_string("base_href", "./index.php?q=");
