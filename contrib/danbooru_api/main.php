@@ -370,7 +370,7 @@ class DanbooruApi implements Extension
 		}
 
 		// Hackery for danbooruup 0.3.2 providing the wrong view url. This simply redirects to the proper
-		// Shimmie view page
+		// Kimica view page
 		// Example: danbooruup says the url is http://shimmie/api/danbooru/post/show/123
 		// This redirects that to http://shimmie/post/view/123
 		if(($event->get_arg(1) == 'post') && ($event->get_arg(2) == 'show'))

@@ -24,7 +24,7 @@ PHP 5.0+
 GD or ImageMagick
 
 There is no PHP4 support, because it lacks many useful features which make
-shimmie development easier, faster, and less bug prone. PHP4 is officially
+Kimica development easier, faster, and less bug prone. PHP4 is officially
 dead, if your host hasn't upgraded to at least 5, I would suggest switching
 hosts. I'll even host galleries for free if you can't get hosting elsewhere
 for whatever reason~
@@ -33,7 +33,7 @@ for whatever reason~
 Installation
 ~~~~~~~~~~~~
 1) Create a blank database
-2) Unzip shimmie into a folder on the web host
+2) Unzip Kimica into a folder on the web host
 3) Visit the folder with a web browser
 4) Enter the location of the database
 5) Click "install". Hopefully you'll end up at the welcome screen; if
@@ -59,7 +59,7 @@ Contact
 ~~~~~~~
 (No email yet!)
 (No web site yet!)
-https://www.assembla.com/spaces/shimmie/tickets -- bug tracker
+https://www.assembla.com/spaces/kimica/tickets -- bug tracker
 
 Acknowledgements
 ~~~~~~~~~~~~~~~~
@@ -74,7 +74,7 @@ may be able to help :)
 
 Licence
 ~~~~~~~
-All code is GPLv2 unless mentioned otherwise; ie, if you give shimmie to
+All code is GPLv2 unless mentioned otherwise; ie, if you give Kimica to
 someone else, you have to give them the source (which should be easy, as PHP
 is an interpreted language...). If you want to add customisations to your own
 site, then those customisations belong to you, and you can do what you want

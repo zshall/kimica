@@ -2,14 +2,14 @@
 /**
 * Name: Danbooru Theme
 * Author: Bzchan <bzchan@animemahou.com>
-* Link: http://trac.shishnet.org/shimmie2/
+* Link: 
 * License: GPLv2
 * Description: This is a simple theme changing the css to make shimme
 *              look more like danbooru as well as adding a custom links
 *              bar and title to the top of every page.
 */
 //Small changes added by zshall <http://seemslegit.com>
-//Changed CSS and layout to make shimmie look even more like danbooru
+//Changed CSS and layout to make Kimica look even more like danbooru
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 Danbooru Theme - Notes (Bzchan)
 
@@ -17,8 +17,8 @@ Files: default.php, sidebar.js, style.css
 
 How to use a theme
 - Copy the danbooru folder with all its contained files into the "themes"
-  directory in your shimmie installation.
-- Log into your shimmie and change the Theme in the Board Config to your
+  directory in your Kimica installation.
+- Log into your Kimica and change the Theme in the Board Config to your
   desired theme.
 
 Changes in this theme include

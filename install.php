@@ -203,7 +203,7 @@ function begin() { // {{{
 
 	print <<<EOD
 		<div id="iblock">
-			<h1>Shimmie Installer</h1>
+			<h1>Kimica Installer</h1>
 
 			$err
 			$thumberr
@@ -250,7 +250,7 @@ function create_tables($dsn) { // {{{
 		$engine = new SQLite();
 	}
 	else {
-		die("Unknown database engine; Shimmie currently officially supports MySQL
+		die("Unknown database engine; Kimica currently officially supports MySQL
 		(mysql://), with hacks for Postgres (pgsql://) and SQLite (sqlite://)");
 	}
 
@@ -369,7 +369,7 @@ function insert_defaults($dsn, $account) { // {{{
 			$engine = new SQLite();
 		}
 		else {
-			die("Unknown database engine; Shimmie currently officially supports MySQL
+			die("Unknown database engine; Kimica currently officially supports MySQL
 			(mysql://), with hacks for Postgres (pgsql://) and SQLite (sqlite://)");
 		}
 		$engine->init($db);
@@ -434,7 +434,7 @@ function build_dirs() { // {{{
 			!file_exists("images") || !file_exists("thumbs") || !file_exists("data") ||
 			!is_writable("images") || !is_writable("thumbs") || !is_writable("data")
 	) {
-		print "Shimmie needs three folders in it's directory, 'images', 'thumbs', and 'data',
+		print "Kimica needs three folders in it's directory, 'images', 'thumbs', and 'data',
 		       and they need to be writable by the PHP user (if you see this error,
 			   if probably means the folders are owned by you, and they need to be
 			   writable by the web server).
@@ -459,7 +459,7 @@ $file_content .= '?>';
 		$h_file_content = htmlentities($file_content);
 		print <<<EOD
 		The web server isn't allowed to write to the config file; please copy
-	    the text below, save it as 'config.php', and upload it into the shimmie
+	    the text below, save it as 'config.php', and upload it into the Kimica
 	    folder manually. Make sure that when you save it, there is no whitespace
 		before the "&lt;?php" or after the "?&gt;"
 
