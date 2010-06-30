@@ -2,7 +2,6 @@ html, body {
 background-color:#EEE;
 padding:20px;
 border-radius:2px 2px 2px 2px;
-border:1px solid #C6D8DC;
 margin:0px;
 width:auto;
 min-width:1px;
@@ -11,6 +10,7 @@ body {
 color:#6F8288;
 font-weight:bold;
 font:13px/1.231 arial,helvetica,clean,sans-serif;
+border:1px solid #C6D8DC;
 }
 a {
 color:#a28a78;
@@ -32,9 +32,9 @@ top:173px;
 z-index:100;
 font-size:14px;
 }
-#bd {
+#body-section {
 background-color:#EEF4F4;
-padding:6px 20px 20px;
+min-height:200px;
 }
 #ft {
 background-color: #f2e6dd;
@@ -94,6 +94,7 @@ float:left;
 #botline {
 background:url("/themes/calica_default/res/botline.png") repeat-x scroll 0 0 #F8F5EA;
 padding-left:23px;
+min-height:35px;
 }
 #botline li {
 padding-left:10px;

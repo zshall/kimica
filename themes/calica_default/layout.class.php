@@ -132,7 +132,7 @@ class Layout {
 		// php sucks
 		switch($qp[0]) {
 			default:
-				$custom_sublinks .= $user_block_html;
+				$custom_sublinks .= $user_block_html . "&nbsp;";
 				break;
 			case "":
 				# FIXME: this assumes that the front page is
@@ -217,13 +217,13 @@ $header_html
 		<ul id="botline" class="clearfix">
 			$custom_sublinks
 		</ul>
-		
+		<div id="body-section">
 		$subheading
 		$sub_block_html
 		
 		$left
 		<div id="body" class="$withleft clearfix">$main_block_html</div>
-
+		</div>
 		<div id="ft">
         <em>
 			Images &copy; their respective owners,
