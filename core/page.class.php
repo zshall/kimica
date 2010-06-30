@@ -88,6 +88,9 @@ class Page {
 
 	/** @private */
 	var $redirect = "";
+	
+	/** @private */
+	var $delay = 0;
 
 	/**
 	 * Set the URL to redirect to (remember to use make_link() if linking
@@ -95,6 +98,13 @@ class Page {
 	 */
 	public function set_redirect($redirect) {
 		$this->redirect = $redirect;
+	}
+	
+	/**
+	 * Set the delay of the redirect
+	 */
+	public function set_delay($delay) {
+		$this->delay = $delay;
 	}
 
 
@@ -164,6 +174,9 @@ class Page {
 		switch($this->mode) {
 			case "page":
 				header("Cache-control: no-cache");
+				if($this->delay > 0){
+					header("Refresh: ".$this->delay."; URL=".$this->redirect);
+				}
 				usort($this->blocks, "blockcmp");
 				$this->add_auto_headers();
 				$layout = new Layout();
@@ -177,8 +190,12 @@ class Page {
 				print $this->data;
 				break;
 			case "redirect":
-				header("Location: {$this->redirect}");
-				print "You should be redirected to <a href='{$this->redirect}'>{$this->redirect}</a>";
+				if($this->delay > 0){
+					header("Refresh: ".$this->delay."; URL=".$this->redirect);
+				}
+				else{
+					header("Location: ".$this->redirect);
+				}
 				break;
 			default:
 				print "Invalid page mode";
