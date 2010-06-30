@@ -16,7 +16,7 @@ a {
 color:#a28a78;
 }
 #bg {
-background:url("/themes/calica_default/res/topbar.png") repeat scroll 0 0 transparent;
+background:url("topbar.png") repeat scroll 0 0 transparent;
 }
 #hd {
 padding:120px 33px 10px;
@@ -92,7 +92,7 @@ float:left;
 float:left;
 }
 #botline {
-background:url("/themes/calica_default/res/botline.png") repeat-x scroll 0 0 #F8F5EA;
+background:url("botline.png") repeat-x scroll 0 0 #F8F5EA;
 padding-left:23px;
 }
 #botline li {
@@ -131,7 +131,7 @@ margin-left:20px;
 }
 .note {
 -moz-border-radius:2px 2px 2px 2px;
-background:url("/themes/calica_default/res/note.png") repeat-x scroll 0 0 #f2e6dd;
+background:url("note.png") repeat-x scroll 0 0 #f2e6dd;
 border:1px solid #9C836F;
 margin-bottom:1em;
 padding:0.5em;
