@@ -240,24 +240,11 @@ text-align:left;
 margin:0;
 padding:0;
 }
-ul.flat-list {
-display:block;
-margin:0;
-padding:0;
-}
 ul.flat-list * {
 display:inline;
-text-align:left;
+vertical-align:5px;
 }
-ul.flat-list li {
-font-weight:bold;
-list-style-type:none;
-margin:0 1.3em 0 0;
-text-align:left;
-}
-ul.flat-list li a {
-font-weight:normal;
-}
+
 #tips {
 margin-left:16px;
 }

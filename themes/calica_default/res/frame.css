@@ -1,6 +1,11 @@
 html, body {
 background-color:#EEE;
 padding:20px;
+border-radius:2px 2px 2px 2px;
+border:1px solid #C6D8DC;
+margin:0px;
+width:auto;
+min-width:1px;
 }
 body {
 color:#6F8288;
@@ -8,15 +13,10 @@ font-weight:bold;
 font:13px/1.231 arial,helvetica,clean,sans-serif;
 }
 a {
-	color:#a28a78;
+color:#a28a78;
 }
-#wrap {
--moz-border-radius:2px 2px 2px 2px;
+#bg {
 background:url("/themes/calica_default/res/topbar.png") repeat scroll 0 0 transparent;
-border:1px solid #C6D8DC;
-margin:0px;
-width:auto;
-min-width:1px;
 }
 #hd {
 padding:120px 33px 10px;
@@ -103,10 +103,6 @@ color:#000000;
 display:block;
 font-size:12px;
 padding:8px 4px 12px;
-}
-#main {
-float:left;
-margin-right:-25em;
 }
 .sidebar {
 position:relative;
@@ -199,11 +195,31 @@ font-weight:inherit;
 select, input, button, textarea, button {
 font:99% arial,helvetica,clean,sans-serif;
 }
-
 #hd:after, #bd:after, #ft:after, .yui-g:after, .yui-gb:after, .yui-gc:after, .yui-gd:after, .yui-ge:after, .yui-gf:after {
 clear:both;
 content:".";
 display:block;
 height:0;
 visibility:hidden;
+}
+ul.flat-list input, ul.flat-list a {
+position:relative;
+top:5px;
+}
+ul.flat-list a {
+color:#FFF;
+}
+#userbar {
+height:28px;
+left:0;
+position:absolute;
+top:0;
+width:100%;
+z-index:1001;
+background:url(http://snhub.net/wp-content/themes/bp-default/_inc/images/admin_bar_back.gif);
+}
+#userbar ul li {
+padding:5px 8px;
+color:#fff;
+font-weight:bold;
 }

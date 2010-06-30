@@ -51,8 +51,8 @@ class Layout {
 		$data_href = get_base_href();
 		$contact_link = $config->get_string('contact_link');
 		
-		$page_title = $page->title;
-		if($page_title == $config->get_string("title") || $page_title == "") unset($page_title);
+		$page_header = $page->heading;
+
 
 		$header_html = "";
 		ksort($page->headers);
@@ -173,16 +173,12 @@ class Layout {
 		}
 
 
-		// bzchan: failed attempt to add heading after title_link (failure was it looked bad)
-		//if($this->heading==$site_name)$this->heading = '';
-		//$title_link = "<h1><a href='".make_link($main_page)."'>$site_name</a>/$this->heading</h1>";
 
 		// bzchan: prepare main title link
-		if(isset($page_title)) $page_title_text = " / " . $page_title;
-		$title_link = "<h1 id='site-title'><a href='".make_link($main_page)."'>$site_name</a>$page_title_text</h1>";
+		$title_link = "<h1 id='site-title'><a href='".make_link($main_page)."'>$page_header</a></h1>";
 
 		if($page->left_enabled) {
-			$left = "<div class='sidebar'>$left_block_html</div>";
+			$left = "<div id='nav'>$left_block_html</div>";
 			$withleft = "withleft";
 		}
 		else {
@@ -191,50 +187,49 @@ class Layout {
 		}
 
 		print <<<EOD
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
-<html><head>
-<title>Calica</title>
-<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
-<link rel="stylesheet" href="$data_href/themes/$theme_name/res/style.css" type="text/css">
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<html>
+	<head>
+		<title>{$page->title}</title>
+		<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+		<link rel="stylesheet" href="$data_href/themes/$theme_name/res/style.css" type="text/css">
+		<link rel="stylesheet" href="$data_href/themes/$theme_name/res/frame.css" type="text/css">
 $header_html
-<script src='$data_href/themes/$theme_name/res/sidebar.js' type='text/javascript'></script>
-<script src='$data_href/themes/$theme_name/res/script.js' type='text/javascript'></script>
-<link rel="stylesheet" type="text/css" href="$data_href/themes/$theme_name/res/frame.css">
-</head><body>
-<div id="wrap">
+		<script src='$data_href/themes/$theme_name/sidebar.js' type='text/javascript'></script>
+		<script src='$data_href/themes/$theme_name/script.js' type='text/javascript'></script>
+	</head>
 
-	<div id="hd">
-		$title_link
-<!--      	<form id="sitesearch" class="clearfix" action="" method="get">
-            <input id="sitesearchbox" name="p" type="text">
-            <input type="submit">
-        </form>-->
-	</div>
-
-		<div id="navbar">
-			<ul id="topline" class="clearfix">
-				$custom_links
-			</ul>
-			<div id="botline" class="clearfix">
-				<ul>
-					$custom_sublinks
-				</ul>
-			</div>
+	<body><div id="userbar"><ul class="flat-list">
+<li>Log in »</li> 
+<li>User: <input type="text" name="user"></li>
+<li>Pass: <input type="password" name="pass">
+<input type="submit" value="»" style="font-size: 80%;"/> 
+<a href="/user_admin/create">Sign up »</a></li>
+		</ul></div>
+    	<div id="bg">
+            <div id="hd">
+                $title_link
+            </div>
+            <ul id="topline" class="clearfix">
+                $custom_links
+            </ul>
         </div>
+		<ul id="botline" class="clearfix">
+			$custom_sublinks
+		</ul>
+		
 		$subheading
 		$sub_block_html
-        
-        <div id="bd">
-        	<div id="main">
-				$main_block_html
-            </div>
-            
-            
-			$left
-        </div>
+		
+		$left
+		<div id="body" class="$withleft clearfix">$main_block_html</div>
+
 		<div id="ft">
         <em>
-			All images © their respective owners. Powered by <a href="https://www.assembla.com/spaces/calica">Calica</a><br />
+			Images &copy; their respective owners,
+			<a href="http://code.shishnet.org/shimmie2/">Shimmie</a> &copy;
+			<a href="http://www.shishnet.org/">Shish</a> &amp; Co 2007-2010,
+			based on the Danbooru concept.
 			$debug
 			$contact
         </em>
@@ -249,26 +244,16 @@ EOD;
 		$s = $block->section;
 		$b = $block->body;
 		$html = "";
-        if($s == "left") {
-        	if($hidable) {
-            	$i = str_replace(' ', '_', $h.$s);
-            	$html .= "<div class='mod'>";
-                if(!is_null($h)) $html .= "\n<div class='hd' id='$i-toggle' onclick=\"toggle('$i')\">$h</div>\n";
-                if(!is_null($b)) $html .= "<div id='$i' class='bd'>$b</div>\n";
-                $html .= "</div>";
-            }
-        } else {
-            if($hidable) {
-                $i = str_replace(' ', '_', $h.$s);
-                if(!is_null($h)) $html .= "\n<h3 id='$i-toggle' onclick=\"toggle('$i')\">$h</h3>\n";
-                if(!is_null($b)) $html .= "<div id='$i'>$b</div>\n";
-            }
-            else {
-                $i = str_replace(' ', '_', $h.$s);
-                if(!is_null($h)) $html .= "\n<h3>$h</h3>\n";
-                if(!is_null($b)) $html .= "<div id='$i'>$b</div>\n"; 
-            }
-        }
+		if($hidable) {
+			$i = str_replace(' ', '_', $h.$s);
+			if(!is_null($h)) $html .= "\n<h3 id='$i-toggle' onclick=\"toggle('$i')\">$h</h3>\n";
+			if(!is_null($b)) $html .= "<div id='$i'>$b</div>\n";
+		}
+		else {
+			$i = str_replace(' ', '_', $h.$s);
+			if(!is_null($h)) $html .= "\n<h3>$h</h3>\n";
+			if(!is_null($b)) $html .= "<div id='$i'>$b</div>\n"; 
+		}
 		return $html;
 	}
 	private function navlinks($link, $desc, $pages_matched) {
@@ -290,7 +275,7 @@ EOD;
 				$html = "<li class='selected'><a href='$link'>$desc</a></li>";
 			}
 		}
-		if(is_null($html)) {$html = "<li><a href='$link'>$desc</a></li>";}
+		if(is_null($html)) {$html = "<li><a class='tab' href='$link'>$desc</a></li>";}
 		return $html;
 	}
 }
