@@ -2,6 +2,10 @@
 
 class Themelet {
 	public function display_error(Page $page, $title, $message) {
+		$referer = $_SERVER['HTTP_REFERER'];
+		$page->set_delay(5);
+		$page->set_redirect($referer);
+		
 		$page->set_title($title);
 		$page->set_heading($title);
 		$page->add_block(new NavBlock());
