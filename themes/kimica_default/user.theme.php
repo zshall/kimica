@@ -65,7 +65,7 @@ class CustomUserPageTheme extends UserPageTheme {
 				<tr><td>Name</td><td><input type='text' name='name'></td></tr>
 				<tr><td>Password</td><td><input type='password' name='pass1'></td></tr>
 				<tr><td>Repeat Password</td><td><input type='password' name='pass2'></td></tr>
-				<tr><td>Email (Optional)</td><td><input type='text' name='email'></td></tr>
+				<tr><td>Email</td><td><input type='text' name='email'></td></tr>
 				$reca
 				<tr><td colspan='2'><input type='Submit' value='Create Account'></td></tr>
 			</table>
