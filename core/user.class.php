@@ -48,8 +48,8 @@ class User {
 		$this->owner = ($row['role'] == 'o');
 		$this->admin = ($row['role'] == 'a' || $row['role'] == 'o');
 		$this->mod = ($row['role'] == 'm' || $row['role'] == 'a' || $row['role'] == 'o');
-		$this->subs = ($row['role'] == 'u' || $row['role'] == 's');
-		$this->user = ($row['role'] == 'u');
+		$this->subs = ($row['role'] == 's');
+		$this->user = ($row['role'] == 'u' || $row['role'] == 's');
 		$this->anon = ($row['role'] == 'g');
 	}
 
