@@ -170,7 +170,7 @@ height:0;
 visibility:hidden;
 }
 
-body, div, dl, dt, dd, ul, ol, li, h1, h2, h3, h4, h5, h6, pre, code, form, fieldset, input, button, textarea, p, blockquote, th, td {
+body, div, dl, dt, dd, ul, ol, li, h1, h2, h3, h4, h5, h6 {
 margin:0;
 padding:0;
 }
@@ -217,7 +217,7 @@ position:absolute;
 top:0;
 width:100%;
 z-index:1001;
-background:url("userbar.gif");
+background:#333333 url("userbar.gif");
 }
 #userbar ul li {
 padding:5px 8px;
@@ -236,3 +236,13 @@ border:1px solid #999;
 color:#fff;
 font-weight:bold;
 }
+#signup-box {
+background:#333;
+color:#fff;
+font-weight:bold
+height:500px;
+}
+#signup-box input {background-color:#444; border:1px solid #999; font-size:18px; color:#FFF;}
+#signup-box table, #signup-box h1, #signup-box p {margin-left:30px;}
+#signup-box td {padding:5px; font-size:18px; color:#999;}
+#signup-box h1 {color:#CCC;}

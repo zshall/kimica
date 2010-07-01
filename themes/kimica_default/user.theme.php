@@ -103,6 +103,7 @@ class CustomUserPageTheme extends UserPageTheme {
 	protected function build_options($duser) {
 		global $database;
 		global $config;
+		global $user;
 
 		$html = "";
 		$html .= "
@@ -125,6 +126,55 @@ class CustomUserPageTheme extends UserPageTheme {
 			</table>
 		</form></p>
 		";
+		if($user->is_owner()) {
+			$i_user_id = int_escape($duser->id);
+			$h_is_owner = $duser->is_owner() ? " selected='yes'" : "";
+			$h_is_admin = $duser->is_admin() ? " selected='yes'" : "";
+			$h_is_mod   = $duser->is_mod()   ? " selected='yes'" : "";
+			$h_is_cont  = $duser->is_cont()  ? " selected='yes'" : "";
+			$h_is_user  = $duser->is_user()  ? " selected='yes'" : "";
+			$h_is_anon  = $duser->is_anon()  ? " selected='yes'" : "";
+			if($h_is_owner != "") { $h_is_admin = ""; $h_is_mod = ""; }
+			if($h_is_admin != "") { $h_is_mod   = ""; }
+			$html .= "
+				<p><form action='".make_link("account/set_more")."' method='POST'>
+				<input type='hidden' name='id' value='$i_user_id'>
+				User Role: 
+					<select name='role'>
+					  <option value='o'$h_is_owner>Owner</option>
+					  <option value='a'$h_is_admin>Admin</option>
+					  <option value='m'$h_is_mod>Moderator</option>
+					  <option value='c'$h_is_cont>Contributor</option>
+					  <option value='u'$h_is_user>User</option>
+					  <option value='g'$h_is_anon>Anonymous / Inactive</option>
+					</select>
+				<input type='submit' value='Set'>
+				</form>
+			";
+		}
+		else if($user->is_admin() && (!$duser->is_admin())) {
+			$i_user_id = int_escape($duser->id);
+			$h_is_admin = $duser->is_admin() ? " selected='yes'" : "";
+			$h_is_mod   = $duser->is_mod()   ? " selected='yes'" : "";
+			$h_is_cont  = $duser->is_cont()  ? " selected='yes'" : "";
+			$h_is_user  = $duser->is_user()  ? " selected='yes'" : "";
+			$h_is_anon  = $duser->is_anon()  ? " selected='yes'" : "";
+			if($h_is_admin != "") { $h_is_mod   = ""; }
+			$html .= "
+				<p><form action='".make_link("account/set_more")."' method='POST'>
+				<input type='hidden' name='id' value='$i_user_id'>
+				User Role: 
+					<select name='role'>
+					  <option value='a'$h_is_admin>Admin</option>
+					  <option value='m'$h_is_mod>Moderator</option>
+					  <option value='s'$h_is_cont>Contributor</option>
+					  <option value='u'$h_is_user>User</option>
+					  <option value='g'$h_is_anon>Anonymous / Inactive</option>
+					</select>
+				<input type='submit' value='Change Role'>
+				</form>
+			";
+		}
 		return $html;
 	}
 }

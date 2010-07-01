@@ -172,33 +172,74 @@ class Layout {
 				break;
 		}
 
-// prepare userbar
-if($user->is_anonymous()) {
-$user_bar = '
-    <form action="'.make_link("account/login").'" method="post">
-    <div id="userbar"><ul class="flat-list">
-<li><img src="'.$data_href.'/themes/'.$theme_name.'/res/user.gif">Log in »</li> 
-<li>User: <input type="text" name="user"></li>
-<li>Pass: <input type="password" name="pass">
-<input type="submit" value="»" style="font-size: 80%;"/> 
-<a href="'.make_link("account/create").'">Sign up »</a></li>
-		</ul></div>
-        </form>';
-} else {
-$user_bar = '<div id="userbar"><ul class="flat-list">
-<li><a href="'.make_link("user").'"><img src="'.$data_href.'/themes/'.$theme_name.'/res/user.gif">'.$user->name.'</a></li>
-<li><a href="'.make_link("account/messages").'"><img src="'.$data_href.'/themes/'.$theme_name.'/res/mail.gif">(0)</a></li>
-';
-if($user->is_mod()) {
-$user_bar .= '<li><a href="'.make_link("tools").'"><img src="'.$data_href.'/themes/'.$theme_name.'/res/tools.gif">Tools</a></li>';
-}
-if($user->is_admin()) {
-$user_bar .= '<li><a href="'.make_link("setup").'"><img src="'.$data_href.'/themes/'.$theme_name.'/res/config.gif">Config</a></li>';
-}
-$user_bar .= '
-<li><a href="'.make_link("account/logout").'"><img src="'.$data_href.'/themes/'.$theme_name.'/res/logout.gif">Log out »</a></li>
-</ul></div>';
-}
+		// prepare userbar
+		if($user->is_anonymous()) {
+			$user_bar = '
+				<form action="'.make_link("account/login").'" method="post">
+				<div id="userbar"><ul class="flat-list">
+			<li><img src="'.$data_href.'/themes/'.$theme_name.'/res/user.gif">Log in »</li> 
+			<li>User: <input type="text" name="user"></li>
+			<li>Pass: <input type="password" name="pass">
+			<input type="submit" value="»" style="font-size: 80%;"/> 
+			<a id="signup-link" href="#">Sign up »</a></li>
+					</ul></div>
+					</form>';
+			$user_bar .= "<script>
+			$(document).ready(function() {
+			  $('#signup-box').hide();
+			  $('a#signup-link').click(function() {
+				$('#signup-box').slideToggle('slow');
+				return false;
+			  });
+			});
+			</script>
+			<div id='signup-box'>";
+			$tac = $config->get_string("login_tac", "");
+			
+			$tfe = new TextFormattingEvent($tac);
+			send_event($tfe);
+			$tac = $tfe->formatted;
+			
+			$reca = "<tr><td colspan='2'>".captcha_get_html()."</td></tr>";
+			
+			if(empty($tac)) {$html = "";}
+			else {$tac = "<p>$tac</p>";}
+			
+			$user_bar .= "<br />
+			<br />
+			
+			<h1>Create Account</h1>
+			$tac
+			<form action='".make_link("account/create")."' method='POST'>
+				<table style='width: 300px;'>
+					<tr><td>Name</td><td><input type='text' name='name'></td></tr>
+					<tr><td>Password</td><td><input type='password' name='pass1'></td></tr>
+					<tr><td>Repeat Password</td><td><input type='password' name='pass2'></td></tr>
+					<tr><td>Email</td><td><input type='text' name='email'></td></tr>
+					$reca
+					<tr><td colspan='2'><input type='Submit' value='Create Account'></td></tr>
+				</table>
+			</form><br />
+			<br />
+			";
+			$user_bar .= "</div>
+			";
+		} else {
+			$user_bar = '<div id="userbar"><ul class="flat-list">
+			<li><a href="'.make_link().'"><img src="'.$data_href.'/themes/'.$theme_name.'/res/home.gif">'.$site_name.'</a></li>
+			<li><a href="'.make_link("user").'"><img src="'.$data_href.'/themes/'.$theme_name.'/res/user.gif">'.$user->name.'</a></li>
+			<li><a href="'.make_link("account/messages").'"><img src="'.$data_href.'/themes/'.$theme_name.'/res/mail.gif">(0)</a></li>
+			';
+			if($user->is_mod()) {
+			$user_bar .= '<li><a href="'.make_link("tools").'"><img src="'.$data_href.'/themes/'.$theme_name.'/res/tools.gif">Tools</a></li>';
+			}
+			if($user->is_admin()) {
+			$user_bar .= '<li><a href="'.make_link("setup").'"><img src="'.$data_href.'/themes/'.$theme_name.'/res/config.gif">Config</a></li>';
+			}
+			$user_bar .= '
+			<li><a href="'.make_link("account/logout").'"><img src="'.$data_href.'/themes/'.$theme_name.'/res/logout.gif">Log out »</a></li>
+			</ul></div>';
+		}
 
 
 		// bzchan: prepare main title link
