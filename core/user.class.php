@@ -20,7 +20,7 @@ class User {
 	var $admin;
 	var $mod;
 	var $user;
-	var $subs;
+	var $cont;
 	var $anon;
 
 	/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -48,8 +48,8 @@ class User {
 		$this->owner = ($row['role'] == 'o');
 		$this->admin = ($row['role'] == 'a' || $row['role'] == 'o');
 		$this->mod = ($row['role'] == 'm' || $row['role'] == 'a' || $row['role'] == 'o');
-		$this->subs = ($row['role'] == 's');
-		$this->user = ($row['role'] == 'u' || $row['role'] == 's');
+		$this->cont = ($row['role'] == 'c');
+		$this->user = ($row['role'] == 'u' || $row['role'] == 'c');
 		$this->anon = ($row['role'] == 'g');
 	}
 
@@ -169,8 +169,8 @@ class User {
 	 *
 	 * @retval bool
 	 */
-	public function is_subs() {
-		return $this->subs;
+	public function is_cont() {
+		return $this->cont;
 	}
 	
 	/**
@@ -198,7 +198,7 @@ class User {
 			case 'o':
 			case 'a':
 			case 'm':
-			case 's':
+			case 'c':
 			case 'u':
 			case 'g':
 				$database->Execute("UPDATE users SET role=? WHERE id=?", array($role, $this->id));
@@ -280,7 +280,7 @@ class User {
 		switch($this->role) {
 			case "g": return "guest";
 			case "u": return "user";
-			case "s": return "subscriber";
+			case "c": return "contributor";
 			case "m": return "mod";
 			case "a": return "admin";
 			case "o": return "owner";

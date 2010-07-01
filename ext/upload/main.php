@@ -139,7 +139,7 @@ class Upload implements Extension {
 				"WGet" => "wget"
 			), "<br>Transload: ");
 			
-			$arr_autoaprove = array('Owner'=>'o', 'Owner, Admin'=>'oa', 'Owner, Admin, Mod'=>'oam', 'Owner, Admin, Mod, Subsciber'=>'oams', 'Owner, Admin, Mod, Subsciber, User'=>'oamsu', 'Owner, Admin, Mod, Subsciber, User, Guest'=>'oamsug');
+			$arr_autoaprove = array('Owner'=>'o', 'Owner, Admin'=>'oa', 'Owner, Admin, Mod'=>'oam', 'Owner, Admin, Mod, Contributor'=>'oamc', 'Owner, Admin, Mod, Contributor, User'=>'oamcu', 'Owner, Admin, Mod, Contributor, User, Guest'=>'oamcug');
 			$sb->add_choice_option("upload_autoapprove", $arr_autoaprove, "<br>Auto approve for: ");
 			$event->panel->add_block($sb);
 		}
