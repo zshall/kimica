@@ -91,6 +91,9 @@ class Page {
 	
 	/** @private */
 	var $delay = 0;
+	
+	/** @private */
+	var $redir_msg = "";
 
 	/**
 	 * Set the URL to redirect to (remember to use make_link() if linking
@@ -107,6 +110,12 @@ class Page {
 		$this->delay = $delay;
 	}
 
+	/**
+	 * Set a custom redirect message
+	 */
+	public function set_redirect_msg($redir_msg) {
+		$this->redir_msg = html_escape($redir_msg);
+	}
 
 	//@}
 	// ==============================================
@@ -192,6 +201,12 @@ class Page {
 			case "redirect":
 				if($this->delay > 0){
 					header("Refresh: ".$this->delay."; URL=".$this->redirect);
+					if($this->redir_msg != "") { $msg = $this->redir_msg . "<br /><br />"; } else { $msg = ""; }
+					echo "<div style='width:250px; min-height:100px; padding:20px; vertical-align: middle; margin-left: auto; margin-right: auto; border:1px solid #0AB0E7; text-align:center; font-family:sans-serif;'>$msg You will be redirected in {$this->delay} seconds!<br />
+<br />
+<img src='/lib/img/spinner.gif' /><br />
+<br />
+<a style='color:black;' href='".$this->redirect."'>Or click here if you do not want to wait...</a></div>";
 				}
 				else{
 					header("Location: ".$this->redirect);
