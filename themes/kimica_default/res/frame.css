@@ -217,10 +217,22 @@ position:absolute;
 top:0;
 width:100%;
 z-index:1001;
-background:url(http://snhub.net/wp-content/themes/bp-default/_inc/images/admin_bar_back.gif);
+background:url("userbar.gif");
 }
 #userbar ul li {
 padding:5px 8px;
+color:#fff;
+font-weight:bold;
+}
+#userbar img {
+vertical-align:middle;
+margin-right:5px;
+color:#fff;
+font-weight:bold;
+}
+#userbar input {
+background:url("userbar.gif");
+border:1px solid #999;
 color:#fff;
 font-weight:bold;
 }

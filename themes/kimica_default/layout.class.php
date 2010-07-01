@@ -104,13 +104,13 @@ class Layout {
 
 		// bzchan: CUSTOM LINKS are prepared here, change these to whatever you like
 		$custom_links = "";
-		if($user->is_anonymous()) {
+/*		if($user->is_anonymous()) {
 			$custom_links .= $this->navlinks(make_link('account/login'), "My Account", array("user", "account", "setup", "admin"));
 		}
 		else {
 			$custom_links .= $this->navlinks(make_link('user'), "My Account", array("user", "account", "setup", "admin"));
 		}
-		$custom_links .= $this->navlinks(make_link('post/list'), "Posts", array("post"));
+*/		$custom_links .= $this->navlinks(make_link('post/list'), "Posts", array("post"));
 		$custom_links .= $this->navlinks(make_link('comment/list'), "Comments", array("comment"));
 		$custom_links .= $this->navlinks(make_link('tags'), "Tags", array("tags"));
 		if(class_exists("Pools")) {
@@ -172,6 +172,33 @@ class Layout {
 				break;
 		}
 
+// prepare userbar
+if($user->is_anonymous()) {
+$user_bar = '
+    <form action="'.make_link("account/login").'" method="post">
+    <div id="userbar"><ul class="flat-list">
+<li><img src="'.$data_href.'/themes/'.$theme_name.'/res/user.gif">Log in »</li> 
+<li>User: <input type="text" name="user"></li>
+<li>Pass: <input type="password" name="pass">
+<input type="submit" value="»" style="font-size: 80%;"/> 
+<a href="'.make_link("account/create").'">Sign up »</a></li>
+		</ul></div>
+        </form>';
+} else {
+$user_bar = '<div id="userbar"><ul class="flat-list">
+<li><a href="'.make_link("user").'"><img src="'.$data_href.'/themes/'.$theme_name.'/res/user.gif">'.$user->name.'</a></li>
+<li><a href="'.make_link("account/messages").'"><img src="'.$data_href.'/themes/'.$theme_name.'/res/mail.gif">(0)</a></li>
+';
+if($user->is_mod()) {
+$user_bar .= '<li><a href="'.make_link("tools").'"><img src="'.$data_href.'/themes/'.$theme_name.'/res/tools.gif">Tools</a></li>';
+}
+if($user->is_admin()) {
+$user_bar .= '<li><a href="'.make_link("setup").'"><img src="'.$data_href.'/themes/'.$theme_name.'/res/config.gif">Config</a></li>';
+}
+$user_bar .= '
+<li><a href="'.make_link("account/logout").'"><img src="'.$data_href.'/themes/'.$theme_name.'/res/logout.gif">Log out »</a></li>
+</ul></div>';
+}
 
 
 		// bzchan: prepare main title link
@@ -199,13 +226,8 @@ $header_html
 		<script src='$data_href/themes/$theme_name/script.js' type='text/javascript'></script>
 	</head>
 
-	<body><div id="userbar"><ul class="flat-list">
-<li>Log in »</li> 
-<li>User: <input type="text" name="user"></li>
-<li>Pass: <input type="password" name="pass">
-<input type="submit" value="»" style="font-size: 80%;"/> 
-<a href="/user_admin/create">Sign up »</a></li>
-		</ul></div>
+	<body>
+		$user_bar
     	<div id="bg">
             <div id="hd">
                 $title_link
