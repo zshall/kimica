@@ -240,16 +240,14 @@ class ImageIO extends SimpleExtension {
 		$sb = new SetupBlock("Thumbnailing");
 		$sb->add_choice_option("thumb_engine", $thumbers, "Engine: ");
 
-		$sb->add_label("<br>Size ");
+		$sb->add_label("<br>Thumb Width: ");
 		$sb->add_int_option("thumb_width");
-		$sb->add_label(" x ");
+		$sb->add_label("<br>Thumb Height: ");
 		$sb->add_int_option("thumb_height");
-		$sb->add_label(" px at ");
+		$sb->add_label("<br>Thumb Quality: ");
 		$sb->add_int_option("thumb_quality");
-		$sb->add_label(" % quality ");
 
 		$sb->add_shorthand_int_option("thumb_mem_limit", "<br>Max memory use: ");
-
 		$event->panel->add_block($sb);
 	}
 
@@ -295,7 +293,7 @@ class ImageIO extends SimpleExtension {
 		* Check for user roles or if the image contains a banned tag. It set the image as approved or deleted for review.
 		*/
 		$auto_aprove = "p";
-		if($user->is_admin() || $user->is_mod()){
+		if($user->get_auth_from_char($config->get_string("upload_autoapprove"))){
 			$auto_aprove = "a";
 		}
 		

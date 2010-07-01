@@ -14,11 +14,13 @@ class User {
 	var $name;
 	var $email;
 	var $join_date;
+	var $validate;
 	var $role;
 	var $owner;
 	var $admin;
 	var $mod;
 	var $user;
+	var $subs;
 	var $anon;
 
 	/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -41,10 +43,12 @@ class User {
 		$this->name = $row['name'];
 		$this->email = $row['email'];
 		$this->join_date = $row['joindate'];
+		$this->validate = $row['validate'];
 		$this->role = $row['role'];
 		$this->owner = ($row['role'] == 'o');
 		$this->admin = ($row['role'] == 'a' || $row['role'] == 'o');
 		$this->mod = ($row['role'] == 'm' || $row['role'] == 'a' || $row['role'] == 'o');
+		$this->subs = ($row['role'] == 'u' || $row['role'] == 's');
 		$this->user = ($row['role'] == 'u');
 		$this->anon = ($row['role'] == 'g');
 	}
@@ -72,6 +76,13 @@ class User {
 		assert(is_string($name));
 		global $database;
 		$row = $database->get_row("SELECT * FROM users WHERE name = ?", array($name));
+		return is_null($row) ? null : new User($row);
+	}
+	
+	public static function by_email($email) {
+		assert(is_string($email));
+		global $database;
+		$row = $database->get_row("SELECT * FROM users WHERE email = ?", array($email));
 		return is_null($row) ? null : new User($row);
 	}
 
@@ -154,6 +165,15 @@ class User {
 	}
 	
 	/**
+	 * Test if this user is a subscriber user
+	 *
+	 * @retval bool
+	 */
+	public function is_subs() {
+		return $this->subs;
+	}
+	
+	/**
 	 * Test if this user is an verified user
 	 *
 	 * @retval bool
@@ -178,12 +198,28 @@ class User {
 			case 'o':
 			case 'a':
 			case 'm':
+			case 's':
 			case 'u':
 			case 'g':
 				$database->Execute("UPDATE users SET role=? WHERE id=?", array($role, $this->id));
 				log_info("core-user", "Changed user role for {$this->name}");
 				break;
 		}
+	}
+	
+	/**
+	 * Test if this user is can do an action from a string of roles 
+	 * Example: get_auth_from_char('oams') Owner, Admin, Moderator, Subscriber
+	 *
+	 * @retval bool
+	 */
+	public function get_auth_from_char($chars) {
+		$can_do = FALSE;
+		$arr = str_split($chars);
+		if(in_array($this->role, $arr)){
+			$can_do = TRUE;
+		}
+		return $can_do;
 	}
 
 /*	public function set_admin() {
@@ -244,10 +280,11 @@ class User {
 		switch($this->role) {
 			case "g": return "guest";
 			case "u": return "user";
+			case "s": return "subscriber";
 			case "m": return "mod";
 			case "a": return "admin";
 			case "o": return "owner";
-			default:  return "Unknown";
+			default:  return "unknown";
 		}
 	}
 

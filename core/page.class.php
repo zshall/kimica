@@ -202,7 +202,7 @@ class Page {
 				if($this->delay > 0){
 					header("Refresh: ".$this->delay."; URL=".$this->redirect);
 					if($this->redir_msg != "") { $msg = $this->redir_msg . "<br /><br />"; } else { $msg = ""; }
-					echo "<div style='width:250px; min-height:100px; padding:20px; vertical-align: middle; margin-left: auto; margin-right: auto; border:1px solid #0AB0E7; text-align:center; font-family:sans-serif;'>$msg You will be redirected in {$this->delay} seconds!<br />
+					echo "<div style='min-height:100px; padding:20px; vertical-align: middle; margin-left: auto; margin-right: auto; border:1px solid #0AB0E7; text-align:center; font-family:sans-serif;'>$msg You will be redirected in {$this->delay} seconds!<br />
 <br />
 <img src='/lib/img/spinner.gif' /><br />
 <br />

@@ -273,7 +273,7 @@ function create_tables($dsn) { // {{{
 			pass CHAR(32),
 			joindate SCORE_DATETIME NOT NULL DEFAULT SCORE_NOW,
 			validate CHAR(16),
-			role ENUM('g', 'u', 'm', 'a', 'o') NOT NULL DEFAULT 'g',
+			role ENUM('g', 'u', 's', 'm', 'a', 'o') NOT NULL DEFAULT 'g',
 			email VARCHAR(128)
 		"));
 		$db->execute($engine->create_table_sql("config", "
@@ -282,7 +282,7 @@ function create_tables($dsn) { // {{{
 		"));
 		$db->execute($engine->create_table_sql("prefs", "
 			user_id INTEGER NOT NULL,
-			name VARCHAR(128) NOT NULL PRIMARY KEY,
+			name VARCHAR(128) NOT NULL,
 			value TEXT,
 			INDEX(user_id),
 			FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE

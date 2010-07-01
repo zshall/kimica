@@ -200,7 +200,7 @@ class Index extends SimpleExtension {
 	public function onSearchTermParse($event) {
 		global $user;
 		
-		if($user->is_user() || $user->is_anon()){
+		if($user->is_subs() || $user->is_user() || $user->is_anon()){
 			if(is_null($event->term) && $this->no_status_query($event->context)) {
 				$event->add_querylet(new Querylet("status IN ('l', 'a')"));
 			}

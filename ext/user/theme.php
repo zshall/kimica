@@ -47,6 +47,26 @@ class UserPageTheme extends Themelet {
 				<tr><td>Code</td><td><input type='text' name='code'></td></tr>
 				<tr><td colspan='2'><input type='Submit' value='Validate'></td></tr>
 			</table>
+			<br>
+			<a href='".make_link("account/validate/resend")."'>Resend Code</a>
+		</form>
+		";
+
+		$page->set_title("Validate Account");
+		$page->set_heading("Validate Account");
+		$page->add_block(new NavBlock());
+		$page->add_block(new Block("Validate Account", $html));
+	}
+	
+	public function display_resend_validation_page(Page $page) {
+		global $config;
+
+		$html = "
+		<form action='".make_link("account/validate/resend")."' method='POST'>
+			<table style='width: 300px;'>
+				<tr><td>Name</td><td><input type='text' name='name'></td></tr>
+				<tr><td colspan='2'><input type='Submit' value='Resend Code'></td></tr>
+			</table>
 		</form>
 		";
 
@@ -217,6 +237,7 @@ class UserPageTheme extends Themelet {
 			$h_is_owner = $duser->is_owner() ? " selected='yes'" : "";
 			$h_is_admin = $duser->is_admin() ? " selected='yes'" : "";
 			$h_is_mod   = $duser->is_mod()   ? " selected='yes'" : "";
+			$h_is_subs  = $duser->is_subs()  ? " selected='yes'" : "";
 			$h_is_user  = $duser->is_user()  ? " selected='yes'" : "";
 			$h_is_anon  = $duser->is_anon()  ? " selected='yes'" : "";
 			if($h_is_owner != "") { $h_is_admin = ""; $h_is_mod = ""; }
@@ -229,6 +250,7 @@ class UserPageTheme extends Themelet {
 					  <option value='o'$h_is_owner>Owner</option>
 					  <option value='a'$h_is_admin>Admin</option>
 					  <option value='m'$h_is_mod>Moderator</option>
+					  <option value='s'$h_is_subs>Subscriber</option>
 					  <option value='u'$h_is_user>User</option>
 					  <option value='g'$h_is_anon>Anonymous / Inactive</option>
 					</select>
@@ -240,6 +262,7 @@ class UserPageTheme extends Themelet {
 			$i_user_id = int_escape($duser->id);
 			$h_is_admin = $duser->is_admin() ? " selected='yes'" : "";
 			$h_is_mod   = $duser->is_mod()   ? " selected='yes'" : "";
+			$h_is_subs  = $duser->is_subs()  ? " selected='yes'" : "";
 			$h_is_user  = $duser->is_user()  ? " selected='yes'" : "";
 			$h_is_anon  = $duser->is_anon()  ? " selected='yes'" : "";
 			if($h_is_admin != "") { $h_is_mod   = ""; }
@@ -250,6 +273,7 @@ class UserPageTheme extends Themelet {
 					<select name='role'>
 					  <option value='a'$h_is_admin>Admin</option>
 					  <option value='m'$h_is_mod>Moderator</option>
+					  <option value='s'$h_is_subs>Subscriber</option>
 					  <option value='u'$h_is_user>User</option>
 					  <option value='g'$h_is_anon>Anonymous / Inactive</option>
 					</select>

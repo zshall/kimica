@@ -117,23 +117,51 @@ class UserPage extends SimpleExtension {
 				}
 			}
 			else if($event->get_arg(0) == "validate") {
-				
-				$name = $event->get_arg(1);
-				$code = $event->get_arg(2);
-				
-				if(isset($_POST["name"]) || isset($_POST["code"])){
-					$name = $_POST["name"];
-					$code = $_POST["code"];
-				}
-				
-				if(!preg_match('/^[a-zA-Z0-9-_]+$/', $name)){
-					$this->theme->display_validation_page($page);
-				}
-				else if(!preg_match('/^[a-fA-F0-9]{16}$/', $code)){
-					$this->theme->display_validation_page($page);
-				}
-				else {
-					$this->validate($page, $name, $code);
+			
+				switch ($event->get_arg(1)) {
+					case "resend":
+						if(isset($_POST["name"])){
+							if(preg_match('/^[a-zA-Z0-9-_]+$/', $_POST["name"])){
+								$duser = User::by_name($_POST["name"]);
+								
+								$link = make_http(make_link("account/validate/$duser->name/$duser->validate"));
+								$activation_link = '<a href="'.$link.'">'.$link.'</a>';
+								
+								$email = new Email($duser->email, "Validation Code", "Validation Code", "You need validate your account. Please follow the next link<br><br>".$activation_link);
+								$sent = $email->send();
+								
+								if($sent){
+									$page->set_mode("redirect");
+									$page->set_redirect(make_link("account/validate"));
+								}
+								else{
+									$this->theme->display_error($page, "Error", "Error resending the verification code. Please contact support.");
+								}
+							}
+						}
+						else{
+							$this->theme->display_resend_validation_page($page);
+						}
+					break;
+					default:
+						$name = $event->get_arg(1);
+						$code = $event->get_arg(2);
+						
+						if(isset($_POST["name"]) || isset($_POST["code"])){
+							$name = $_POST["name"];
+							$code = $_POST["code"];
+						}
+						
+						if(!preg_match('/^[a-zA-Z0-9-_]+$/', $name)){
+							$this->theme->display_validation_page($page);
+						}
+						else if(!preg_match('/^[a-fA-F0-9]{16}$/', $code)){
+							$this->theme->display_validation_page($page);
+						}
+						else {
+							$this->validate($page, $name, $code);
+						}
+						break;
 				}
 			}
 			else if($event->get_arg(0) == "recover") {

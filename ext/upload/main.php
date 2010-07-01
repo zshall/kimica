@@ -47,6 +47,7 @@ class Upload implements Extension {
 			$config->set_default_int('upload_count', 3);
 			$config->set_default_int('upload_size', '1MB');
 			$config->set_default_bool('upload_anon', false);
+			$config->set_default_string('upload_autoapprove', 'oam');
 		}
 
 		if($event instanceof PostListBuildingEvent) {
@@ -137,6 +138,9 @@ class Upload implements Extension {
 				"fopen" => "fopen",
 				"WGet" => "wget"
 			), "<br>Transload: ");
+			
+			$arr_autoaprove = array('Owner'=>'o', 'Owner, Admin'=>'oa', 'Owner, Admin, Mod'=>'oam', 'Owner, Admin, Mod, Subsciber'=>'oams', 'Owner, Admin, Mod, Subsciber, User'=>'oamsu', 'Owner, Admin, Mod, Subsciber, User, Guest'=>'oamsug');
+			$sb->add_choice_option("upload_autoapprove", $arr_autoaprove, "<br>Auto approve for: ");
 			$event->panel->add_block($sb);
 		}
 
