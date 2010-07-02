@@ -97,9 +97,9 @@ class UserPageTheme extends Themelet {
 	
 	public function display_signup_page(Page $page) {
 		global $config;
-		$tac = $config->get_string("login_tac", "");
+		$tac = $config->get_string("signup_tac", "");
 
-		if($config->get_bool("login_tac_bbcode")) {
+		if($config->get_bool("signup_tac_bbcode")) {
 			$tfe = new TextFormattingEvent($tac);
 			send_event($tfe);
 			$tac = $tfe->formatted;

@@ -217,7 +217,7 @@ class Layout {
 			});
 			</script>
 			<div id='signup-box'>";
-			$tac = $config->get_string("login_tac", "");
+			$tac = $config->get_string("signup_tac", "");
 			
 			$tfe = new TextFormattingEvent($tac);
 			send_event($tfe);

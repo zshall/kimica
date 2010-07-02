@@ -48,11 +48,12 @@ class UserPage extends SimpleExtension {
 		$config->set_default_bool("login_signup_enabled", true);
 		$config->set_default_int("login_memory", 365);
 		$config->set_default_string("avatar_host", "none");
-		$config->set_default_string("account_email", "example@example.com");
+		$config->set_default_string("signup_validation_email", "example@example.com");
 		$config->set_default_int("avatar_gravatar_size", 80);
 		$config->set_default_string("avatar_gravatar_default", "");
 		$config->set_default_string("avatar_gravatar_rating", "g");
-		$config->set_default_bool("login_tac_bbcode", true);
+		$config->set_default_bool("signup_tac_bbcode", true);
+		$config->set_default_bool("signup_validation_enabled", false);
 	}
 
 	public function onPageRequest(Event $event) {
@@ -108,8 +109,15 @@ class UserPage extends SimpleExtension {
 
 						$uce = new UserCreationEvent($_POST['name'], $_POST['pass1'], $_POST['email']);
 						send_event($uce);
-						$page->set_mode("redirect");
-						$page->set_redirect(make_link("account/validate"));
+						
+						if(!$config->get_bool("signup_validation_enabled")){
+							$page->set_mode("redirect");
+							$page->set_redirect(make_link("account/login"));
+						}
+						else{
+							$page->set_mode("redirect");
+							$page->set_redirect(make_link("account/validate"));
+						}
 					}
 					catch(UserCreationException $ex) {
 						$this->theme->display_error($page, "User Creation Error", $ex->getMessage());
@@ -117,6 +125,11 @@ class UserPage extends SimpleExtension {
 				}
 			}
 			else if($event->get_arg(0) == "validate") {
+				
+				if(!$config->get_bool("signup_validation_enabled")){
+					$page->set_mode("redirect");
+					$page->set_redirect(make_link("account/login"));
+				}
 			
 				switch ($event->get_arg(1)) {
 					case "resend":
@@ -344,8 +357,9 @@ class UserPage extends SimpleExtension {
 
 		$sb = new SetupBlock("User Options");
 		$sb->add_bool_option("login_signup_enabled", "Allow new signups: ");
-		$sb->add_text_option("account_email", "<br>Verification Email:");
-		$sb->add_longtext_option("login_tac", "<br>Terms &amp; Conditions:<br>");
+		$sb->add_bool_option("signup_validation_enabled", "<br>Validate accounts: ");
+		$sb->add_text_option("signup_validation_email", "<br>Validation Email:");
+		$sb->add_longtext_option("signup_tac", "<br>Terms &amp; Conditions:<br>");
 		$sb->add_choice_option("avatar_host", $hosts, "<br>Avatars: ");
 
 		if($config->get_string("avatar_host") == "gravatar") {
@@ -515,26 +529,32 @@ class UserPage extends SimpleExtension {
 
 	private function create_user($event) {
 		global $config, $page, $database;
-
+		
+		
+		if(!$config->get_bool("signup_validation_enabled")){
+			$validate = NULL;
+			$sent = TRUE;
+			$role = "u";
+		}
+		else{
+			$validate = substr(md5(microtime()), 0, 16);
+			$role = "g";
+			
+			$link = make_http(make_link("account/validate/$event->username/$validate"));
+			$activation_link = '<a href="'.$link.'">'.$link.'</a>';
+			
+			$email = new Email($event->email, "Validation Code", "Validation Code", "You need validate your account. Please follow the next link<br><br>".$activation_link);
+			$sent = $email->send();
+		}
+		
 		$hash = md5(strtolower($event->username) . $event->password);
-		$email = (!empty($event->email)) ? $event->email : null;
-		$validate = substr(md5(microtime()), 0, 16);
-				
-		$link = make_http(make_link("account/validate/$event->username/$validate"));
-		$activation_link = '<a href="'.$link.'">'.$link.'</a>';
-		
-		$site = $config->get_string("title");
-		$site_email = $config->get_string("account_email");
-		
-		$email = new Email($email, "Validation Code", "Validation Code", "You need validate your account. Please follow the next link<br><br>".$activation_link);
-		$sent = $email->send();
-		
+						
 		$ip = $_SERVER['REMOTE_ADDR'];
 		
 		if($sent){
 			$database->Execute(
-					"INSERT INTO users (ip, name, pass, joindate, validate, email) VALUES (?, ?, ?, now(), ?, ?)",
-					array($ip, $event->username, $hash, $validate, $email->to));
+					"INSERT INTO users (ip, name, pass, joindate, validate, role, email) VALUES (?, ?, ?, now(), ?, ?, ?)",
+					array($ip, $event->username, $hash, $validate, $role,$event->email));
 			$uid = $database->db->Insert_ID();
 			log_info("user", "Created User #$uid ({$event->username})");
 		}
