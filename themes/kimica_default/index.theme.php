@@ -55,10 +55,40 @@ class CustomIndexTheme extends IndexTheme {
 
 	protected function build_table($images, $query) {
 		$table = "";
+		
+		$script = <<<EOD
+		<script type="text/javascript">
+		// Only create tooltips when document is ready
+		$(document).ready(function()
+		{
+		   // Use the each() method to gain access to each of the elements attributes
+		   $('.thumb img').each(function()
+		   {
+			  $(this).qtip(
+			  {
+				 content: { text: false },
+				 position: {corner: {
+					 target: 'topMiddle',
+					 tooltip: 'bottomMiddle'
+				  }},
+				 hide: {
+					fixed: true // Make it fixed so it can be hovered over
+				 },
+				 style: {
+					padding: '5px 15px', // Give it some extra padding
+					name: 'blue', // And style it with the preset dark theme
+					tip:true
+				 }
+			  });
+		   });
+		});
+		</script>
+EOD;
+		
 		foreach($images as $image) {
 			$table .= "\t<span class=\"thumb\">" . $this->build_thumb_html($image, $query) . "</span>\n";
 		}
-		return $table;
+		return $script . $table;
 	}
 }
 ?>

@@ -180,10 +180,14 @@ class Layout {
 			<li><img src="'.$data_href.'/themes/'.$theme_name.'/res/user.gif">Log in »</li> 
 			<li>User: <input type="text" name="user"></li>
 			<li>Pass: <input type="password" name="pass">
-			<input type="submit" value="»" style="font-size: 80%;"/> 
-			<a id="signup-link" href="#">Sign up »</a></li>
+			<input type="submit" value="»" style="font-size: 80%;"/>';
+			if(($qp[0] == "post" && $qp[1] == "view") || ($qp[0] == "account")) {$user_bar .= '<a href="'.make_link("account/create").'">Sign up »</a></li>';} else {
+			$user_bar .= '<a id="signup-link" href="#">Sign up »</a></li>'; }
+			$user_bar .= '
 					</ul></div>
 					</form>';
+		// if on /post/view page, don't display form.
+		if(($qp[0] == "post" && $qp[1] == "view") || ($qp[0] == "account")) {} else {
 			$user_bar .= "<script>
 			$(document).ready(function() {
 			  $('#signup-box').hide();
@@ -223,7 +227,7 @@ class Layout {
 			<br />
 			";
 			$user_bar .= "</div>
-			";
+			";}
 		} else {
 			$user_bar = '<div id="userbar"><ul class="flat-list">
 			<li><a href="'.make_link().'"><img src="'.$data_href.'/themes/'.$theme_name.'/res/home.gif">'.$site_name.'</a></li>
@@ -240,7 +244,6 @@ class Layout {
 			<li><a href="'.make_link("account/logout").'"><img src="'.$data_href.'/themes/'.$theme_name.'/res/logout.gif">Log out »</a></li>
 			</ul></div>';
 		}
-
 
 		// bzchan: prepare main title link
 		$title_link = "<h1 id='site-title'><a href='".make_link($main_page)."'>$page_header</a></h1>";
