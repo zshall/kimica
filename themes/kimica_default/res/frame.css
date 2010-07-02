@@ -35,6 +35,7 @@ font-size:14px;
 #body-section {
 background-color:#EEF4F4;
 min-height:200px;
+padding-bottom:20px;
 }
 #ft {
 background-color: #f2e6dd;
@@ -218,15 +219,47 @@ top:0;
 width:100%;
 z-index:1001;
 background:#333333 url("userbar.gif");
+clear:both;
 }
 #userbar ul li {
 padding:5px 8px;
 color:#fff;
 font-weight:bold;
 }
+#userbar input#userbar_search, #userbar input#userbar_username, #userbar input#userbar_password {
+color:#999;
+border: 1px solid #BFBFBF;
+padding-left: 18px;
+height: 18px;
+width: 150px;
+font-weight:normal;
+}
+#userbar input#userbar_search {
+background: url("search.gif") no-repeat 1px 1px #ccc;
+}
+#userbar input#userbar_username {
+background: url("user.gif") no-repeat 1px 1px #ccc;
+}
+#userbar input#userbar_password {
+background: url("logout.gif") no-repeat 1px 1px #ccc;
+}
+#userbar input#userbar_search:active, #userbar input#userbar_search:focus {
+	background: url("search.gif") no-repeat 1px 1px #fff;
+	color:#000000;
+}
+#userbar input#userbar_username:active, #userbar input#userbar_username:focus {
+	background: url("user.gif") no-repeat 1px 1px #fff;
+	color:#000000;
+}
+#userbar input#userbar_password:active, #userbar input#userbar_password:focus {
+	background: url("logout.gif") no-repeat 1px 1px #fff;
+	color:#000000;
+}
 #userbar img {
 vertical-align:middle;
 margin-right:5px;
+position:relative;
+top:-2px;
 color:#fff;
 font-weight:bold;
 }
@@ -246,3 +279,6 @@ height:500px;
 #signup-box table, #signup-box h1, #signup-box p {margin-left:30px;}
 #signup-box td {padding:5px; font-size:18px; color:#999;}
 #signup-box h1 {color:#CCC;}
+/* Fancy selection stuff: */
+::-moz-selection { background: #333; color:#FFFFFF; }
+::selection      { background: #333; color:#FFFFFF; }

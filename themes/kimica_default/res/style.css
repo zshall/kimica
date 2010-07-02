@@ -141,6 +141,12 @@ overflow:hidden;
 text-align:left;
 width:150px;
 }
+#comment_box {
+background-color:#F2E6DD;
+font-size:18px;
+width:400px;
+height:200px;
+}
 .tag_count {
 color:#AAAAAA;
 }

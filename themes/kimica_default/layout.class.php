@@ -173,19 +173,38 @@ class Layout {
 		}
 
 		// prepare userbar
+		$user_bar_search = "<script><!--
+			$(document).ready(function() {
+				$('#userbar_search').DefaultValue('Search');
+				$('#userbar_username').DefaultValue('Username');
+				$('#userbar_password').DefaultValue('Password');
+				$('#userbar_search').autocomplete('".make_link("api/internal/tag_list/complete")."', {
+					width: 169,
+					max: 15,
+					highlight: false,
+					multiple: true,
+					multipleSeparator: ' ',
+					scroll: true,
+					scrollHeight: 300,
+					selectFirst: false
+				});
+			});
+			//--></script>";
+		$user_bar_search .= '<form action="'.make_link('post/list').'" method="GET"><ul class="flat-list" style="float:right;"><li><input id="userbar_search"  name="search" type="text" autocomplete="off"> <input type="hidden" name="q" value="/post/list">
+				<input type="submit" value="»" style="display: none;" /></li></ul></form>';
 		if($user->is_anonymous()) {
-			$user_bar = '
+			$user_bar = '<div id="userbar">
 				<form action="'.make_link("account/login").'" method="post">
-				<div id="userbar"><ul class="flat-list">
-			<li><img src="'.$data_href.'/themes/'.$theme_name.'/res/user.gif">Log in »</li> 
-			<li>User: <input type="text" name="user"></li>
-			<li>Pass: <input type="password" name="pass">
-			<input type="submit" value="»" style="font-size: 80%;"/>';
-			if(($qp[0] == "post" && $qp[1] == "view") || ($qp[0] == "account")) {$user_bar .= '<a href="'.make_link("account/create").'">Sign up »</a></li>';} else {
-			$user_bar .= '<a id="signup-link" href="#">Sign up »</a></li>'; }
+				<ul class="flat-list" style="float:left; width:650px;">
+			<li><a href="'.make_link().'"><img src="'.$data_href.'/themes/'.$theme_name.'/res/home.gif">'.$site_name.'</a></li>
+			<li><input type="text" name="user" id="userbar_username"></li>
+			<li><input type="password" name="pass" id="userbar_password">
+			<input type="image" src="/themes/'.$theme_name.'/res/blank.gif" alt="Log In" style="border:0px; background:transparent;" />';
+			if(($qp[0] == "post" && $qp[1] == "view") || ($qp[0] == "account")) {$user_bar .= '<a href="'.make_link("account/create").'">Sign up</a></li>';} else {
+			$user_bar .= '</li><li><a id="signup-link" href="#">Sign up</a></li>'; }
 			$user_bar .= '
-					</ul></div>
-					</form>';
+					</ul></form>'.$user_bar_search.'</div>
+					';
 		// if on /post/view page, don't display form.
 		if(($qp[0] == "post" && $qp[1] == "view") || ($qp[0] == "account")) {} else {
 			$user_bar .= "<script>
@@ -229,7 +248,7 @@ class Layout {
 			$user_bar .= "</div>
 			";}
 		} else {
-			$user_bar = '<div id="userbar"><ul class="flat-list">
+			$user_bar = '<div id="userbar"><ul class="flat-list" style="float:left; display:inline; width:600px;">
 			<li><a href="'.make_link().'"><img src="'.$data_href.'/themes/'.$theme_name.'/res/home.gif">'.$site_name.'</a></li>
 			<li><a href="'.make_link("user").'"><img src="'.$data_href.'/themes/'.$theme_name.'/res/user.gif">'.$user->name.'</a></li>
 			<li><a href="'.make_link("account/messages").'"><img src="'.$data_href.'/themes/'.$theme_name.'/res/mail.gif">(0)</a></li>
@@ -242,8 +261,9 @@ class Layout {
 			}
 			$user_bar .= '
 			<li><a href="'.make_link("account/logout").'"><img src="'.$data_href.'/themes/'.$theme_name.'/res/logout.gif">Log out »</a></li>
-			</ul></div>';
+			</ul>'.$user_bar_search.'</div>';
 		}
+		
 
 		// bzchan: prepare main title link
 		$title_link = "<h1 id='site-title'><a href='".make_link($main_page)."'>$page_header</a></h1>";

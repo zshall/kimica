@@ -21,7 +21,8 @@ class CustomIndexTheme extends IndexTheme {
 		$nav = $this->build_navigation($this->page_number, $this->total_pages, $this->search_terms);
 		$page->set_title($page_title);
 		$page->set_heading($page_title);
-		$page->add_block(new Block("Search", $nav, "left", 0));
+		if(!$nav == "") {
+		$page->add_block(new Block("Search", $nav, "left", 0));}
 		if(count($images) > 0) {
 			if($query) {
 				$page->add_block(new Block("Images", $this->build_table($images, "search=$query"), "main", 10));
@@ -41,15 +42,31 @@ class CustomIndexTheme extends IndexTheme {
 	protected function build_navigation($page_number, $total_pages, $search_terms) {
 		$h_search_string = count($search_terms) == 0 ? "" : html_escape(implode(" ", $search_terms));
 		$h_search_link = make_link();
+		if(!$h_search_string == "") {
 		$h_search = "
+			<script><!--
+			$(document).ready(function() {
+				$('#search_input').DefaultValue('Search');
+				$('#search_input').autocomplete('".make_link("api/internal/tag_list/complete")."', {
+					width: 320,
+					max: 15,
+					highlight: false,
+					multiple: true,
+					multipleSeparator: ' ',
+					scroll: true,
+					scrollHeight: 300,
+					selectFirst: false
+				});
+			});
+			//--></script>
 			<p><form action='$h_search_link' method='GET'>
-				<input name='search' type='text'
+				<input id='search_input' name='search' type='text'
 						value='$h_search_string' autocomplete='off' />
 				<input type='hidden' name='q' value='/post/list'>
 				<input type='submit' value='Find' style='display: none;' />
 			</form>
 			<div id='search_completions'></div>";
-
+		} else $h_search = "";
 		return $h_search;
 	}
 
