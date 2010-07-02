@@ -273,7 +273,7 @@ class UserPageTheme extends Themelet {
 					<select name='role'>
 					  <option value='a'$h_is_admin>Admin</option>
 					  <option value='m'$h_is_mod>Moderator</option>
-					  <option value='s'$h_is_cont>Contributor</option>
+					  <option value='c'$h_is_cont>Contributor</option>
 					  <option value='u'$h_is_user>User</option>
 					  <option value='g'$h_is_anon>Anonymous / Inactive</option>
 					</select>

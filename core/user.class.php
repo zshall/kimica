@@ -49,7 +49,7 @@ class User {
 		$this->admin = ($row['role'] == 'a' || $row['role'] == 'o');
 		$this->mod = ($row['role'] == 'm' || $row['role'] == 'a' || $row['role'] == 'o');
 		$this->cont = ($row['role'] == 'c');
-		$this->user = ($row['role'] == 'u' || $row['role'] == 'c');
+		$this->user = ($row['role'] == 'u');
 		$this->anon = ($row['role'] == 'g');
 	}
 
