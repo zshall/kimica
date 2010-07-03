@@ -248,7 +248,23 @@ class Layout {
 			$user_bar .= "</div>
 			";}
 		} else {
-			$user_bar = '<div id="userbar"><ul class="flat-list" style="float:left; display:inline; width:700px;">
+			global $prefs;
+			if($prefs->get_bool("theme_kimica_userbar_hide")==true) {
+			$user_bar = "<script>
+			$(document).ready(function() {
+			  $('#userbar').hide();
+			  $('#userbar_transparent').mouseenter(function() {
+				$('#userbar').slideDown('fast');
+				return false;
+			  });
+			  $('#userbar').mouseleave(function() {
+				$('#userbar').slideUp('fast');
+				return false;
+			  });
+			});
+			</script>";
+			$user_bar .= "<div id='userbar_transparent'>&nbsp;</div>"; } else { $user_bar = ''; }
+			$user_bar .= '<div id="userbar"><ul class="flat-list" style="float:left; display:inline; width:700px;">
 			<li><a href="'.make_link().'"><img src="'.$data_href.'/themes/'.$theme_name.'/res/home.gif">'.$site_name.'</a></li>
 			<li><a href="'.make_link("user").'"><img src="'.$data_href.'/themes/'.$theme_name.'/res/user.gif">'.$user->name.'</a></li>
 			<li><a href="'.make_link("account/messages").'"><img src="'.$data_href.'/themes/'.$theme_name.'/res/mail.gif">(0)</a></li>
@@ -263,7 +279,6 @@ class Layout {
 			<li><a href="'.make_link("account/logout").'"><img src="'.$data_href.'/themes/'.$theme_name.'/res/logout.gif">Log out »</a></li>
 			</ul>'.$user_bar_search.'</div>';
 		}
-		
 
 		// bzchan: prepare main title link
 		$title_link = "<h1 id='site-title'><a href='".make_link($main_page)."'>$page_header</a></h1>";
@@ -286,8 +301,8 @@ class Layout {
 		<link rel="stylesheet" href="$data_href/themes/$theme_name/res/style.css" type="text/css">
 		<link rel="stylesheet" href="$data_href/themes/$theme_name/res/frame.css" type="text/css">
 $header_html
-		<script src='$data_href/themes/$theme_name/sidebar.js' type='text/javascript'></script>
-		<script src='$data_href/themes/$theme_name/script.js' type='text/javascript'></script>
+		<script src='$data_href/themes/$theme_name/res/sidebar.js' type='text/javascript'></script>
+		<script src='$data_href/themes/$theme_name/res/script.js' type='text/javascript'></script>
 	</head>
 
 	<body>

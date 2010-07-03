@@ -221,6 +221,15 @@ z-index:1001;
 background:#333333 url("userbar.gif");
 clear:both;
 }
+#userbar_transparent {
+height:28px;
+left:0;
+position:absolute;
+top:0;
+width:100%;
+z-index:100;
+clear:both;
+}
 #userbar ul li {
 padding:5px 8px;
 color:#fff;

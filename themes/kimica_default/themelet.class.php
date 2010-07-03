@@ -79,4 +79,21 @@ class Themelet {
 		return "<div id='paginator'>$prev_html $first_html $pdots $pages_html $ndots $last_html $next_html</div>";
 	}
 }
+
+// Theme specific extensions go here!
+class KimicaDefaultTheme extends SimpleExtension {
+	// preferences
+	public function onPrefBuilding($event) {
+		$pb = new PrefBlock("Appearance");
+		$pb->add_bool_option("theme_kimica_userbar_hide", "Hide the userbar");
+		
+		// CSS stuff
+		$pb->add_choice_option("theme_kimica_css", 
+			array('Sunset (default)'=>'dusk',
+			'Midnight'=>'dark',
+			'Sunrise'=>'dawn',
+			'Monotone'=>'mono'), "<br>Color Scheme");
+		$event->panel->add_block($pb);
+	}
+}
 ?>
