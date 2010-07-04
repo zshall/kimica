@@ -3,10 +3,20 @@ class PoolsTheme extends Themelet {
 	/*
 	 * HERE WE ADD THE POOL INFO ON IMAGE
 	 */
-	public function pool_info($linksPools) {
+	public function pool_info($linksPools, $prev, $next) {
 		global $page;
+		$sep = "";
 		if(count($linksPools) > 0) {
-			$page->add_block(new Block("Pools", implode("<br>", $linksPools), "left"));
+			if(!is_null($prev)){
+				$prev = $prev;
+			}
+			if(!is_null($next)){
+				$next = $next;
+			}
+			if(!is_null($prev) && !is_null($next)){
+				$sep = " | ";
+			}
+			$page->add_block(new Block("Pools", implode("<br>", $linksPools)."<br><br>".$prev.$sep.$next, "left"));
 		}
 	}
 

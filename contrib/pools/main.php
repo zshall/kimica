@@ -238,7 +238,20 @@ class Pools extends SimpleExtension {
 					$linksPools[] = "<a href='".make_link("pool/view/".$pool['id'])."'>".html_escape($pool['title'])."</a>";
 				}
 			}
-			$this->theme->pool_info($linksPools);
+			$prev_link=NULL;
+			$next_link=NULL;
+					
+			$prev = $this->get_prev_image($poolID['pool_id'], $imageID);
+			if($prev){
+				$prev_link = "<a href='".make_link("post/view/".$prev['image_id'])."'>Prev</a>";
+			}
+			
+			$next = $this->get_next_image($poolID['pool_id'], $imageID);
+			if($next){
+				$next_link = "<a href='".make_link("post/view/".$next['image_id'])."'>Next</a>";
+			}
+			
+			$this->theme->pool_info($linksPools, $prev_link, $next_link);
 		}
 	}
 
@@ -324,6 +337,18 @@ class Pools extends SimpleExtension {
 	private function get_single_pool($poolID) {
 		global $database;
 		return $database->get_row("SELECT * FROM pools WHERE id=?", array($poolID));
+	}
+		
+	private function get_prev_image($poolID, $imageID) {
+		global $database;
+		$curr_image = $database->get_row("SELECT * FROM pool_images WHERE image_id = ?", array($imageID));
+		return $database->get_row("SELECT image_id FROM pool_images WHERE pool_id = ? AND image_order < ? ORDER BY image_order DESC LIMIT 1", array($poolID, $curr_image['image_order']));
+	}
+	
+	private function get_next_image($poolID, $imageID) {
+		global $database;
+		$curr_image = $database->get_row("SELECT * FROM pool_images WHERE image_id = ?", array($imageID));
+		return $database->get_row("SELECT image_id FROM pool_images WHERE pool_id = ? AND image_order > ? ORDER BY image_order ASC LIMIT 1", array($poolID, $curr_image['image_order']));
 	}
 
 	/*

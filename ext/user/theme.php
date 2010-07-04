@@ -364,7 +364,8 @@ class UserPageTheme extends Themelet {
 		foreach($pms as $pm) {
 			$oe = ($n++ % 2 == 0) ? "even" : "odd";
 			$h_subject = html_escape($pm["subject"]);
-			if(strlen(trim($h_subject)) == 0) $h_subject = "(No subject)";
+			if($pm["status"] == "u") $h_subject = "<strong>".$h_subject."</strong>";
+			if(strlen(trim($h_subject)) == 0) $h_subject = "no subject";
 			$from_name = $pm["from_name"];
 			$h_from = html_escape($from_name);
 			$from_url = make_link("user/".url_escape($from_name));
