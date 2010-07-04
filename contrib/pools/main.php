@@ -240,16 +240,18 @@ class Pools extends SimpleExtension {
 			}
 			$prev_link=NULL;
 			$next_link=NULL;
-					
-			$prev = $this->get_prev_image($poolID['pool_id'], $imageID);
-			if($prev){
-				$prev_link = "<a href='".make_link("post/view/".$prev['image_id'])."'>Prev</a>";
-			}
 			
-			$next = $this->get_next_image($poolID['pool_id'], $imageID);
-			if($next){
-				$next_link = "<a href='".make_link("post/view/".$next['image_id'])."'>Next</a>";
-			}
+			if($poolsIDs){	
+				$prev = $this->get_prev_image($poolID['pool_id'], $imageID);
+				if($prev){
+					$prev_link = "<a href='".make_link("post/view/".$prev['image_id'])."'>Prev</a>";
+				}
+				
+				$next = $this->get_next_image($poolID['pool_id'], $imageID);
+				if($next){
+					$next_link = "<a href='".make_link("post/view/".$next['image_id'])."'>Next</a>";
+				}
+			}	
 			
 			$this->theme->pool_info($linksPools, $prev_link, $next_link);
 		}
