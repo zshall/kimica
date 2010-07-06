@@ -358,7 +358,7 @@ class UserPage extends SimpleExtension {
 		$sb = new SetupBlock("User Options");
 		$sb->add_bool_option("login_signup_enabled", "Allow new signups: ");
 		$sb->add_bool_option("signup_validation_enabled", "<br>Validate accounts: ");
-		$sb->add_text_option("signup_validation_email", "<br>Validation Email:");
+		$sb->add_text_option("signup_validation_email", "<br>Validation Email: ");
 		$sb->add_longtext_option("signup_tac", "<br>Terms &amp; Conditions:<br>");
 		$sb->add_choice_option("avatar_host", $hosts, "<br>Avatars: ");
 

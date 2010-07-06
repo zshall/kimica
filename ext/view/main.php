@@ -153,6 +153,7 @@ class ViewImage extends SimpleExtension {
 			$page->set_mode("redirect");
 			$page->set_redirect(make_link("post/view/$image_id", $query));
 		}
+		
 	}
 	
 	public function onImageAdminBlockBuilding(ImageAdminBlockBuildingEvent $event) {
@@ -164,6 +165,7 @@ class ViewImage extends SimpleExtension {
 
 	public function onDisplayingImage(DisplayingImageEvent $event) {
 		global $page, $user;
+		$event->image->upldate_view();
 		$iibbe = new ImageInfoBoxBuildingEvent($event->get_image(), $user);
 		send_event($iibbe);
 		ksort($iibbe->parts);
@@ -213,9 +215,9 @@ class TagEdit implements Extension {
 		if(is_null($this->theme)) $this->theme = get_theme_object($this);
 
 		if($event instanceof ImageInfoSetEvent) {
-			if($this->can_tag($event->image)) {
+			if($this->can_tag($event->image) && !is_null($_POST['tag_edit__tags'])) {
 				send_event(new TagSetEvent($event->image, $_POST['tag_edit__tags']));
-				if($this->can_source($event->image)) {
+				if($this->can_source($event->image) && !is_null($_POST['tag_edit__source'])) {
 					send_event(new SourceSetEvent($event->image, $_POST['tag_edit__source']));
 				}
 			}

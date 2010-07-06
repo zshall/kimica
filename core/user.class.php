@@ -213,7 +213,7 @@ class User {
 	 *
 	 * @retval bool
 	 */
-	public function get_auth_from_char($chars) {
+	public function get_auth_from_str($chars) {
 		$can_do = FALSE;
 		$arr = str_split($chars);
 		if(in_array($this->role, $arr)){

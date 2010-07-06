@@ -134,12 +134,20 @@ class Index extends SimpleExtension {
 		$config->set_default_int("index_width", 3);
 		$config->set_default_int("index_height", 4);
 		$config->set_default_bool("index_tips", true);
+		
+		$config->set_default_string("index_mode_general", "oamsu");
+		$config->set_default_string("index_mode_admin", "oa");
+		$config->set_default_string("index_mode_favorites", "oamsu");
+		$config->set_default_string("index_mode_score", "oamsu");
+		$config->set_default_string("index_mode_rating", "oamsu");
 	}
 
 	public function onPageRequest($event) {
 		global $config, $database, $page, $user;
 		if($event->page_matches("post/list")) {
-					
+			
+			$this->theme->images_control($page);
+			
 			if(isset($_GET['search'])) {
 				$search = url_escape(trim($_GET['search']));
 				if(empty($search)) {
@@ -189,10 +197,8 @@ class Index extends SimpleExtension {
 		$sb->position = 20;
 
 		$sb->add_label("Index table size ");
-		$sb->add_int_option("index_width");
-		$sb->add_label(" x ");
-		$sb->add_int_option("index_height");
-		$sb->add_label(" images");
+		$sb->add_int_option("index_width", "<br>Columns: ");
+		$sb->add_int_option("index_height", "<br>Rows: ");
 
 		$event->panel->add_block($sb);
 	}

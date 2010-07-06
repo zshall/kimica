@@ -37,6 +37,7 @@ class Image {
 	var $posted;
 	var $source;
 	var $status;
+	var $views;
 
 	/**
 	 * One will very rarely construct an image directly, more common
@@ -404,8 +405,22 @@ class Image {
 			case "a": return "approved";
 			case "p": return "pending";
 			case "d": return "deleted";
-			default:  return "Unknown";
+			default:  return "unknown";
 		}
+	}
+	
+	/**
+	* Stats system
+	*
+	* Increase views
+	*/
+	public function get_views() {
+		return $this->views;
+	}
+	
+	public function update_view() {
+		global $database;
+		$database->execute("UPDATE images SET views = views + 1 WHERE id = ?", array($this->id));
 	}
 	
 	/**

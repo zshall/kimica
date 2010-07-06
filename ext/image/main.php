@@ -293,7 +293,7 @@ class ImageIO extends SimpleExtension {
 		* Check for user roles or if the image contains a banned tag. It set the image as approved or deleted for review.
 		*/
 		$auto_aprove = "p";
-		if($user->get_auth_from_char($config->get_string("upload_autoapprove"))){
+		if($user->get_auth_from_str($config->get_string("upload_autoapprove"))){
 			$auto_aprove = "a";
 		}
 		

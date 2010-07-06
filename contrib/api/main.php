@@ -562,10 +562,10 @@ private function setScore(){
 						
 				if($char == "up"){
 					$score = 1;
-					send_event(new NumericScoreSetEvent($image->id, $user, $score));
+					send_event(new VoteSetEvent($image->id, $user, $score));
 				}elseif($char == "down"){
 					$score = -1;
-					send_event(new NumericScoreSetEvent($image->id, $user, $score));
+					send_event(new VoteSetEvent($image->id, $user, $score));
 				}
 			}
 						
@@ -643,7 +643,7 @@ private function getSync(){
 	$this->authenticate_user();
 
 	if(!$user->is_anonymous()){
-		$scores = $database->get_all("SELECT image_id, score FROM numeric_score_votes WHERE user_id = ?", array($user->id));
+		$scores = $database->get_all("SELECT image_id, score FROM image_votes WHERE user_id = ?", array($user->id));
 		$favorites = $database->get_all("SELECT image_id FROM user_favorites WHERE user_id = ?", array($user->id));
 
 		$xml = "<user>\n";
