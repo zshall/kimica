@@ -165,7 +165,7 @@ class ViewImage extends SimpleExtension {
 
 	public function onDisplayingImage(DisplayingImageEvent $event) {
 		global $page, $user;
-		$event->image->upldate_view();
+		$event->image->update_view();
 		$iibbe = new ImageInfoBoxBuildingEvent($event->get_image(), $user);
 		send_event($iibbe);
 		ksort($iibbe->parts);
