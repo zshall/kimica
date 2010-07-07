@@ -9,7 +9,35 @@ class Ajax extends SimpleExtension {
 	
 	public function onPageRequest(PageRequestEvent $event) {
 		global $page, $config, $user;
+		
+		if($event->page_matches("post/list")) {
+			$this->theme->images_control($page);
+		}
+		
+				
+		/*
+		*
+		* Edit image tags
+		*
+		*/
+		if($event->page_matches("ajax/image/info")) {
+			$image_id = int_escape($_POST['image_id']);
 			
+			if(isset($image_id)){
+				$image = Image::by_id($image_id);
+					
+				if($image){
+					$image_info = '{"tags":"'.$image->get_tag_list().'","rating":"'.$image->rating.'"}';
+					
+					$page->set_mode("data");
+					$page->set_type("application/json");
+					$page->set_data($image_info);
+				}
+			}
+		}
+		
+		
+		
 		/*
 		*
 		* Edit image tags
@@ -93,11 +121,14 @@ class Ajax extends SimpleExtension {
 			
 			$auth = $user->get_auth_from_str($config->get_string("index_mode_admin"));
 			if($auth){
-				if (($rating == "s") || ($rating == "q") || ($rating == "e")) {
-					send_event(new RatingSetEvent($image_id, $user, $rating));
-					
-					$page->set_mode("data");
-					$page->set_data("rated as ".$rating);
+				$image = Image::by_id($image_id);
+				if($image){
+					if (($rating == "s") || ($rating == "q") || ($rating == "e")) {
+						send_event(new RatingSetEvent($image, $user, $rating));
+						
+						$page->set_mode("data");
+						$page->set_data("rated as ".Ratings::rating_to_human($rating));
+					}
 				}
 			}
 		}
@@ -152,6 +183,43 @@ class Ajax extends SimpleExtension {
 			}
 		}
 		
+		
+		
+		/*
+		*
+		* Add comment report
+		*
+		*/
+		if($event->page_matches("ajax/comment/add") && class_exists("Comment")) {
+			$image_id = int_escape($_POST['image_id']);
+			$comment = $_POST['comment'];
+			
+			if(isset($_POST['image_id']) && isset($_POST['comment'])) {
+				send_event(new CommentPostingEvent($image_id, $user, $comment));
+					
+				$page->set_mode("data");
+				$page->set_data("comment made");
+			}
+		}
+		
+		
+		
+		/*
+		*
+		* Add comment report
+		*
+		*/
+		if($event->page_matches("ajax/comment/vote") && class_exists("Comment")) {
+			$comment_id = int_escape($_POST['comment_id']);
+			$vote = $_POST['vote'];
+			
+			if(isset($_POST['comment_id']) && isset($_POST['vote'])) {
+				send_event(new CommentVoteEvent($comment_id, $user, $vote));
+					
+				$page->set_mode("data");
+				$page->set_data("comment voted");
+			}
+		}
 	}
 	
 	private function can_tag($image_id) {
