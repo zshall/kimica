@@ -10,7 +10,7 @@ class CustomCommentListTheme extends CommentListTheme {
 		return "<div id='comment_form'>
 				<textarea id='comment_box' name='comment' rows='5' cols='50'></textarea>
 				$captcha
-				<br><input id='comment_button' type='submit' onclick='PostComment($i_image_id)' value='Post Comment' />
+				<br><input id='comment_button' type='submit' onclick='CommentPost($i_image_id)' value='Post Comment' />
 				</div>";
 	}
 	
@@ -37,34 +37,24 @@ class CustomCommentListTheme extends CommentListTheme {
 		$stripped_nonl = str_replace("\r", "\\r", $stripped_nonl);
 		$h_dellink = $user->is_admin() ?
 			"<a ".
-			"onclick=\"return confirm('Delete comment by $h_name:\\n$stripped_nonl');\" ".
-			"href='".make_link("comment/delete/$i_comment_id/$i_image_id")."'>Del</a> |" : "";
+			"onclick=\"CommentRemove($i_comment_id); return false;\" ".
+			"href='#'>Del</a> |" : "";
 		
 		$h_toolslinks = !$user->is_anonymous() ?
 			"<br>($h_dellink <a id=\"vote-up-$i_comment_id\" href=\"#\" onclick=\"CommentVote($i_comment_id,'up'); return false;\">Vote Up</a> | <a id=\"vote-down-$i_comment_id\" href=\"#\" onclick=\"CommentVote($i_comment_id,'down'); return false;\">Vote Down</a>)" : "";
 
-		if($trim) {
-			return "
-				$h_userlink: $h_comment
-				<a href='".make_link("post/view/$i_image_id")."'>&gt;&gt;&gt;</a>
-				$h_toolslinks
-			";
-		}
-		else {
-			//$avatar = "";
-			//if(!empty($comment->owner->email)) {
-			//	$hash = md5(strtolower($comment->owner->email));
-			//	$avatar = "<img src=\"http://www.gravatar.com/avatar/$hash.jpg\"><br>";
-			//}
-			$oe = ($this->comments_shown++ % 2 == 0) ? "even" : "odd";
-			return "
-				<a name='$i_comment_id'></a>
-				<div class='$oe comment'>
-				$h_userlink ($h_timestamp): $h_comment
-				$h_toolslinks
-				</div>
-			";
-		}
+		//$avatar = "";
+		//if(!empty($comment->owner->email)) {
+		//	$hash = md5(strtolower($comment->owner->email));
+		//	$avatar = "<img src=\"http://www.gravatar.com/avatar/$hash.jpg\"><br>";
+		//}
+		$oe = ($this->comments_shown++ % 2 == 0) ? "even" : "odd";
+		return "
+			<div class='$oe comment' id='comment-$i_comment_id'>
+			$h_userlink ($h_timestamp): $h_comment
+			$h_toolslinks
+			</div>
+		";
 	}
 }
 ?>

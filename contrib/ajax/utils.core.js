@@ -241,7 +241,7 @@ function change_style(id, mode){
 	});
 }
 
-function PostComment(image_id){
+function CommentPost(image_id){
 	var comment = $("#comment_box").val();
 	comment = $.trim(comment);
 		
@@ -254,7 +254,27 @@ function PostComment(image_id){
 			success: function(){
 				$("#comment_box").val("");
 				$("#comment_box").fadeOut("slow");
-				$("#comment_button").fadeOut("slow");
+				$("#comment_button").fadeOut("slow",function(){
+					$('#comment_form').append("<div class='info'><p>Comment was added.</p></div>");
+				});
+				$("#comment_form .info").fadeOut("slow");
+			}
+		});
+	}
+}
+
+function CommentRemove(comment_id){
+	//comment_id = $.trim(comment_id);
+	//vote = $.trim(vote);
+	var element = "#comment-" + comment_id;
+	if((comment_id!="") && (comment_id!=null) && (vote!="") && (vote!=null)){
+		$.ajax({
+		   	type: "POST",
+		   	cache: false,
+		   	url: server.host + server.path + "ajax/comment/remove",
+		   	data: "comment_id=" + comment_id,
+			success: function(){
+					$(element).fadeOut("slow");
 			}
 		});
 	}

@@ -203,6 +203,23 @@ class Ajax extends SimpleExtension {
 		}
 		
 		
+		/*
+		*
+		* Add comment report
+		*
+		*/
+		if($event->page_matches("ajax/comment/remove") && class_exists("Comment")) {
+			$comment_id = int_escape($_POST['comment_id']);
+			
+			if(isset($_POST['comment_id'])) {
+				send_event(new CommentDeletionEvent($comment_id));
+					
+				$page->set_mode("data");
+				$page->set_data("comment removed");
+			}
+		}
+		
+		
 		
 		/*
 		*
