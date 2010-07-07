@@ -124,7 +124,6 @@ class CommentListTheme extends Themelet {
 
 		$i_uid = int_escape($comment->owner_id);
 		$h_name = html_escape($comment->owner_name);
-		$h_poster_ip = html_escape($comment->poster_ip);
 		$h_timestamp = autodate($comment->posted);
 		$h_comment = ($trim ? substr($tfe->stripped, 0, 50)."..." : $tfe->formatted);
 		$i_comment_id = int_escape($comment->comment_id);
@@ -139,15 +138,18 @@ class CommentListTheme extends Themelet {
 		$stripped_nonl = str_replace("\n", "\\n", substr($tfe->stripped, 0, 50));
 		$stripped_nonl = str_replace("\r", "\\r", $stripped_nonl);
 		$h_dellink = $user->is_admin() ?
-			"<br>($h_poster_ip, $h_timestamp, <a ".
+			"<a ".
 			"onclick=\"return confirm('Delete comment by $h_name:\\n$stripped_nonl');\" ".
-			"href='".make_link("comment/delete/$i_comment_id/$i_image_id")."'>Del</a>)" : "";
+			"href='".make_link("comment/delete/$i_comment_id/$i_image_id")."'>Del</a> |" : "";
+		
+		$h_toolslinks = !$user->is_anonymous() ?
+			"<br>($h_dellink <a href=".make_link("comment/vote/up/".$i_comment_id).">Vote Up</a> | <a href=".make_link("comment/vote/down/".$i_comment_id).">Vote Down</a>)" : "";
 
 		if($trim) {
 			return "
 				$h_userlink: $h_comment
 				<a href='".make_link("post/view/$i_image_id")."'>&gt;&gt;&gt;</a>
-				$h_dellink
+				$h_toolslinks
 			";
 		}
 		else {
@@ -160,8 +162,8 @@ class CommentListTheme extends Themelet {
 			return "
 				<a name='$i_comment_id'></a>
 				<div class='$oe comment'>
-				$h_userlink: $h_comment
-				$h_dellink
+				$h_userlink ($h_timestamp): $h_comment
+				$h_toolslinks
 				</div>
 			";
 		}

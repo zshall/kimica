@@ -34,6 +34,22 @@ class CommentDeletionEvent extends Event {
 	}
 }
 
+
+/**
+*
+* comment_id and user_id as integers, vote(up|down) (string)
+*
+*/
+class CommentVoteEvent extends Event {
+	var $comment_id, $user, $vote;
+
+	public function CommentVoteEvent($comment_id, $user, $vote) {
+		$this->comment_id = $comment_id;
+		$this->user = $user;
+		$this->vote = $vote;
+	}
+}
+
 class CommentPostingException extends SCoreException {}
 
 class Comment {
@@ -47,6 +63,7 @@ class Comment {
 		$this->image_id =  $row['image_id'];
 		$this->poster_ip =  $row['poster_ip'];
 		$this->posted =  $row['posted'];
+		$this->votes =  $row['votes'];
 	}
 
 	public static function count_comments_by_user($user) {
@@ -69,46 +86,6 @@ class CommentList extends SimpleExtension {
 		$config->set_default_int('comment_list_count', 10);
 		$config->set_default_int('comment_count', 5);
 		$config->set_default_bool('comment_captcha', false);
-
-		if($config->get_int("ext_comments_version") < 2) {
-			// shortcut to latest
-			if($config->get_int("ext_comments_version") < 1) {
-				$database->create_table("comments", "
-					id SCORE_AIPK,
-					image_id INTEGER NOT NULL,
-					owner_id INTEGER NOT NULL,
-					owner_ip SCORE_INET NOT NULL,
-					posted DATETIME DEFAULT NULL,
-					comment TEXT NOT NULL,
-					INDEX (image_id),
-					INDEX (owner_ip),
-					INDEX (posted),
-					FOREIGN KEY (image_id) REFERENCES images(id) ON DELETE CASCADE,
-					FOREIGN KEY (owner_id) REFERENCES users(id) ON DELETE CASCADE
-				");
-				$config->set_int("ext_comments_version", 2);
-			}
-
-			// ===
-			if($config->get_int("ext_comments_version") < 1) {
-				$database->Execute("CREATE TABLE comments (
-					id {$database->engine->auto_increment},
-					image_id INTEGER NOT NULL,
-					owner_id INTEGER NOT NULL,
-					owner_ip CHAR(16) NOT NULL,
-					posted DATETIME DEFAULT NULL,
-					comment TEXT NOT NULL,
-					INDEX (image_id)
-				) {$database->engine->create_table_extras}");
-				$config->set_int("ext_comments_version", 1);
-			}
-
-			if($config->get_int("ext_comments_version") == 1) {
-				$database->Execute("CREATE INDEX comments_owner_ip ON comments(owner_ip)");
-				$database->Execute("CREATE INDEX comments_posted ON comments(posted)");
-				$config->set_int("ext_comments_version", 2);
-			}
-		}
 	}
 
 	public function onPageRequest($event) {
@@ -143,6 +120,18 @@ class CommentList extends SimpleExtension {
 				}
 				else {
 					$this->theme->display_permission_denied($page);
+				}
+			}
+			else if($event->get_arg(0) == "vote") {
+				$vote = $event->get_arg(1);
+				$comment_id = $event->get_arg(2);
+				if(isset($vote) && isset($comment_id)) {
+					if(!$user->is_anonymous()) {
+						send_event(new CommentVoteEvent($comment_id, $user, $vote));
+						
+						$page->set_mode("redirect");
+						$page->set_redirect($_SERVER['HTTP_REFERER']);
+					}
 				}
 			}
 			else if($event->get_arg(0) == "list") {
@@ -189,6 +178,10 @@ class CommentList extends SimpleExtension {
 		$this->add_comment_wrapper($event->image_id, $event->user, $event->comment, $event);
 	}
 
+	public function onCommentVote($event) {
+		$this->add_comment_vote($event->comment_id, $event->user, $event->vote);
+	}
+	
 	public function onCommentDeletion($event) {
 		global $database;
 		$database->Execute("DELETE FROM comments WHERE id=?", array($event->comment_id));
@@ -293,7 +286,8 @@ class CommentList extends SimpleExtension {
 				users.id as user_id, users.name as user_name, users.email as user_email,
 				comments.comment as comment, comments.id as comment_id,
 				comments.image_id as image_id, comments.owner_ip as poster_ip,
-				comments.posted as posted
+				comments.posted as posted,
+				comments.votes as votes
 				FROM comments
 				LEFT JOIN users ON comments.owner_id=users.id
 				ORDER BY comments.id DESC
@@ -315,7 +309,8 @@ class CommentList extends SimpleExtension {
 				users.id as user_id, users.name as user_name, users.email as user_email,
 				comments.comment as comment, comments.id as comment_id,
 				comments.image_id as image_id, comments.owner_ip as poster_ip,
-				comments.posted as posted
+				comments.posted as posted,
+				comments.votes as votes
 				FROM comments
 				LEFT JOIN users ON comments.owner_id=users.id
 				WHERE comments.image_id=?
@@ -454,6 +449,21 @@ class CommentList extends SimpleExtension {
 			$cid = $database->db->Insert_ID();
 			log_info("comment", "Comment #$cid added to Image #$image_id");
 		}
+	}
+	
+	private function add_comment_vote($comment_id, $user, $vote) {
+		global $database;
+		$database->Execute("DELETE FROM comment_votes WHERE comment_id = ? AND user_id = ?", array($comment_id, $user->id));
+		
+		if(($vote == "up") || ($vote == "down")) {
+			$score = -1;
+			if($vote == "up") {
+				$score = 1;
+			}
+			
+			$database->Execute("INSERT INTO comment_votes(comment_id, user_id, vote) VALUES(?, ?, ?)",array($comment_id, $user->id, $score));
+			$database->Execute("UPDATE comments SET votes=(SELECT SUM(vote) FROM comment_votes WHERE comment_id = ?) WHERE id = ?", array($comment_id, $comment_id));
+		}		
 	}
 // }}}
 }
