@@ -221,10 +221,10 @@ class Ratings implements Extension {
 
 	public static function rating_to_human($rating) {
 		switch($rating) {
-			case "s": return "Safe";
-			case "q": return "Questionable";
-			case "e": return "Explicit";
-			default:  return "Unknown";
+			case "s": return "safe";
+			case "q": return "questionable";
+			case "e": return "explicit";
+			default:  return "unknown";
 		}
 	}
 
