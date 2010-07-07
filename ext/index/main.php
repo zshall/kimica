@@ -134,20 +134,18 @@ class Index extends SimpleExtension {
 		$config->set_default_int("index_width", 3);
 		$config->set_default_int("index_height", 4);
 		$config->set_default_bool("index_tips", true);
-		
+				
 		$config->set_default_string("index_mode_general", "oamsu");
 		$config->set_default_string("index_mode_admin", "oa");
 		$config->set_default_string("index_mode_favorites", "oamsu");
 		$config->set_default_string("index_mode_score", "oamsu");
 		$config->set_default_string("index_mode_rating", "oamsu");
 	}
-
+	
 	public function onPageRequest($event) {
 		global $config, $database, $page, $user;
 		if($event->page_matches("post/list")) {
-			
-			$this->theme->images_control($page);
-			
+								
 			if(isset($_GET['search'])) {
 				$search = url_escape(trim($_GET['search']));
 				if(empty($search)) {
@@ -188,6 +186,36 @@ class Index extends SimpleExtension {
 
 				$this->theme->set_page($page_number, $total_pages, $search_terms);
 				$this->theme->display_page($page, $images);
+			}
+		}
+		
+		if($event->page_matches("post/popular")) {
+			$date = $event->get_arg(0);
+			$images = $event->get_page_size();
+			
+			if(!isset($date)){
+				$date = date("Y-m-d");
+			}
+			
+			if(preg_match("(([0-9\*]*)?(-[0-9\*]*)?(-[0-9\*]*)?)", $date)) {
+				$search_date = "%".$date."%";
+				$rating = "";
+				if(class_exists("Ratings")){
+					$rating = Ratings::privs_to_sql(Ratings::get_user_privs($user));
+					$rating = "(images.rating IN ($rating)) AND";
+				}
+				
+				$results = $database->get_all("SELECT images.id FROM images WHERE $rating (images.posted LIKE ?) ORDER BY images.views DESC LIMIT ? OFFSET 0", array($search_date, $images));
+				
+				$images = array();
+				foreach($results as $result) {
+					$images[] = Image::by_id($result["id"]);
+				}
+				
+				$this->theme->display_populars($page, $images, $date);
+			}
+			else{
+				$this->theme->display_error($page, "Error", "Malformed date.");
 			}
 		}
 	}
