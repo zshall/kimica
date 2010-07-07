@@ -94,7 +94,12 @@ try {
 	if(file_exists("themes/$_theme/custompage.class.php")) require_once "themes/$_theme/custompage.class.php";
 	require_once "themes/$_theme/layout.class.php";
 	require_once "themes/$_theme/themelet.class.php";
-
+	
+	$themelets = glob("ext/*/theme.php");
+	foreach($themelets as $filename) {
+		require_once $filename;
+	}
+	
 	$themelets = glob("ext/*/*.theme.php");
 	foreach($themelets as $filename) {
 		require_once $filename;
