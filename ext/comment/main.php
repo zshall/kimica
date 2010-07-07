@@ -183,9 +183,11 @@ class CommentList extends SimpleExtension {
 	}
 	
 	public function onCommentDeletion($event) {
-		global $database;
-		$database->Execute("DELETE FROM comments WHERE id=?", array($event->comment_id));
-		log_info("comment", "Deleting Comment #{$event->comment_id}");
+		global $user, $database;
+		if($user->is_admin()){
+			$database->Execute("DELETE FROM comments WHERE id=?", array($event->comment_id));
+			log_info("comment", "Deleting Comment #{$event->comment_id}");
+		}
 	}
 
 	public function onSetupBuilding($event) {
