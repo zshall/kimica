@@ -350,6 +350,29 @@ function create_tables($dsn) { // {{{
 			FOREIGN KEY (image_id) REFERENCES images(id) ON DELETE CASCADE,
 			FOREIGN KEY (tag_id) REFERENCES tags(id) ON DELETE CASCADE
 		"));
+		$database->create_table("comments", "
+			id SCORE_AIPK,
+			image_id INTEGER NOT NULL,
+			owner_id INTEGER NOT NULL,
+			owner_ip SCORE_INET NOT NULL,
+			posted DATETIME DEFAULT NULL,
+			comment TEXT NOT NULL,
+			votes INTEGER NOT NULL DEFAULT 0,
+			INDEX (image_id),
+			INDEX (owner_ip),
+			INDEX (posted),
+			FOREIGN KEY (image_id) REFERENCES images(id) ON DELETE CASCADE,
+			FOREIGN KEY (owner_id) REFERENCES users(id) ON DELETE CASCADE
+		");
+		$database->create_table("comment_votes", "
+				comment_id INTEGER NOT NULL,
+				user_id INTEGER NOT NULL,
+				vote INTEGER NOT NULL,
+				UNIQUE(comment_id, user_id),
+				INDEX(comment_id),
+				FOREIGN KEY (comment_id) REFERENCES comments(id) ON DELETE CASCADE,
+				FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+		");
 		$db->execute("INSERT INTO config(name, value) VALUES('db_version', 8)");
 	}
 	$db->Close();
