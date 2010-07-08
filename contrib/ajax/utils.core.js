@@ -2,10 +2,41 @@
 // Example: http://www.example.com/folder/ path must be /board/
 var server = {
 	host:'http://' + document.domain,
-	path:''
+	path:'',
+	pages:['post', 'comment']
+}
+
+var classes = [];
+var savedClasses = false;
+
+$(document).ready(function(){
+	var paths = location.pathname.split("/");
+	var realPath = [];
+	
+	for(var i=1; i< paths.length; i++) {
+			if(inArray(server.pages, paths[i])){
+				break;
+			}
+			else{
+				realPath.push(paths[i]);
+			}
+    }
+	if(realPath.length > 0){
+		server.path = "/" + realPath.join('/') + "/";
+	}
+});
+
+function inArray(arr, val) {
+      isin = false;
+      for (i = 0; i < arr.length; i++)
+      	if (val == arr[i]){
+      		isin = true;
+		}
+      return isin;
 }
 
 function PostModeMenu() {
+	
 	var mode = $("#mode").val();
 	var date = new Date();
 	date.setTime(date.getTime() + (15 * 60 * 1000));
@@ -18,20 +49,24 @@ function PostModeMenu() {
 	if(mode=="view" || mode == null){
 		$("#mode").val("View posts");
 		
+		var i = 0;
 		$(".thumb a").each(function(){
 			var id = $(this).attr("id").substring(6);
 			$(this).attr("href", server.host + server.path + "post/view/" + id);
 			
-			var class = $(this).attr("class_style");
-			$(this).attr("class", class);
-			$(this).removeAttr("class_style");
+			$(this).attr("class", classes[i]);
+			i++;
 		});
 	}
 	else{
-		$(".thumb a").each(function(){			
+		$(".thumb a").each(function(){
 			var class = $(this).attr("class");
-			$(this).attr("class_style", class);
+			
+			if(!savedClasses){
+				classes.push(class);
+			}
 		});
+		savedClasses = true;
 	}
 }
 

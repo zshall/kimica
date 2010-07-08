@@ -5,7 +5,7 @@ class AjaxTheme extends Themelet {
 	public function images_control(Page $page){
 		global $config, $user;
 		$html = "<form action=''>
-					<select onchange='PostModeMenu()' id='mode' name='mode'>";
+					<select onchange='PostModeMenu();' id='mode' name='mode'>";
 		
 		if($user->get_auth_from_str($config->get_string("index_mode_general"))){
 			$html .= "<optgroup label='General'>
@@ -42,7 +42,7 @@ class AjaxTheme extends Themelet {
 			$html .= "<optgroup label='Rating'> 
 							<option value='rate-safe'>Rate safe</option>      
 							<option value='rate-questionable'>Rate questionable</option>
-							<option value='rate-explicit'>Rate Explicit</option>   
+							<option value='rate-explicit'>Rate explicit</option>   
 							</optgroup>";
 		}
 						
