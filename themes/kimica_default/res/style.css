@@ -195,13 +195,10 @@ background:blue none repeat scroll 0 0;
 border:1px solid #EEEEEE;
 color:white;
 }
-span.thumb {
-display:inline-block;
-float:left;
-height:220px;
-text-align:center;
-width:220px;
-}
+
+ul.thumbblock{ height: 180px; text-align:center;padding:0;}
+li.thumb {list-style:none; padding:0; min-width:180px; width:25%; height:180px; float:left; display:inline-block;}
+
 #pagelist {
 margin-top:32px;
 }
