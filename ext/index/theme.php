@@ -65,18 +65,10 @@ EOD;
 	}
 	
 	public function display_populars(Page $page, $images, $date) {
-		$pool_images = "";
-		
-		foreach($images as $image) {
-			$thumb_html = $this->build_thumb_html($image);
-			$pool_images .= '<span class="thumb">'.
-				'<a href="$image_link">'.$thumb_html.'</a>'.
-				'</span>';
-		}
-		
+
 		$page->set_title("Popular Images");
 		$page->set_heading("Popular Images");
-		$page->add_block(new Block("Popular Images: ".$date, $pool_images, "main", 10));
+		$page->add_block(new Block("Popular Images: ".$date, $this->build_table($images, null), "main", 10));
 	}
 
 	protected function build_navigation($page_number, $total_pages, $search_terms) {

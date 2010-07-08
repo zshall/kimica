@@ -197,7 +197,7 @@ class Index extends SimpleExtension {
 				$date = date("Y-m-d");
 			}
 			
-			if(preg_match("(([0-9\*]*)?(-[0-9\*]*)?(-[0-9\*]*)?)", $date)) {
+			if(preg_match("([0-9]{4}-[0-9]{2}-[0-9]{2})", $date) || preg_match("([0-9]{4}-[0-9]{2})", $date) || preg_match("([0-9]{4})", $date)) {
 				$search_date = "%".$date."%";
 				$rating = "";
 				if(class_exists("Ratings")){
