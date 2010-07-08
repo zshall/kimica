@@ -10,6 +10,11 @@ var classes = [];
 var savedClasses = false;
 
 $(document).ready(function(){
+	setPath();
+	setSelected();
+});
+
+function setPath(){
 	var paths = location.pathname.split("/");
 	var realPath = [];
 	
@@ -24,7 +29,7 @@ $(document).ready(function(){
 	if(realPath.length > 0){
 		server.path = "/" + realPath.join('/') + "/";
 	}
-});
+}
 
 function inArray(arr, val) {
       isin = false;
@@ -33,6 +38,17 @@ function inArray(arr, val) {
       		isin = true;
 		}
       return isin;
+}
+
+function setSelected(){
+	var mode = $.cookie("mode");
+	
+	$("#mode option").each(function(){
+		var value = $(this).val();
+		if(value == mode){
+			$(this).attr("selected", "selected");
+		}
+	});
 }
 
 function PostModeMenu() {
