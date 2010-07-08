@@ -31,7 +31,7 @@ class CommentListTheme extends Themelet {
 		$page->set_title("Comments");
 		$page->set_heading("Comments");
 		$page->add_block(new Block("Navigation", $nav, "left"));
-		$this->display_paginator($page, "comment/list", null, $page_number, $total_pages);
+		$pagination = $this->build_paginator("comment/list", null, $page_number, $total_pages);
 
 		// parts for each image
 		$position = 10;
@@ -76,7 +76,7 @@ class CommentListTheme extends Themelet {
 			";
 
 			if(($image->is_approved() || $image->is_locked() || ($user->is_admin() || $user->is_mod()))) {
-				$page->add_block(new Block("{$image->id}: ".($image->get_tag_list()), $html, "main", $position++));
+				$page->add_block(new Block("{$image->id}: ".($image->get_tag_list()), $html.$pagination, "main", $position++));
 			}
 		}
 	}
