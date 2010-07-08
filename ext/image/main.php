@@ -124,8 +124,8 @@ class ParseLinkTemplateEvent extends Event {
 class ImageIO extends SimpleExtension {
 	public function onInitExt($event) {
 		global $config;
-		$config->set_default_int('thumb_width', 192);
-		$config->set_default_int('thumb_height', 192);
+		$config->set_default_int('thumb_width', 150);
+		$config->set_default_int('thumb_height', 150);
 		$config->set_default_int('thumb_quality', 75);
 		$config->set_default_int('thumb_mem_limit', parse_shorthand_int('8MB'));
 		$config->set_default_string('thumb_convert_path', 'convert.exe');
