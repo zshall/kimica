@@ -77,13 +77,13 @@ class PoolsTheme extends Themelet {
 			<br><a href=".make_link("pool/updated").">Pool Changes</a>
 		";
 
-		$blockTitle = "Pools";
-		$page->set_title(html_escape($blockTitle));
-		$page->set_heading(html_escape($blockTitle));
-		$page->add_block(new Block($blockTitle, $html, "main", 10));
+		$pagination = $this->build_paginator("pool/list", null, $pageNumber, $totalPages);
+		
+		$page->set_title("Pools");
+		$page->set_heading("Pools");
+		$page->add_block(new Block("Pools", $html.$pagination, "main", 10));
 		$page->add_block(new Block("Navigation", $nav_html, "left", 10));
 
-		$this->display_paginator($page, "pool/list", null, $pageNumber, $totalPages);
 	}
 
 
@@ -155,20 +155,23 @@ class PoolsTheme extends Themelet {
 	 * HERE WE DISPLAY THE POOL WITH TITLE DESCRIPTION AND IMAGES WITH PAGINATION
 	 */
 	public function view_pool($pools, $images, $pageNumber, $totalPages) {
-		global $user, $page;
+		global $config, $user, $page;
+		$columns = floor(100 / $config->get_int('index_width'));
 
 		$this->display_top($pools, "Pool: ".$pools[0]['title']);
-
-		$pool_images = '';
+	
+		$pool_images = "<ul class='thumbblock'>";
 		foreach($images as $image) {
 			$thumb_html = $this->build_thumb_html($image);
-			$pool_images .= '<span class="thumb">'.
-				'<a href="$image_link">'.$thumb_html.'</a>'.
-				'</span>';
-		}
 
-		$page->add_block(new Block("Viewing Posts", $pool_images, "main", 30));		
-		$this->display_paginator($page, "pool/view/".$pools[0]['id'], null, $pageNumber, $totalPages);
+			$pool_images .= '<li class="thumb" style="width: '.$columns.'%;">'.
+							'<a href="$image_link">'.$thumb_html.'</a>'.
+							'</li>';
+		}
+		$pool_images .= "</ul>";
+		
+		$pagination = $this->build_paginator("pool/view/".$pools[0]['id'], null, $pageNumber, $totalPages);
+		$page->add_block(new Block("Viewing Posts", $pool_images.$pagination, "main", 30));				
 	}
 
 
@@ -232,6 +235,9 @@ class PoolsTheme extends Themelet {
 	 * HERE WE DISPLAY THE RESULT OF THE SEARCH ON IMPORT
 	 */
 	public function pool_result(Page $page, $images, $pool_id) {
+		global $config;
+		$columns = floor(100 / $config->get_int('index_width'));
+		
 		$pool_images = "
 			<script language='JavaScript' type='text/javascript'>
 			function setAll(value) {
@@ -249,21 +255,21 @@ class PoolsTheme extends Themelet {
 			</script>
 		";
 
-		$pool_images .= "<form action='".make_link("pool/add_posts")."' method='POST' name='checks'>";
-
+		$pool_images .= "<form action='".make_link("pool/add_posts")."' method='POST' name='checks'><ul class='thumbblock'>";
+		
 		foreach($images as $image) {
 			$thumb_html = $this->build_thumb_html($image);
 
-			$pool_images .= '<span class="thumb">'.
+			$pool_images .= '<li class="thumb" style="width: '.$columns.'%;">'.
 				'<a href="$image_link">'.$thumb_html.'</a>'.
 				'<br>'.
 				'<input name="check[]" type="checkbox" value="'.$image->id.'" />'.
-				'</span>';
+				'</li>';
 		}
 		$pool_images .= "<br>".
 			"<input type='submit' name='edit' id='edit' value='Add Selected' onclick='return confirm_action()'/>".
 			"<input type='hidden' name='pool_id' value='".$pool_id."'>".
-			"</form>";
+			"</ul></form>";
 
 		$page->add_block(new Block("Import", $pool_images, "main", 10));
 
@@ -281,27 +287,28 @@ class PoolsTheme extends Themelet {
 	 * WE LIST ALL IMAGES ON POOL WITHOUT PAGINATION AND WITH A TEXT INPUT TO SET A NUMBER AND CHANGE THE ORDER
 	 */
 	public function edit_order(Page $page, $pools, $images) {
-		global $user;
-
+		global $config, $user;
+		$columns = floor(100 / $config->get_int('index_width'));
+		
 		$this->display_top($pools, "Sorting Pool");
 
-		$pool_images = "<form action='".make_link("pool/order")."' method='POST' name='checks'>";
+		$pool_images = "<form action='".make_link("pool/order")."' method='POST' name='checks'><ul class='thumbblock'>";
 		$n = 0;
 		foreach($images as $pair) {
 			$image = $pair[0];
 			$thumb_html = $this->build_thumb_html($image);
-			$pool_images .= '<span class="thumb">'.
+			$pool_images .= '<li class="thumb" style="width: '.$columns.'%;">'.
 				'<a href="$image_link">'.$thumb_html.'</a>'.
 				'<br><input name="imgs['.$n.'][]" type="text" style="max-width:50px;" value="'.$image->image_order.'" />'.
 				'<input name="imgs['.$n.'][]" type="hidden" value="'.$image->id.'" />'.
-				'</span>';
+				'</li>';
 			$n++;
 		}
 
 		$pool_images .= "<br>".
 			"<input type='submit' name='edit' id='edit' value='Order'/>".
 			"<input type='hidden' name='pool_id' value='".$pools[0]['id']."'>".
-			"</form>";
+			"</ul></form>";
 
 		$page->add_block(new Block("Sorting Posts", $pool_images, "main", 30));
 	}
@@ -313,30 +320,31 @@ class PoolsTheme extends Themelet {
 	 * A CHECKBOX TO SELECT WHICH IMAGE WE WANT TO REMOVE
 	 */
 	public function edit_pool(Page $page, $pools, $images) {
-		global $user;
+		global $config, $user;
+		$columns = floor(100 / $config->get_int('index_width'));
 
 		$this->display_top($pools, "Editing Pool", true);
 
 		$pool_images = "
 		";
 
-		$pool_images = "<form action='".make_link("pool/remove_posts")."' method='POST' name='checks'>";
+		$pool_images = "<form action='".make_link("pool/remove_posts")."' method='POST' name='checks'><ul class='thumbblock'>";
 
 		foreach($images as $pair) {
 			$image = $pair[0];
 
 			$thumb_html = $this->build_thumb_html($image);
 
-			$pool_images .= '<span class="thumb">'.
+			$pool_images .= '<li class="thumb" style="width: '.$columns.'%;">'.
 				'<a href="$image_link">'.$thumb_html.'</a>'.
 				'<br><input name="check[]" type="checkbox" value="'.$image->id.'" />'.
-				'</span>';
+				'</li>';
 		}
 
 		$pool_images .= "<br>".
 			"<input type='submit' name='edit' id='edit' value='Remove Selected'/>".
 			"<input type='hidden' name='pool_id' value='".$pools[0]['id']."'>".
-			"</form>";
+			"</ul></form>";
 
 		$page->add_block(new Block("Editing Posts", $pool_images, "main", 30));
 	}

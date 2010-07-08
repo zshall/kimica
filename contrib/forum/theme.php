@@ -3,16 +3,18 @@ class ForumTheme extends Themelet {
 
     public function display_thread_list(Page $page, $threads, $showAdminOptions, $pageNumber, $totalPages)
     {
-        if (count($threads) == 0)
+        if(count($threads) == 0){
             $html = "There are no threads to show.";
-        else
+			$pagination = "";
+		}
+        else{
             $html = $this->make_thread_list($threads, $showAdminOptions);
-
+			$pagination = $this->build_paginator("forum/index", null, $pageNumber, $totalPages);
+		}
+				
 		$page->set_title(html_escape("Forum"));
 		$page->set_heading(html_escape("Forum"));
-        $page->add_block(new Block("Forum", $html, "main", 10));
-		
-        $this->display_paginator($page, "forum/index", null, $pageNumber, $totalPages);
+        $page->add_block(new Block("Forum", $html.$pagination, "main", 10));
     }
 
 
@@ -207,11 +209,11 @@ class ForumTheme extends Themelet {
 		
         $html .= "</tbody></table>";
         
-        $this->display_paginator($page, "forum/view/".$threadID, null, $pageNumber, $totalPages);
+		$pagination = $this->build_paginator("forum/view/".$threadID, null, $pageNumber, $totalPages);
 
 		$page->set_title(html_escape($title));
 		$page->set_heading(html_escape($title));
-        $page->add_block(new Block("Thread", $html, "main", 20));
+        $page->add_block(new Block("Thread", $html.$pagination, "main", 20));
 
     }
 	
