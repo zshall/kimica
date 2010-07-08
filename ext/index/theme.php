@@ -78,51 +78,6 @@ EOD;
 		$page->set_heading("Popular Images");
 		$page->add_block(new Block("Popular Images: ".$date, $pool_images, "main", 10));
 	}
-		
-	private function build_paginator($base_url, $query, $current_page, $total_pages) {
-		$next = $current_page + 1;
-		$prev = $current_page - 1;
-		$rand = rand(1, $total_pages);
-
-		$at_start = ($current_page <= 3 || $total_pages <= 3);
-		$at_end = ($current_page >= $total_pages -2);
-
-		$first_html  = $at_start ? "" : $this->gen_page_link($base_url, $query, 1,            "1");
-		$prev_html   = $at_start ? "" : $this->gen_page_link($base_url, $query, $prev,        "&lt;&lt;");
-		$next_html   = $at_end   ? "" : $this->gen_page_link($base_url, $query, $next,        "&gt;&gt;");
-		$last_html   = $at_end   ? "" : $this->gen_page_link($base_url, $query, $total_pages, "$total_pages");
-
-		$start = $current_page-2 > 1 ? $current_page-2 : 1;
-		$end   = $current_page+2 <= $total_pages ? $current_page+2 : $total_pages;
-
-		$pages = array();
-		foreach(range($start, $end) as $i) {
-			$pages[] = $this->gen_page_link_block($base_url, $query, $i, $current_page, $i);
-		}
-		$pages_html = implode(" ", $pages);
-
-		if(strlen($first_html) > 0) $pdots = "...";
-		else $pdots = "";
-
-		if(strlen($last_html) > 0) $ndots = "...";
-		else $ndots = "";
-
-		return "<div id='paginator'>$prev_html $first_html $pdots $pages_html $ndots $last_html $next_html</div>";
-	}
-	
-	private function gen_page_link($base_url, $query, $page, $name) {
-		$link = make_link("$base_url/$page", $query);
-	    return "<a href='$link'>$name</a>";
-	}
-	
-	private function gen_page_link_block($base_url, $query, $page, $current_page, $name) {
-		$paginator = "";
-	    if($page == $current_page) $paginator .= "<b>";
-	    $paginator .= $this->gen_page_link($base_url, $query, $page, $name);
-	    if($page == $current_page) $paginator .= "</b>";
-	    return $paginator;
-	}
-
 
 	protected function build_navigation($page_number, $total_pages, $search_terms) {
 		$prev = $page_number - 1;
@@ -163,14 +118,6 @@ EOD;
 			<div id='search_completions'></div>";
 
 		return "$h_prev | $h_index | $h_next<br>$h_search";
-	}
-
-	protected function build_table($images, $query) {
-		$table = "";
-		foreach($images as $image) {
-			$table .= $this->build_thumb_html($image, $query);
-		}
-		return $table;
 	}
 }
 ?>
