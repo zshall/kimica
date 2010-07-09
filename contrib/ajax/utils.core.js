@@ -271,9 +271,8 @@ function PostFavorite(id, favorite){
 				else{
 					action = "removed";
 				}
-				$('#post-favorite').detach();
 				$('#subheading p').detach();
-				$('#subheading').append("<p>Image " + id + " was " + action + " to favorites.</p>");
+				$('#subheading').append("<p>Post " + id + " was " + action + " to favorites.</p>");
 				$('#subheading').slideDown("slow").delay(3000).slideUp("slow");
 			}
 		});
@@ -290,9 +289,8 @@ function PostVote(id, vote){
 		   	data: "image_id=" + id + "&vote=" + vote,
 			success: function(){
 				style_selector(id, vote);
-				$('#post-favorite').detach();
 				$('#subheading p').detach();
-				$('#subheading').append("<p>Image " + id + " was voted " + vote + ".</p>");
+				$('#subheading').append("<p>Post " + id + " was voted " + vote + ".</p>");
 				$('#subheading').slideDown("slow").delay(3000).slideUp("slow");
 			}
 		});
@@ -308,7 +306,24 @@ function PostRate(id, rate){
 			cache: false,
 		   	url: server.host + server.path + "ajax/image/rate",
 		   	data: "image_id=" + id + "&rating=" + rate,
-		   	success: style_selector(id, rate)
+		   	success: function(){
+				style_selector(id, rate);
+				
+				var rate_name;
+				
+				switch(rate){
+					case "s": rate_name = "safe";
+					break;
+					case "q": rate_name = "questionable";
+					break;
+					case "e": rate_name = "explicit";
+					break;
+				}
+				
+				$('#subheading p').detach();
+				$('#subheading').append("<p>Post " + id + " was rated as " + rate_name + ".</p>");
+				$('#subheading').slideDown("slow").delay(3000).slideUp("slow");
+			}
 		});
 	}
 
