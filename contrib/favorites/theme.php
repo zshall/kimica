@@ -3,24 +3,20 @@
 class FavoritesTheme extends Themelet {
 	public function get_voter_html(Image $image, $is_favorited) {
 		global $page, $user;
-
-		$i_image_id = int_escape($image->id);
+		
+		$html = "<form action='".make_link("change_favorite")."' method='POST'>
+				 <input type='hidden' name='image_id' value='$image->id'>";
+		
 		if(!$is_favorited) {
-			$html = "<form action='".make_link("change_favorite")."' method='POST'>
-				<input type='hidden' name='image_id' value='$i_image_id'>
-				<input type='hidden' name='favorite_action' value='set'>
-				<input type='submit' value='Favorite'>
-				</form>
-			";
+			$html .= "<input type='hidden' name='favorite_action' value='set'>
+					  <input type='submit' value='Favorite'>";
 		}
 		else {
-			$html = "<form action='".make_link("change_favorite")."' method='POST'>
-				<input type='hidden' name='image_id' value='$i_image_id'>
-				<input type='hidden' name='favorite_action' value='unset'>
-				<input type='submit' value='Un-Favorite'>
-				</form>
-			";
+			$html .= "<input type='hidden' name='favorite_action' value='unset'>
+					  <input type='submit' value='Un-Favorite'>";
 		}
+		
+		$html .= "</form>";
 
 		return $html;
 	}
