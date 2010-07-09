@@ -141,17 +141,13 @@ class UserPageTheme extends Themelet {
 		global $config;
 		$html = "
 			<form action='".make_link("account/login")."' method='POST'>
-				<table summary='Login Form'>
-					<tr>
-						<td width='70'><label for='user'>Name</label></td>
-						<td width='70'><input id='user' type='text' name='user'></td>
-					</tr>
-					<tr>
-						<td><label for='pass'>Password</label></td>
-						<td><input id='pass' type='password' name='pass'></td>
-					</tr>
-					<tr><td colspan='2'><input type='submit' value='Log In'></td></tr>
+				<table style='width:100%;' summary='Login Form'>
+					<tr><td>Name</td></tr>
+					<tr><td><input id='user' type='text' name='user'></td></tr>
+					<tr><td>Password</td></tr>
+					<tr><td><input id='pass' type='password' name='pass'></td></tr>
 				</table>
+				<input type='submit' value='Log In'>
 			</form>
 		";
 		if($config->get_bool("login_signup_enabled")) {
@@ -258,7 +254,7 @@ class UserPageTheme extends Themelet {
 				</form>
 			";
 		}
-		else if($user->is_admin() && (!$duser->is_admin())) {
+		else if($user->is_admin() && ((!$duser->is_admin()) || ($user->id == $duser->id))) {
 			$i_user_id = int_escape($duser->id);
 			$h_is_admin = $duser->is_admin() ? " selected='yes'" : "";
 			$h_is_mod   = $duser->is_mod()   ? " selected='yes'" : "";
