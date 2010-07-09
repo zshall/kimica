@@ -74,8 +74,10 @@ class Themelet {
 
 		if(strlen($last_html) > 0) $ndots = "...";
 		else $ndots = "";
-
-		return "<div id='paginator'>$prev_html $first_html $pdots $pages_html $ndots $last_html $next_html</div>";
+		
+		if($total_pages > 0){
+			return "<div id='paginator'>$prev_html $first_html $pdots $pages_html $ndots $last_html $next_html</div>";
+		}
 	}
 	
 	private function gen_page_link($base_url, $query, $page, $name) {
