@@ -10,6 +10,7 @@ class AjaxTheme extends Themelet {
 		$option_delete = "";
 		if($user->is_owner() || $user->is_admin()){
 			$option_delete = "<option value='delete'>Delete posts</option>";
+			$option_ban = "<option value='ban'>Ban posts</option>";
 		}
 		
 		if($user->get_auth_from_str($config->get_string("index_mode_general"))){
@@ -18,6 +19,7 @@ class AjaxTheme extends Themelet {
 							<option value='edit'>Edit posts</option>
 							<option value='report'>Report posts</option>
 							$option_delete
+							$option_ban
 							</optgroup>";
 		}
 		

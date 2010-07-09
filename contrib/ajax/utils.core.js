@@ -1,7 +1,7 @@
 // Path in the server if the system is in a subfolder. 
 // Example: http://www.example.com/folder/ path must be /board/
 var server = {
-	host:'http://' + document.domain,
+	host:'http://' + document.domain + '/',
 	path:'',
 	pages:['post', 'comment']
 }
@@ -11,7 +11,7 @@ var savedClasses = false;
 
 $(document).ready(function(){
 	setPath();
-	setSelected();
+	onPageRefresh();
 });
 
 function setPath(){
@@ -27,7 +27,7 @@ function setPath(){
 			}
     }
 	if(realPath.length > 0){
-		server.path = "/" + realPath.join('/') + "/";
+		server.path = realPath.join('/') + "/";
 	}
 }
 
@@ -40,7 +40,7 @@ function inArray(arr, val) {
       return isin;
 }
 
-function setSelected(){
+function onPageRefresh(){
 	var mode = $.cookie("mode");
 	
 	$("#mode option").each(function(){
@@ -49,6 +49,10 @@ function setSelected(){
 			$(this).attr("selected", "selected");
 		}
 	});
+	
+	if((mode != "view") && (mode != null)){
+		$(".thumb a").removeAttr("href");
+	}
 }
 
 function PostModeMenu() {
@@ -121,7 +125,16 @@ function FileClick(id){
 	}
 	
 	if(mode=="delete"){
-		PostDelete(id);
+		if(confirm("Are you sure you want to delete post " + id + "?")){
+			PostDelete(id);
+		}
+	}
+	
+	if(mode=="ban"){
+		if(confirm("Are you sure you want to ban and delete post " + id + "?")){
+			var reason = prompt("Enter Reason");
+			PostBan(id, reason);
+		}
 	}
 	
 	if(mode=="admin-approved"){		
@@ -211,6 +224,18 @@ function PostDelete(id){
 	   	cache: false,
 	   	url: server.host + server.path + "ajax/image/delete",
 	   	data: "image_id=" + id,
+	   	success: function(){
+			$('#thumb_' + id).fadeOut("slow");
+		}
+	});
+}
+
+function PostBan(id, reason){
+	$.ajax({
+	   	type: "POST",
+	   	cache: false,
+	   	url: server.host + server.path + "ajax/image/ban",
+	   	data: "image_id=" + id + "&reason=" + reason,
 	   	success: function(){
 			$('#thumb_' + id).fadeOut("slow");
 		}
