@@ -65,16 +65,16 @@ class AliasEditorTheme extends Themelet {
 				<input type='submit' value='Upload List'>
 			</form>
 		";
+		
+		$pagination = $this->build_paginator("alias/list", null, $pageNumber, $totalPages);
 
 		$page->set_title("Alias List");
 		$page->set_heading("Alias List");
 		$page->add_block(new NavBlock());
-		$page->add_block(new Block("Aliases", $html));
+		$page->add_block(new Block("Aliases", $html.$pagination));
 		if($is_admin) {
 			$page->add_block(new Block("Bulk Upload", $bulk_html, "main", 51));
 		}
-
-		$this->display_paginator($page, "alias/list", null, $pageNumber, $totalPages);
 	}
 }
 ?>
