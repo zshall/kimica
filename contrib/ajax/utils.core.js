@@ -288,7 +288,13 @@ function PostVote(id, vote){
 			cache: false,
 		   	url: server.host + server.path + "ajax/image/vote",
 		   	data: "image_id=" + id + "&vote=" + vote,
-		   	success: style_selector(id, vote)
+			success: function(){
+				style_selector(id, vote);
+				$('#post-favorite').detach();
+				$('#subheading p').detach();
+				$('#subheading').append("<p>Image " + id + " was voted " + vote + ".</p>");
+				$('#subheading').slideDown("slow").delay(3000).slideUp("slow");
+			}
 		});
 	}
 	
