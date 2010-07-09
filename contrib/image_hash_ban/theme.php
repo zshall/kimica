@@ -65,12 +65,13 @@ class ImageBanTheme extends Themelet {
 		$h_next = ($page_number >= $page_count) ? "Next" : "<a href='".make_link("image_hash_ban/list/$next")."'>Next</a>";
 
 		$nav = "$h_prev | $h_index | $h_next";
-
+		
+		$pagination = $this->build_paginator("image_hash_ban/list", null, $page_number, $page_count);
+		
 		$page->set_title("Image Bans");
 		$page->set_heading("Image Bans");
-		$page->add_block(new Block("Edit Image Bans", $html));
+		$page->add_block(new Block("Edit Image Bans", $html.$pagination));
 		$page->add_block(new Block("Navigation", $nav, "left", 0));
-		$this->display_paginator($page, "image_hash_ban/list", null, $page_number, $page_count);
 	}
 
 	/*
