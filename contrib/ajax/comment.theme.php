@@ -10,7 +10,7 @@ class CustomCommentListTheme extends CommentListTheme {
 		return "<div id='comment_form'>
 				<textarea id='comment_box' name='comment' rows='5' cols='50'></textarea>
 				$captcha
-				<br><input id='comment_button' type='submit' onclick='CommentPost($i_image_id)' value='Post Comment' />
+				<br><input id='comment_button' type='submit' onclick='Comment.Post($i_image_id)' value='Post Comment' />
 				</div>";
 	}
 	
@@ -37,11 +37,11 @@ class CustomCommentListTheme extends CommentListTheme {
 		$stripped_nonl = str_replace("\r", "\\r", $stripped_nonl);
 		$h_dellink = $user->is_admin() ?
 			"<a ".
-			"onclick=\"CommentRemove($i_comment_id); return false;\" ".
+			"onclick=\"Comment.Remove($i_comment_id); return false;\" ".
 			"href='#'>Del</a> |" : "";
 		
 		$h_toolslinks = !$user->is_anonymous() ?
-			"<br>($h_dellink <a id=\"vote-up-$i_comment_id\" href=\"#\" onclick=\"CommentVote($i_comment_id,'up'); return false;\">Vote Up</a> | <a id=\"vote-down-$i_comment_id\" href=\"#\" onclick=\"CommentVote($i_comment_id,'down'); return false;\">Vote Down</a>)" : "";
+			"<br>($h_dellink <a id=\"vote-up-$i_comment_id\" href=\"#\" onclick=\"Comment.Vote($i_comment_id,'up'); return false;\">Vote Up</a> | <a id=\"vote-down-$i_comment_id\" href=\"#\" onclick=\"Comment.Vote($i_comment_id,'down'); return false;\">Vote Down</a>)" : "";
 
 		//$avatar = "";
 		//if(!empty($comment->owner->email)) {

@@ -6,9 +6,9 @@ class CustomVotesTheme extends VotesTheme {
 		$html = "
 			Current Score: $i_score
 
-			<p><input type='submit' onclick='PostVote($image->id,\"up\");' value='Vote Up'>
+			<p><input type='submit' onclick='Post.Vote($image->id,\"up\");' value='Vote Up'>
 			<br>
-			<input type='submit' onclick='PostVote($image->id,\"down\");' value='Vote Down'>
+			<input type='submit' onclick='Post.Vote($image->id,\"down\");' value='Vote Down'>
 			</p>
 		";
 		return $html;

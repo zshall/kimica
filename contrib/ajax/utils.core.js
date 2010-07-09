@@ -99,7 +99,7 @@ function FileClick(id){
 		
 	if(mode=="edit"){
 		var tags;
-		var image = get_image_info(id);
+		var image = Post.Info(id);
 		
 		if(image){
 			tags = image.tags;
@@ -111,7 +111,7 @@ function FileClick(id){
 		tags = prompt("Enter Tags", tags);
 		tags = $.trim(tags);
 		if((tags!="") && (tags!=null)){
-			set_tags(id, tags);
+			Post.Edit(id, tags);
 		}
 	}
 	
@@ -120,214 +120,266 @@ function FileClick(id){
 		reason = $.trim(reason);
 		
 		if((reason!="") && (reason!=null)){
-			PostReport(id, reason);
+			Post.Report(id, reason);
 		}
 	}
 	
 	if(mode=="delete"){
 		if(confirm("Are you sure you want to delete post " + id + "?")){
-			PostDelete(id);
+			Post.Delete(id);
 		}
 	}
 	
 	if(mode=="ban"){
 		if(confirm("Are you sure you want to ban and delete post " + id + "?")){
 			var reason = prompt("Enter Reason");
-			PostBan(id, reason);
+			Post.Ban(id, reason);
 		}
 	}
 	
 	if(mode=="admin-approved"){		
-		PostStatus(id, "a");
+		Post.Status(id, "a");
 	}
 	
 	if(mode=="admin-locked"){	
-		PostStatus(id, "l");
+		Post.Status(id, "l");
 	}
 	
 	if(mode=="admin-pending"){		
-		PostStatus(id, "p");
+		Post.Status(id, "p");
 	}
 	
 	if(mode=="admin-deleted"){		
-		PostStatus(id, "d");
+		Post.Status(id, "d");
 	}
 	
 	if(mode=="add-fav"){
-		PostFavorite(id, "set");
+		Post.Favorite(id, "set");
 	}
 	
 	if(mode=="remove-fav"){
-		PostFavorite(id, "unset");
+		Post.Favorite(id, "unset");
 	}
 	
 	if(mode=="vote-up"){
-		PostVote(id, "up");
+		Post.Vote(id, "up");
 	}
 	
 	if(mode=="vote-down"){
-		PostVote(id, "down");
+		Post.Vote(id, "down");
 	}
 	
 	if(mode=="rate-safe"){
-		PostRate(id, "s");
+		Post.Rate(id, "s");
 	}
 	
 	if(mode=="rate-questionable"){
-		PostRate(id, "q");
+		Post.Rate(id, "q");
 	}
 	
 	if(mode=="rate-explicit"){
-		PostRate(id, "e");
+		Post.Rate(id, "e");
 	}
 }
 
-function set_tags(id, tags){
-	
-	$.ajax({
-		type: "POST",
-		cache: false,
-		url: server.host + server.path + "ajax/image/edit",
-		data: "image_id=" + id + "&tags=" + tags
-	});
-}
-
-function get_image_info(id){
-	var image;
-	
-	$.ajax({
-		type: "POST",
-		async: false,
-  		url: server.host + server.path + "ajax/image/info",
-		data: "image_id=" + id,
-  		dataType: "json",
-  		success: function(data){
-				image = data;
-		}
-	});
-	
-	if (image) return image;
-}
-
-function PostReport(id, reason){
-	$.ajax({
-	   type: "POST",
-	   cache: false,
-	   url: server.host + server.path + "ajax/image/report",
-	   data: "image_id=" + id + "&reason=" + reason
-	});
-}
-
-function PostDelete(id){
-	$.ajax({
-	   	type: "POST",
-	   	cache: false,
-	   	url: server.host + server.path + "ajax/image/delete",
-	   	data: "image_id=" + id,
-	   	success: function(){
-			$('#thumb_' + id).fadeOut("slow");
-		}
-	});
-}
-
-function PostBan(id, reason){
-	$.ajax({
-	   	type: "POST",
-	   	cache: false,
-	   	url: server.host + server.path + "ajax/image/ban",
-	   	data: "image_id=" + id + "&reason=" + reason,
-	   	success: function(){
-			$('#thumb_' + id).fadeOut("slow");
-		}
-	});
-}
-
-function PostStatus(id, status){
-	
-	if(((status=="l") || (status=="a") || (status=="p") || (status=="d")) && (id!=null)){
+Post = {
+	Info: function(id){
+		var image;
+		
 		$.ajax({
-		   type: "POST",
-		   cache: false,
-		   url: server.host + server.path + "ajax/image/status",
-		   data: "image_id=" + id + "&status=" + status
-		});
-	}
-}
-
-function PostFavorite(id, favorite){
-	
-	if(((favorite=="set") || (favorite=="unset")) && (id!=null)){
-		$.ajax({
-		   	type: "POST",
-			cache: false,
-		   	url: server.host + server.path + "ajax/image/favorite",
-		   	data: "image_id=" + id + "&favorite=" + favorite,
-			success: function(){
-				style_selector(id, favorite);
-				var action;
-				if(favorite=="set"){
-					action = "added";
-				}
-				else{
-					action = "removed";
-				}
-				$('#subheading p').detach();
-				$('#subheading').append("<p>Post " + id + " was " + action + " to favorites.</p>");
-				$('#subheading').slideDown("slow").delay(3000).slideUp("slow");
+			type: "POST",
+			async: false,
+			url: server.host + server.path + "ajax/image/info",
+			data: "image_id=" + id,
+			dataType: "json",
+			success: function(data){
+					image = data;
 			}
 		});
-	}
-}
-
-function PostVote(id, vote){
+		
+		if (image) return image;
+	},
 	
-	if(((vote=="up") || (vote=="down")) && (id!=null)){
-		$.ajax({
-		   	type: "POST",
-			cache: false,
-		   	url: server.host + server.path + "ajax/image/vote",
-		   	data: "image_id=" + id + "&vote=" + vote,
-			success: function(){
-				style_selector(id, vote);
-				$('#subheading p').detach();
-				$('#subheading').append("<p>Post " + id + " was voted " + vote + ".</p>");
-				$('#subheading').slideDown("slow").delay(3000).slideUp("slow");
-			}
-		});
-	}
-	
-}
-
-function PostRate(id, rate){
-	
-	if(((rate=="s") || (rate=="q") || (rate=="e")) && (id!=null)){
+	Edit: function(id, tags){
 		$.ajax({
 			type: "POST",
 			cache: false,
-		   	url: server.host + server.path + "ajax/image/rate",
-		   	data: "image_id=" + id + "&rating=" + rate,
-		   	success: function(){
-				style_selector(id, rate);
-				
-				var rate_name;
-				
-				switch(rate){
-					case "s": rate_name = "safe";
-					break;
-					case "q": rate_name = "questionable";
-					break;
-					case "e": rate_name = "explicit";
-					break;
-				}
-				
-				$('#subheading p').detach();
-				$('#subheading').append("<p>Post " + id + " was rated as " + rate_name + ".</p>");
-				$('#subheading').slideDown("slow").delay(3000).slideUp("slow");
+			url: server.host + server.path + "ajax/image/edit",
+			data: "image_id=" + id + "&tags=" + tags
+		});
+	},
+	
+	Report: function(id, reason){
+		$.ajax({
+			type: "POST",
+			cache: false,
+			url: server.host + server.path + "ajax/image/report",
+			data: "image_id=" + id + "&reason=" + reason
+		});
+	},
+	
+	Delete: function(id){
+		$.ajax({
+	   		type: "POST",
+	   		cache: false,
+	   		url: server.host + server.path + "ajax/image/delete",
+	   		data: "image_id=" + id,
+	   		success: function(){
+				$('#thumb_' + id).fadeOut("slow");
 			}
 		});
+	},
+	
+	Ban: function(id, reason){
+		$.ajax({
+	   		type: "POST",
+	   		cache: false,
+	   		url: server.host + server.path + "ajax/image/ban",
+	   		data: "image_id=" + id + "&reason=" + reason,
+	   		success: function(){
+				$('#thumb_' + id).fadeOut("slow");
+			}
+		});
+	},
+	
+	Status: function(id, status){
+		if(((status=="l") || (status=="a") || (status=="p") || (status=="d")) && (id!=null)){
+			$.ajax({
+			   type: "POST",
+			   cache: false,
+			   url: server.host + server.path + "ajax/image/status",
+			   data: "image_id=" + id + "&status=" + status
+			});
+		}
+	},
+	
+	Favorite: function(id, favorite){
+		if(((favorite=="set") || (favorite=="unset")) && (id!=null)){
+			$.ajax({
+				type: "POST",
+				cache: false,
+				url: server.host + server.path + "ajax/image/favorite",
+				data: "image_id=" + id + "&favorite=" + favorite,
+				success: function(){
+					style_selector(id, favorite);
+					var action;
+					if(favorite=="set"){
+						action = "added";
+					}
+					else{
+						action = "removed";
+					}
+					$('#subheading p').detach();
+					$('#subheading').append("<p>Post " + id + " was " + action + " to favorites.</p>");
+					$('#subheading').slideDown("slow").delay(3000).slideUp("slow");
+				}
+			});
+		}
+	},
+	
+	Vote: function(id, vote){
+		if(((vote=="up") || (vote=="down")) && (id!=null)){
+			$.ajax({
+				type: "POST",
+				cache: false,
+				url: server.host + server.path + "ajax/image/vote",
+				data: "image_id=" + id + "&vote=" + vote,
+				success: function(){
+					style_selector(id, vote);
+					$('#subheading p').detach();
+					$('#subheading').append("<p>Post " + id + " was voted " + vote + ".</p>");
+					$('#subheading').slideDown("slow").delay(3000).slideUp("slow");
+				}
+			});
+		}
+		
+	},
+	
+	Rate: function(id, rate){
+		if(((rate=="s") || (rate=="q") || (rate=="e")) && (id!=null)){
+			$.ajax({
+				type: "POST",
+				cache: false,
+				url: server.host + server.path + "ajax/image/rate",
+				data: "image_id=" + id + "&rating=" + rate,
+				success: function(){
+					style_selector(id, rate);
+					
+					var rate_name;
+					
+					switch(rate){
+						case "s": rate_name = "safe";
+						break;
+						case "q": rate_name = "questionable";
+						break;
+						case "e": rate_name = "explicit";
+						break;
+					}
+					
+					$('#subheading p').detach();
+					$('#subheading').append("<p>Post " + id + " was rated as " + rate_name + ".</p>");
+					$('#subheading').slideDown("slow").delay(3000).slideUp("slow");
+				}
+			});
+		}
+	
 	}
-
 }
+
+Comment = {
+	Post: function(image_id){
+		var comment = $("#comment_box").val();
+		comment = $.trim(comment);
+			
+		if((comment!="") && (comment!=null)){
+			$.ajax({
+				type: "POST",
+				cache: false,
+				url: server.host + server.path + "ajax/comment/add",
+				data: "image_id=" + image_id + "&comment=" + comment,
+				success: function(){
+					$("#comment_box").val("");
+					$("#comment_box").fadeOut("slow");
+					$("#comment_button").fadeOut("slow",function(){
+						$('#comment_form').append("<div class='info'><p>Comment was added.</p></div>");
+					});
+					$("#comment_form .info").fadeOut("slow");
+				}
+			});
+		}
+	},
+	
+	Remove: function(comment_id){
+		var element = "#comment-" + comment_id;
+		if((comment_id!="") && (comment_id!=null)){
+			$.ajax({
+				type: "POST",
+				cache: false,
+				url: server.host + server.path + "ajax/comment/remove",
+				data: "comment_id=" + comment_id,
+				success: function(){
+						$(element).fadeOut("slow");
+				}
+			});
+		}
+	},
+	
+	Vote: function(comment_id,vote){
+		var element = "#vote-" + vote + "-" + comment_id;
+		if((comment_id!="") && (comment_id!=null) && (vote!="") && (vote!=null)){
+			$.ajax({
+				type: "POST",
+				cache: false,
+				url: server.host + server.path + "ajax/comment/vote",
+				data: "comment_id=" + comment_id + "&vote=" + vote,
+				success: function(){
+						$(element).fadeOut("slow");
+				}
+			});
+		}
+	}
+}
+
 
 function style_selector(id, style){
 	switch(style){
@@ -362,60 +414,4 @@ function change_style(id, mode){
 			$(this).attr("class", mode);
 		}
 	});
-}
-
-function CommentPost(image_id){
-	var comment = $("#comment_box").val();
-	comment = $.trim(comment);
-		
-	if((comment!="") && (comment!=null)){
-		$.ajax({
-		   	type: "POST",
-		   	cache: false,
-		   	url: server.host + server.path + "ajax/comment/add",
-		   	data: "image_id=" + image_id + "&comment=" + comment,
-			success: function(){
-				$("#comment_box").val("");
-				$("#comment_box").fadeOut("slow");
-				$("#comment_button").fadeOut("slow",function(){
-					$('#comment_form').append("<div class='info'><p>Comment was added.</p></div>");
-				});
-				$("#comment_form .info").fadeOut("slow");
-			}
-		});
-	}
-}
-
-function CommentRemove(comment_id){
-	//comment_id = $.trim(comment_id);
-	//vote = $.trim(vote);
-	var element = "#comment-" + comment_id;
-	if((comment_id!="") && (comment_id!=null) && (vote!="") && (vote!=null)){
-		$.ajax({
-		   	type: "POST",
-		   	cache: false,
-		   	url: server.host + server.path + "ajax/comment/remove",
-		   	data: "comment_id=" + comment_id,
-			success: function(){
-					$(element).fadeOut("slow");
-			}
-		});
-	}
-}
-
-function CommentVote(comment_id,vote){
-	//comment_id = $.trim(comment_id);
-	//vote = $.trim(vote);
-	var element = "#vote-" + vote + "-" + comment_id;
-	if((comment_id!="") && (comment_id!=null) && (vote!="") && (vote!=null)){
-		$.ajax({
-		   	type: "POST",
-		   	cache: false,
-		   	url: server.host + server.path + "ajax/comment/vote",
-		   	data: "comment_id=" + comment_id + "&vote=" + vote,
-			success: function(){
-					$(element).fadeOut("slow");
-			}
-		});
-	}
 }
