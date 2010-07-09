@@ -47,14 +47,63 @@ class Ajax extends SimpleExtension {
 			$image_id = int_escape($_POST['image_id']);
 			$tags = $_POST['tags'];
 			
-			if($this->can_tag($image_id) && !is_null($tags)) {
+			$auth = $user->get_auth_from_str($config->get_string("index_mode_general"));
+				
+			if($auth){
+				$image = Image::by_id($image_id);
+					
+				if($image){
+					if($this->can_tag($image_id) && !is_null($tags)) {
+						send_event(new TagSetEvent($image, $tags));
+					
+						$page->set_mode("data");
+						$page->set_data("new tags: ".$tags);
+					}
+				}
+			}
+		}
+		
+		
+		
+		/*
+		*
+		* Add image report
+		*
+		*/
+		if($event->page_matches("ajax/image/report")) {
+			$image_id = int_escape($_POST['image_id']);
+			
+			$auth = $user->get_auth_from_str($config->get_string("index_mode_general"));
+			if($auth){
+				if(isset($_POST['image_id']) && isset($_POST['reason'])) {
+					send_event(new AddReportedImageEvent($image_id, $user->id, $_POST['reason']));
+					
+					$page->set_mode("data");
+					$page->set_data("image reported");
+				}
+			}
+		}
+		
+		
+		
+		/*
+		*
+		* Add image report
+		*
+		*/
+		if($event->page_matches("ajax/image/delete")) {
+			$image_id = int_escape($_POST['image_id']);
+			
+			$auth = $user->get_auth_from_str("oa");
+			
+			if($auth){
 				$image = Image::by_id($image_id);
 				
 				if($image){
-					send_event(new TagSetEvent($image, $tags));
-				
+					send_event(new ImageDeletionEvent($image));
+					
 					$page->set_mode("data");
-					$page->set_data("new tags: ".$tags);
+					$page->set_data("image deleted");
 				}
 			}
 		}
@@ -97,13 +146,17 @@ class Ajax extends SimpleExtension {
 			$image_id = int_escape($_POST['image_id']);
 			$favorite = html_escape($_POST['favorite']);
 			
-			$auth = $user->get_auth_from_str($config->get_string("index_mode_admin"));
+			$auth = $user->get_auth_from_str($config->get_string("index_mode_favorites"));
 			if($auth){
-				if (($favorite == "set") || ($favorite == "unset")) {
-					send_event(new FavoriteSetEvent($image_id, $user, ($favorite == "set")));
-					
-					$page->set_mode("data");
-					$page->set_data("favorite ".$favorite);
+				$image = Image::by_id($image_id);
+				
+				if($image){
+					if (($favorite == "set") || ($favorite == "unset")) {
+						send_event(new FavoriteSetEvent($image_id, $user, ($favorite == "set")));
+						
+						$page->set_mode("data");
+						$page->set_data("favorite ".$favorite);
+					}
 				}
 			}
 		}
@@ -119,9 +172,10 @@ class Ajax extends SimpleExtension {
 			$image_id = int_escape($_POST['image_id']);
 			$rating = html_escape($_POST['rating']);
 			
-			$auth = $user->get_auth_from_str($config->get_string("index_mode_admin"));
+			$auth = $user->get_auth_from_str($config->get_string("index_mode_rating"));
 			if($auth){
 				$image = Image::by_id($image_id);
+				
 				if($image){
 					if (($rating == "s") || ($rating == "q") || ($rating == "e")) {
 						send_event(new RatingSetEvent($image, $user, $rating));
@@ -144,7 +198,7 @@ class Ajax extends SimpleExtension {
 			$image_id = int_escape($_POST['image_id']);
 			$vote = html_escape($_POST['vote']);
 			
-			$auth = $user->get_auth_from_str($config->get_string("index_mode_admin"));
+			$auth = $user->get_auth_from_str($config->get_string("index_mode_score"));
 			if($auth){
 				if (($vote == "up") || ($vote == "down")) {						
 					if($vote == "up"){
@@ -158,27 +212,6 @@ class Ajax extends SimpleExtension {
 					
 					$page->set_mode("data");
 					$page->set_data("voted ".$vote);
-				}
-			}
-		}
-		
-		
-		
-		/*
-		*
-		* Add image report
-		*
-		*/
-		if($event->page_matches("ajax/image/report")) {
-			$image_id = int_escape($_POST['image_id']);
-			
-			$auth = $user->get_auth_from_str($config->get_string("index_mode_admin"));
-			if($auth){
-				if(isset($_POST['image_id']) && isset($_POST['reason'])) {
-					send_event(new AddReportedImageEvent($image_id, $user->id, $_POST['reason']));
-					
-					$page->set_mode("data");
-					$page->set_data("image reported");
 				}
 			}
 		}

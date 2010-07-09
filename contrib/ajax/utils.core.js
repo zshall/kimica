@@ -56,12 +56,10 @@ function PostModeMenu() {
 	var mode = $("#mode").val();
 	var date = new Date();
 	date.setTime(date.getTime() + (15 * 60 * 1000));
-
-	var options = { path: '/', expires: date };
+	
+	var options = { path: '/', expires: date };		
 	$.cookie("mode", mode, options);
-	
-	$(".thumb a").removeAttr("href");
-	
+			
 	if(mode=="view" || mode == null){
 		$("#mode").val("View posts");
 		
@@ -75,6 +73,8 @@ function PostModeMenu() {
 		});
 	}
 	else{
+		$(".thumb a").removeAttr("href");
+		
 		$(".thumb a").each(function(){
 			var class = $(this).attr("class");
 			
@@ -106,51 +106,9 @@ function FileClick(id){
 		
 		tags = prompt("Enter Tags", tags);
 		tags = $.trim(tags);
-		set_tags(id, tags);
-	}
-	
-	if(mode=="admin-approved"){		
-		set_status(id, "a");
-	}
-	
-	if(mode=="admin-locked"){	
-		set_status(id, "l");
-	}
-	
-	if(mode=="admin-pending"){		
-		set_status(id, "p");
-	}
-	
-	if(mode=="admin-deleted"){		
-		set_status(id, "d");
-	}
-	
-	if(mode=="add-fav"){
-		favorite(id, "set");
-	}
-	
-	if(mode=="remove-fav"){
-		favorite(id, "unset");
-	}
-	
-	if(mode=="vote-up"){
-		vote(id, "up");
-	}
-	
-	if(mode=="vote-down"){
-		vote(id, "down");
-	}
-	
-	if(mode=="rate-safe"){
-		rate(id, "s");
-	}
-	
-	if(mode=="rate-questionable"){
-		rate(id, "q");
-	}
-	
-	if(mode=="rate-explicit"){
-		rate(id, "e");
+		if((tags!="") && (tags!=null)){
+			set_tags(id, tags);
+		}
 	}
 	
 	if(mode=="report"){
@@ -158,24 +116,67 @@ function FileClick(id){
 		reason = $.trim(reason);
 		
 		if((reason!="") && (reason!=null)){
-			report(id, reason);
+			PostReport(id, reason);
 		}
+	}
+	
+	if(mode=="delete"){
+		PostDelete(id);
+	}
+	
+	if(mode=="admin-approved"){		
+		PostStatus(id, "a");
+	}
+	
+	if(mode=="admin-locked"){	
+		PostStatus(id, "l");
+	}
+	
+	if(mode=="admin-pending"){		
+		PostStatus(id, "p");
+	}
+	
+	if(mode=="admin-deleted"){		
+		PostStatus(id, "d");
+	}
+	
+	if(mode=="add-fav"){
+		PostFavorite(id, "set");
+	}
+	
+	if(mode=="remove-fav"){
+		PostFavorite(id, "unset");
+	}
+	
+	if(mode=="vote-up"){
+		PostVote(id, "up");
+	}
+	
+	if(mode=="vote-down"){
+		PostVote(id, "down");
+	}
+	
+	if(mode=="rate-safe"){
+		PostRate(id, "s");
+	}
+	
+	if(mode=="rate-questionable"){
+		PostRate(id, "q");
+	}
+	
+	if(mode=="rate-explicit"){
+		PostRate(id, "e");
 	}
 }
 
 function set_tags(id, tags){
 	
-	if((tags!="") && (tags!=null)){
-		$.ajax({
-			type: "POST",
-			cache: false,
-			url: server.host + server.path + "ajax/image/edit",
-			data: "image_id=" + id + "&tags=" + tags
-		});
-	}
-	else{
-		alert("You must enter the new tags");
-	}
+	$.ajax({
+		type: "POST",
+		cache: false,
+		url: server.host + server.path + "ajax/image/edit",
+		data: "image_id=" + id + "&tags=" + tags
+	});
 }
 
 function get_image_info(id){
@@ -195,7 +196,28 @@ function get_image_info(id){
 	if (image) return image;
 }
 
-function set_status(id, status){
+function PostReport(id, reason){
+	$.ajax({
+	   type: "POST",
+	   cache: false,
+	   url: server.host + server.path + "ajax/image/report",
+	   data: "image_id=" + id + "&reason=" + reason
+	});
+}
+
+function PostDelete(id){
+	$.ajax({
+	   	type: "POST",
+	   	cache: false,
+	   	url: server.host + server.path + "ajax/image/delete",
+	   	data: "image_id=" + id,
+	   	success: function(){
+			$('#thumb_' + id).fadeOut("slow");
+		}
+	});
+}
+
+function PostStatus(id, status){
 	
 	if(((status=="l") || (status=="a") || (status=="p") || (status=="d")) && (id!=null)){
 		$.ajax({
@@ -207,7 +229,7 @@ function set_status(id, status){
 	}
 }
 
-function favorite(id, favorite){
+function PostFavorite(id, favorite){
 	
 	if(((favorite=="set") || (favorite=="unset")) && (id!=null)){
 		$.ajax({
@@ -215,12 +237,25 @@ function favorite(id, favorite){
 			cache: false,
 		   	url: server.host + server.path + "ajax/image/favorite",
 		   	data: "image_id=" + id + "&favorite=" + favorite,
-		   	success: style_selector(id, favorite)
+			success: function(){
+				style_selector(id, favorite);
+				var action;
+				if(favorite=="set"){
+					action = "added";
+				}
+				else{
+					action = "removed";
+				}
+				$('#post-favorite').detach();
+				$('#subheading p').detach();
+				$('#subheading').append("<p>Image " + id + " was " + action + " to favorites.</p>");
+				$('#subheading').slideDown("slow").delay(3000).slideUp("slow");
+			}
 		});
 	}
 }
 
-function vote(id, vote){
+function PostVote(id, vote){
 	
 	if(((vote=="up") || (vote=="down")) && (id!=null)){
 		$.ajax({
@@ -234,7 +269,7 @@ function vote(id, vote){
 	
 }
 
-function rate(id, rate){
+function PostRate(id, rate){
 	
 	if(((rate=="s") || (rate=="q") || (rate=="e")) && (id!=null)){
 		$.ajax({
@@ -246,15 +281,6 @@ function rate(id, rate){
 		});
 	}
 
-}
-
-function report(id, reason){
-	$.ajax({
-	   type: "POST",
-	   cache: false,
-	   url: server.host + server.path + "ajax/image/report",
-	   data: "image_id=" + id + "&reason=" + reason
-	});
 }
 
 function style_selector(id, style){

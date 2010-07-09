@@ -7,7 +7,7 @@ class CustomIndexTheme extends IndexTheme {
 		$columns = floor(100 / $config->get_int('index_width'));
 		$table = "<ul class='thumbblock'>";
 		foreach($images as $image) {
-			$table .= "<li class=\"thumb\" style='width: {$columns}%;'>" . $this->build_thumb_html($image, $query) . "</li>";
+			$table .= "<li id='thumb_$image->id' class=\"thumb\" style='width: {$columns}%;'>" . $this->build_thumb_html($image, $query) . "</li>";
 		}
 		$table .= "</ul>";
 		return $table;

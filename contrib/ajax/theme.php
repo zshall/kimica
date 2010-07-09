@@ -6,12 +6,18 @@ class AjaxTheme extends Themelet {
 		global $config, $user;
 		$html = "<form action=''>
 					<select onchange='PostModeMenu();' id='mode' name='mode'>";
+					
+		$option_delete = "";
+		if($user->is_owner() || $user->is_admin()){
+			$option_delete = "<option value='delete'>Delete posts</option>";
+		}
 		
 		if($user->get_auth_from_str($config->get_string("index_mode_general"))){
 			$html .= "<optgroup label='General'>
 							<option value='view'>View posts</option>
 							<option value='edit'>Edit posts</option>
 							<option value='report'>Report posts</option>
+							$option_delete
 							</optgroup>";
 		}
 		
