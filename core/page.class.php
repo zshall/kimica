@@ -221,7 +221,7 @@ class Page {
 	protected function add_auto_headers() {
 		$data_href = get_base_href();
 		foreach(glob("lib/*.js") as $js) {
-			$this->add_header("<script src='$data_href/$js' type='text/javascript'></script>");
+			$this->add_header("<script language='javascript' type='text/javascript' src='$data_href/$js'></script>");
 		}
 		foreach(glob("lib/*.css") as $css) {
 			$this->add_header("<link rel='stylesheet' href='$data_href/$css' type='text/css'>");
@@ -237,7 +237,7 @@ class Page {
 		$js_files = glob("ext/*/*.js");
 		if($js_files) {
 			foreach($js_files as $js_file) {
-				$this->add_header("<script src='$data_href/$js_file' type='text/javascript'></script>");
+				$this->add_header("<script language='javascript' type='text/javascript' src='$data_href/$js_file'></script>");
 			}
 		}
 	}
