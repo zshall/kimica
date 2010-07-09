@@ -110,6 +110,33 @@ class Ajax extends SimpleExtension {
 		
 		
 		
+		
+		/*
+		*
+		* Add image report
+		*
+		*/
+		if($event->page_matches("ajax/image/ban")) {
+			$image_id = int_escape($_POST['image_id']);
+			$reason = $_POST['reason'];
+			
+			$auth = $user->get_auth_from_str("oa");
+			
+			if($auth){
+				$image = Image::by_id($image_id);
+				
+				if($image){
+					send_event(new AddImageHashBanEvent($image->hash, $reason));
+					send_event(new ImageDeletionEvent($image));
+										
+					$page->set_mode("data");
+					$page->set_data("image banned");
+				}
+			}
+		}
+		
+		
+		
 		/*
 		*
 		* Edit image status
