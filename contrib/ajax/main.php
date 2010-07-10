@@ -8,7 +8,7 @@
 class Ajax extends SimpleExtension {
 	
 	public function onPageRequest(PageRequestEvent $event) {
-		global $page, $config, $user;
+		global $page, $database, $config, $user;
 		
 		if($event->page_matches("post/list")) {
 			$this->theme->images_control($page);
@@ -25,9 +25,67 @@ class Ajax extends SimpleExtension {
 			
 			if(isset($image_id)){
 				$image = Image::by_id($image_id);
+				
+				if($image){				
+					$image_info = '{"id":"'.$image->id.'","tags":"'.$image->get_tag_list().'","source":"'.$image->source.'","height":"'.$image->height.'","width":"'.$image->width.'","thumb":"'.$image->get_thumb_link().'","tooltip":"'.$image->get_tooltip().'"}';
 					
-				if($image){
-					$image_info = '{"tags":"'.$image->get_tag_list().'","rating":"'.$image->rating.'"}';
+					$page->set_mode("data");
+					$page->set_type("application/json");
+					$page->set_data($image_info);
+				}
+			}
+		}
+		
+		
+		
+		/*
+		*
+		* Edit image tags
+		*
+		*/
+		if($event->page_matches("ajax/image/next")) {
+			$image_id = int_escape($_POST['image_id']);
+			
+			if(isset($image_id) && ($image_id > 1)){
+				$new_id = $database->get_row("SELECT id FROM images WHERE id < ? ORDER BY id DESC LIMIT 1",array($image_id));
+				$new_image = Image::by_id($new_id["id"]);
+				
+				$tsize = get_thumbnail_size($new_image->width, $new_image->height);
+				
+				if($new_image){				
+					$image_info = '{"id":"'.$new_image->id.'","tags":"'.$new_image->get_tag_list().'","source":"'.$new_image->source.'","height":"'.$new_image->height.'","width":"'.$new_image->width.'","thumb":"'.$new_image->get_thumb_link().'","thumb_height":"'.$tsize[1].'","thumb_width":"'.$tsize[0].'","tooltip":"'.$new_image->get_tooltip().'"}';
+					
+					$page->set_mode("data");
+					$page->set_type("application/json");
+					$page->set_data($image_info);
+				}
+			}
+			else{
+				$page->set_mode("data");
+				$page->set_data("error");
+			}
+		}
+		
+		
+		
+		
+		
+		/*
+		*
+		* Edit image tags
+		*
+		*/
+		if($event->page_matches("ajax/image/prev")) {
+			$image_id = int_escape($_POST['image_id']);
+			
+			if(isset($image_id)){
+				$new_id = $database->get_row("SELECT id FROM images WHERE id > ? ORDER BY id ASC LIMIT 1",array($image_id));
+				$new_image = Image::by_id($new_id["id"]);
+				
+				$tsize = get_thumbnail_size($new_image->width, $new_image->height);
+				
+				if($new_image){				
+					$image_info = '{"id":"'.$new_image->id.'","tags":"'.$new_image->get_tag_list().'","source":"'.$new_image->source.'","height":"'.$new_image->height.'","width":"'.$new_image->width.'","thumb":"'.$new_image->get_thumb_link().'","thumb_height":"'.$tsize[1].'","thumb_width":"'.$tsize[0].'","tooltip":"'.$new_image->get_tooltip().'"}';
 					
 					$page->set_mode("data");
 					$page->set_type("application/json");

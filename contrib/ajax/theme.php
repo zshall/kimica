@@ -56,7 +56,10 @@ class AjaxTheme extends Themelet {
 						
 		$html .= "</select>
 				</form>";
-		$page->add_block(new Block("Image Controls", $html, "left", 10));
+				
+		if(!$user->is_anon()){
+			$page->add_block(new Block("Image Controls", $html, "left", 10));
+		}
 	}
 }
 ?>

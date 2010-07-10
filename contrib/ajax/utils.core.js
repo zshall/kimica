@@ -6,12 +6,18 @@ var server = {
 	pages:['post', 'comment']
 }
 
-var classes = [];
-var savedClasses = false;
+var tempPosts = new Array();
+
+var savedStyle = {
+	liStyle:'',
+	aClass:[],
+	aSaved:false
+}
 
 $(document).ready(function(){
 	setPath();
 	onPageRefresh();
+	onClick();
 });
 
 function setPath(){
@@ -53,6 +59,50 @@ function onPageRefresh(){
 	if((mode != "view") && (mode != null)){
 		$(".thumb a").removeAttr("href");
 	}
+	
+	$(".thumbblock li").each(function(){		
+		savedStyle.liStyle = $(this).attr("style");
+	});
+	savedStyle.aSaved = true;
+	
+	tempPosts.length = 0;
+	$(".thumb a").each(function(){
+		tempPosts.push($(this).attr("id").substring(6));
+	});
+}
+
+
+function onClick(){
+	var image_id = $('#image_id').val();
+	$('#post-favorite').click(function() {
+		var set = $(this).val();
+  		if(set == "Favorite"){
+			Post.Favorite(image_id, "set");
+		}
+		else{
+			Post.Favorite(image_id, "unset");
+		}
+	});
+	
+	$('#post-vote-up').click(function() {
+		Post.Vote(image_id, "up");
+	});
+	
+	$('#post-vote-down').click(function() {
+		Post.Vote(image_id, "down");
+	});
+}
+
+
+function removeItem(originalArray, itemToRemove) {
+	var j = 0;
+	while (j < originalArray.length) {
+		if (originalArray[j] == itemToRemove) {
+			originalArray.splice(j, 1);
+		} else { j++; }
+	}
+
+	return originalArray;
 }
 
 function PostModeMenu() {
@@ -63,7 +113,12 @@ function PostModeMenu() {
 	
 	var options = { path: '/', expires: date };		
 	$.cookie("mode", mode, options);
-			
+	
+	tempPosts.length = 0;
+	$(".thumb a").each(function(){
+		tempPosts.push($(this).attr("id").substring(6));
+	});
+				
 	if(mode=="view" || mode == null){
 		$("#mode").val("View posts");
 		
@@ -72,21 +127,25 @@ function PostModeMenu() {
 			var id = $(this).attr("id").substring(6);
 			$(this).attr("href", server.host + server.path + "post/view/" + id);
 			
-			$(this).attr("class", classes[i]);
+			$(this).attr("class", savedStyle.aClass[i]);
 			i++;
 		});
 	}
 	else{
 		$(".thumb a").removeAttr("href");
 		
+		$(".thumbblock li").each(function(){		
+			savedStyle.liStyle = $(this).attr("style");
+		});
+		
 		$(".thumb a").each(function(){
 			var class = $(this).attr("class");
 			
-			if(!savedClasses){
-				classes.push(class);
+			if(!savedStyle.aSaved){
+				savedStyle.aClass.push(class);
 			}
 		});
-		savedClasses = true;
+		savedStyle.aSaved = true;
 	}
 }
 
@@ -200,6 +259,41 @@ Post = {
 		if (image) return image;
 	},
 	
+	Next: function(id){
+		var image = 'error';
+		
+		$.ajax({
+			type: "POST",
+			async: false,
+			url: server.host + server.path + "ajax/image/next",
+			data: "image_id=" + id,
+			dataType: "json",
+			success: function(data){
+					image = data;
+			}
+		});
+		
+		return image;
+	},
+	
+	
+	Prev: function(id){
+		var image = 'error';
+		
+		$.ajax({
+			type: "POST",
+			async: false,
+			url: server.host + server.path + "ajax/image/prev",
+			data: "image_id=" + id,
+			dataType: "json",
+			success: function(data){
+					image = data;
+			}
+		});
+		
+		return image;
+	},
+	
 	Edit: function(id, tags){
 		$.ajax({
 			type: "POST",
@@ -219,25 +313,47 @@ Post = {
 	},
 	
 	Delete: function(id){
+		var newPost = Post.Next(tempPosts[tempPosts.length - 1]);
+		tempPosts = removeItem(tempPosts, id);
+		tempPosts.push(newPost.id);
+				
 		$.ajax({
 	   		type: "POST",
 	   		cache: false,
 	   		url: server.host + server.path + "ajax/image/delete",
 	   		data: "image_id=" + id,
 	   		success: function(){
-				$('#thumb_' + id).fadeOut("slow");
+				$('#thumb_' + id).fadeOut("slow", function(){
+					$('#thumb_' + id).detach();
+					if(newPost != 'error'){
+						var postImage = '<img width="'+newPost.thumb_width+'" height="'+newPost.thumb_height+'" src="'+newPost.thumb+'" alt="'+newPost.tooltip+'" title="'+newPost.tooltip+'">';
+						var postLink = '<a onclick="FileClick('+newPost.id+');" id="thumb_' + newPost.id + '" style="display: inline-block; height: ' + newPost.thumb_height + 'px; width: ' + newPost.thumb_width + 'px;">' + postImage + '</a>';
+						$('.thumbblock').append('<li id="thumb_' + newPost.id + '" class="thumb" style="'+savedStyle.liStyle+'">' + postLink + '</li>');
+					}
+				});
 			}
 		});
 	},
 	
 	Ban: function(id, reason){
+		var newPost = Post.Next(tempPosts[tempPosts.length - 1]);
+		tempPosts = removeItem(tempPosts, id);
+		tempPosts.push(newPost.id);
+
 		$.ajax({
 	   		type: "POST",
 	   		cache: false,
 	   		url: server.host + server.path + "ajax/image/ban",
 	   		data: "image_id=" + id + "&reason=" + reason,
 	   		success: function(){
-				$('#thumb_' + id).fadeOut("slow");
+				$('#thumb_' + id).fadeOut("slow", function(){
+					$('#thumb_' + id).detach();
+					if(newPost != 'error'){
+						var postImage = '<img width="'+newPost.thumb_width+'" height="'+newPost.thumb_height+'" src="'+newPost.thumb+'" alt="'+newPost.tooltip+'" title="'+newPost.tooltip+'">';
+						var postLink = '<a onclick="FileClick('+newPost.id+');" id="thumb_' + newPost.id + '" style="display: inline-block; height: ' + newPost.thumb_height + 'px; width: ' + newPost.thumb_width + 'px;">' + postImage + '</a>';
+						$('.thumbblock').append('<li id="thumb_' + newPost.id + '" class="thumb" style="'+savedStyle.liStyle+'">' + postLink + '</li>');
+					}
+				});
 			}
 		});
 	},
@@ -262,21 +378,22 @@ Post = {
 				data: "image_id=" + id + "&favorite=" + favorite,
 				success: function(){
 					style_selector(id, favorite);
-					var action;
+					
+					$('#subheading p').detach();
 					if(favorite=="set"){
-						action = "added";
+						$('#post-favorite').attr('value','Un-Favorite');
+						$('#subheading').append("<p>Post " + id + " was added to favorites.</p>");
 					}
 					else{
-						action = "removed";
+						$('#post-favorite').attr('value','Favorite');
+						$('#subheading').append("<p>Post " + id + " was removed from favorites.</p>");
 					}
-					$('#subheading p').detach();
-					$('#subheading').append("<p>Post " + id + " was " + action + " to favorites.</p>");
 					$('#subheading').slideDown("slow").delay(3000).slideUp("slow");
 				}
 			});
 		}
 	},
-	
+		
 	Vote: function(id, vote){
 		if(((vote=="up") || (vote=="down")) && (id!=null)){
 			$.ajax({
@@ -286,8 +403,15 @@ Post = {
 				data: "image_id=" + id + "&vote=" + vote,
 				success: function(){
 					style_selector(id, vote);
+					
 					$('#subheading p').detach();
-					$('#subheading').append("<p>Post " + id + " was voted " + vote + ".</p>");
+					if(vote=="up"){
+						$('#subheading').append("<p>Post " + id + " was voted up.</p>");
+					}
+					else{
+						$('#subheading').append("<p>Post " + id + " was voted down.</p>");
+					}
+					
 					$('#subheading').slideDown("slow").delay(3000).slideUp("slow");
 				}
 			});
