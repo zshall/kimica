@@ -56,8 +56,11 @@ class AliasEditorTheme extends Themelet {
 				<tbody>$h_aliases</tbody>
 				<tfoot>$add</tfoot>
 			</table>
-			<p><a href='".make_link("alias/export/aliases.csv")."'>Download as CSV</a></p>
 		";
+		
+		if($is_admin) {
+			$html .= "<p><a href='".make_link("alias/export/aliases.csv")."'>Download as CSV</a></p>";
+		}
 
 		$bulk_html = "
 			<form enctype='multipart/form-data' action='".make_link("alias/import")."' method='POST'>
