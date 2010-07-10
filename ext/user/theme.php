@@ -188,12 +188,22 @@ class UserPageTheme extends Themelet {
 	public function display_user_page(User $duser, $stats) {
 		global $page, $user;
 		assert(is_array($stats));
-		$stats[] = "User ID: {$duser->id}";
+		
+		$html = "<table id='stats' class='zebra'><tbody>";
+						
+		$n = 0;
+		foreach($stats as $stat) {
+			$oe = ($n++ % 2 == 0) ? "even" : "odd";
+			$html .= "<tr class='$oe'><td>".$stat['0']."</td><td>".$stat['1']."</td></tr>";
+		}
+		
+		$html .= "</tbody></table>";
+		
 
 		$page->set_title("{$duser->name}'s Page");
 		$page->set_heading("{$duser->name}'s Page");
 		$page->add_block(new NavBlock());
-		$page->add_block(new Block("Stats", join("<br>", $stats), "main", 0));
+		$page->add_block(new Block("Stats", $html, "main", 0));
 
 		if(!$user->is_anonymous()) {
 			if($user->id == $duser->id || $user->is_admin()) {
@@ -283,8 +293,8 @@ class UserPageTheme extends Themelet {
 	
 	public function display_messages_sidebar(Page $page, $unread) {
 		
-		$html = "<a href='".make_link("account/messages/new")."'>New</a><br><br>";
-		$html .= "<a href='".make_link("account/messages/inbox")."'>Inbox (".$unread.")</a><br>";
+		$html = "<a href='".make_link("account/messages/new")."'>New</a><br>";
+		$html .= "<a href='".make_link("account/messages/inbox")."'>Inbox</a> (<a href='".make_link("account/messages/inbox")."'>".$unread."</a>)<br>";
 		$html .= "<a href='".make_link("account/messages/outbox")."'>Outbox</a><br>";
 		$html .= "<a href='".make_link("account/messages/deleted")."'>Deleted</a> (<a href='".make_link("account/messages/empty")."'>empty</a>)<br>";
 		$html .= "<a href='".make_link("account/messages/saved")."'>Saved</a>";
@@ -346,6 +356,7 @@ class UserPageTheme extends Themelet {
 	}
 		
 	public function display_inbox(Page $page, $pms, $inbox) {
+		
 		$html = "
 			<script>
 			$(document).ready(function() {
@@ -391,6 +402,10 @@ class UserPageTheme extends Themelet {
 		$html .="
 			</form>
 		";
+
+		if(empty($pms)){
+			$html = "You have no messages.";
+		}
 		
 		$page->set_title("Messages");
 		$page->set_heading(ucfirst($inbox));

@@ -59,17 +59,9 @@ class Forum extends SimpleExtension {
 	
 	public function onUserPageBuilding($event) {
 		global $page, $user, $database;
-		
-		$threads_count = $database->db->GetOne("SELECT COUNT(*) FROM forum_threads WHERE user_id=?", array($event->display_user->id));
         $posts_count = $database->db->GetOne("SELECT COUNT(*) FROM forum_posts WHERE user_id=?", array($event->display_user->id));
-			
-        $days_old = ((time() - strtotime($event->display_user->join_date)) / 86400) + 1;
 				
-        $threads_rate = sprintf("%.1f", ($threads_count / $days_old));
-		$posts_rate = sprintf("%.1f", ($posts_count / $days_old));
-				
-		$event->add_stats("Forum threads: $threads_count, $threads_rate per day");
-        $event->add_stats("Forum posts: $posts_count, $posts_rate per day");
+        $event->add_stats(array("Forum Posts:", "$posts_count"),60);
 	}
 
 

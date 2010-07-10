@@ -34,6 +34,14 @@ class FavoritesTheme extends Themelet {
 
 		$page->add_block(new Block("Favorited By", $html, "left", 25));
 	}
+	
+	public function display_favorites($favorites){
+		global $page;
+		
+		if(!empty($favorites)){
+			$page->add_block(new Block("Recent Favorites", $this->build_table($favorites, null), "main", 40));
+		}
+	}
 }
 
 ?>

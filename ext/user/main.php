@@ -71,6 +71,8 @@ class UserPage extends SimpleExtension {
 		}
 
 		if($event->page_matches("account")) {
+		
+			// account/login - Login
 			if($event->get_arg(0) == "login") {
 				if(isset($_POST['user']) && isset($_POST['pass'])) {
 					$this->login($page);
@@ -79,18 +81,26 @@ class UserPage extends SimpleExtension {
 					$this->theme->display_login_page($page);
 				}
 			}
+			
+			// account/logout - Logout
 			else if($event->get_arg(0) == "logout") {
 				set_prefixed_cookie("session", "", time()+60*60*24*$config->get_int('login_memory'), "/");
 				log_info("user", "Logged out");
 				$page->set_mode("redirect");
 				$page->set_redirect(make_link());
 			}
+			
+			// account/change_pass - Change Pass
 			else if($event->get_arg(0) == "change_pass") {
 				$this->change_password_wrapper($page);
 			}
+			
+			// account/change_email - Change Email
 			else if($event->get_arg(0) == "change_email") {
 				$this->change_email_wrapper($page);
 			}
+			
+			// account/create  - Create Account
 			else if($event->get_arg(0) == "create") {
 				if(!$config->get_bool("login_signup_enabled")) {
 					$this->theme->display_signups_disabled($page);
@@ -124,6 +134,8 @@ class UserPage extends SimpleExtension {
 					}
 				}
 			}
+			
+			// account/validate  - Validate Account
 			else if($event->get_arg(0) == "validate") {
 				
 				if(!$config->get_bool("signup_validation_enabled")){
@@ -177,6 +189,8 @@ class UserPage extends SimpleExtension {
 						break;
 				}
 			}
+			
+			// account/recover  - Recover Password
 			else if($event->get_arg(0) == "recover") {
 				$name = NULL;
 				$email = NULL;
@@ -209,6 +223,8 @@ class UserPage extends SimpleExtension {
 // join (select owner_id,count(*) as comment_count from comments group by owner_id) as _comments on _comments.owner_id=users.id;
 				$this->theme->display_user_list($page, User::by_list(0), $user);
 			}
+			
+			// account/messages  - Account Messages
 			else if($event->get_arg(0) == "messages") {
 				if($user->is_anon()){
 					$page->set_mode("redirect");
@@ -323,7 +339,8 @@ class UserPage extends SimpleExtension {
 		global $page, $user, $config;
 
 		$h_join_date = html_escape($event->display_user->join_date);
-		$event->add_stats("Join date: $h_join_date", 10);
+		$event->add_stats(array("Join Date", "$h_join_date"), 10);
+		$event->add_stats(array("Role", ucfirst($user->role_to_human())), 20);
 
 		$av = $event->display_user->get_avatar_html();
 		if($av) $event->add_stats($av, 0);
@@ -781,6 +798,7 @@ class UserPage extends SimpleExtension {
 	private function undone_message() {
 		global $database;
 		foreach($_POST['id'] as $id) {
+
 			$database->execute("UPDATE messages SET status = 'r' WHERE id = ?", array($id));
 		}
 	}

@@ -69,10 +69,10 @@ class Favorites extends SimpleExtension {
 
 	public function onUserPageBuilding($event) {
 		$i_favorites_count = Image::count_images(array("favorited_by={$event->display_user->name}"));
-		$i_days_old = ((time() - strtotime($event->display_user->join_date)) / 86400) + 1;
-		$h_favorites_rate = sprintf("%.1f", ($i_favorites_count / $i_days_old));
 		$favorites_link = make_link("post/list/favorited_by={$event->display_user->name}/1");
-		$event->add_stats("<a href='$favorites_link'>Images favorited</a>: $i_favorites_count, $h_favorites_rate per day");
+		$event->add_stats(array("<a href='$favorites_link'>Favorites</a>", "$i_favorites_count"),50);
+		
+		$this->theme->display_favorites($this->get_user_favorites($event->display_user));
 	}
 
 	public function onImageInfoSet($event) {
@@ -185,6 +185,11 @@ class Favorites extends SimpleExtension {
 				array($image->id));
 				
 		return $result->GetArray();
+	}
+	
+	private function get_user_favorites($duser){	
+		$images = Image::find_images(0,4,array("favorited_by=".$duser->name));
+		return $images;
 	}
 }
 ?>
