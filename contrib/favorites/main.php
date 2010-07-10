@@ -187,8 +187,29 @@ class Favorites extends SimpleExtension {
 		return $result->GetArray();
 	}
 	
-	private function get_user_favorites($duser){	
-		$images = Image::find_images(0,4,array("favorited_by=".$duser->name));
+	private function get_user_favorites($duser){
+		global $user,$database;
+
+		if(class_exists("Ratings")) {
+			$rating = Ratings::privs_to_sql(Ratings::get_user_privs($user));
+			$result = $database->get_all("
+					SELECT fav.image_id
+					FROM user_favorites AS fav
+					INNER JOIN images AS img ON img.id = fav.image_id
+					WHERE fav.user_id = ? AND img.rating IN ($rating)
+					ORDER BY fav.created_at DESC
+					LIMIT ?",
+					array($duser->id, 4));
+		}
+		else{
+			$result = $database->get_all("SELECT image_id FROM user_favorites WHERE user_id = ? ORDER BY created_at DESC LIMIT ?",array($duser->id, 4));
+		}
+		
+		$images = array();
+		foreach($result as $singleResult) {
+			$images[] = Image::by_id($singleResult["image_id"]);
+		}
+		
 		return $images;
 	}
 }
