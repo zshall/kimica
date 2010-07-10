@@ -236,6 +236,7 @@ class TagList extends SimpleExtension {
 		$h_popularity = "<a href='".make_link("tags/popularity")."'>Popularity</a>";
 		$h_cats = "<a href='".make_link("tags/categories")."'>Categories</a>";
 		$h_bans = "";
+		$h_tools = "";
 		if($user->is_mod()){
 			$h_bans = "<a href='".make_link("tags/banned")."'>Banned</a><br>";
 		}
