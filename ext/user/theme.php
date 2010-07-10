@@ -13,14 +13,32 @@ class UserPageTheme extends Themelet {
 		$page->set_title("User List");
 		$page->set_heading("User List");
 		$page->add_block(new NavBlock());
-		$html = "<table>";
-		$html .= "<tr><td>Name</td></tr>";
+		$html = "<script>
+			$(document).ready(function() {
+				$(\"#users\").tablesorter();
+			});
+			</script>
+			<table id='users' class='zebra'>";
+			
+		$message = "";
+		if(!$user->is_anon()){
+			$message = "<th>Contact</th>";
+		}
+		$html .= "<thead><tr><th>User</th><th>Role</th><th>Joined</th>$message</thead>
+				<tbody>";
+		$n = 0;
 		foreach($users as $duser) {
-			$html .= "<tr>";
-			$html .= "<td><a href='".make_link("user/"+$duser->name)."'>".html_escape($duser->name)."</a></td>";
+			$oe = ($n++ % 2 == 0) ? "even" : "odd";
+			$html .= "<tr class='$oe'>";
+			$html .= "<td><a href='".make_link("user/".$duser->name)."'>".html_escape($duser->name)."</a></td>";
+			$html .= "<td>".ucfirst($duser->role_to_human())."</td>";
+			$html .= "<td>".$duser->join_date."</td>";
+			if(!$user->is_anon()){
+				$html .= "<th><a href='".make_link("account/messages/new/".$duser->id)."'>Send Message</a></th>";
+			}
 			$html .= "</tr>";
 		}
-		$html .= "</table>";
+		$html .= "</tbody></table>";
 		$page->add_block(new Block("Users", $html));
 	}
 	
