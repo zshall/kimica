@@ -276,6 +276,14 @@ function create_tables($dsn) { // {{{
 			role ENUM('g', 'u', 'c', 'm', 'a', 'o') NOT NULL DEFAULT 'g',
 			email VARCHAR(128)
 		"));
+		$db->execute($engine->create_table_sql("user_bans", "
+			id SCORE_AIPK,
+			banner_id INTEGER NOT NULL,
+			banned_id INTEGER NOT NULL,
+			banned_ip CHAR(15) NOT NULL,
+			end_date SCORE_DATETIME,
+			reason TEXT
+		"));
 		$db->execute($engine->create_table_sql("config", "
 			name VARCHAR(128) NOT NULL PRIMARY KEY,
 			value TEXT
