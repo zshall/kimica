@@ -72,7 +72,7 @@ class Favorites extends SimpleExtension {
 		$favorites_link = make_link("post/list/favorited_by={$event->display_user->name}/1");
 		$event->add_stats(array("<a href='$favorites_link'>Favorites</a>", "$i_favorites_count"),50);
 		
-		$this->theme->display_favorites($this->get_user_favorites($event->display_user));
+		$this->theme->display_recent_favorites($this->profile_latest_favorites($event->display_user));
 	}
 
 	public function onImageInfoSet($event) {
@@ -187,8 +187,10 @@ class Favorites extends SimpleExtension {
 		return $result->GetArray();
 	}
 	
-	private function get_user_favorites($duser){
-		global $user,$database;
+	private function profile_latest_favorites($duser){
+		global $config, $user, $database;
+		
+		$max_images = $config->get_int('index_width');
 
 		if(class_exists("Ratings")) {
 			$rating = Ratings::privs_to_sql(Ratings::get_user_privs($user));
@@ -199,10 +201,10 @@ class Favorites extends SimpleExtension {
 					WHERE fav.user_id = ? AND img.rating IN ($rating)
 					ORDER BY fav.created_at DESC
 					LIMIT ?",
-					array($duser->id, 4));
+					array($duser->id, $max_images));
 		}
 		else{
-			$result = $database->get_all("SELECT image_id FROM user_favorites WHERE user_id = ? ORDER BY created_at DESC LIMIT ?",array($duser->id, 4));
+			$result = $database->get_all("SELECT image_id FROM user_favorites WHERE user_id = ? ORDER BY created_at DESC LIMIT ?",array($duser->id, $max_images));
 		}
 		
 		$images = array();
