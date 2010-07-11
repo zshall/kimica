@@ -240,15 +240,17 @@ class TagListTheme extends Themelet {
 		$n = 0;
 		foreach($aliases as $old => $new) {
 			$h_old = html_escape($old);
-			$h_new = "<a href='".make_link("post/list/".url_escape($new)."/1")."'>".html_escape($new)."</a>";
+			$h_new = html_escape($new);
+			$h_new_link = "<a href='".make_link("post/list/".$h_new."/1")."'>".$h_new."</a>";
 			$oe = ($n++ % 2 == 0) ? "even" : "odd";
 			
-			$h_aliases .= "<tr class='$oe'><td>$h_old</td><td>$h_new</td>";
+			$h_aliases .= "<tr class='$oe'><td>$h_old</td><td>$h_new_link</td>";
 			if($is_admin) {
 				$h_aliases .= "
 					<td>
 						<form action='".make_link("tags/alias/remove")."' method='POST'>
 							<input type='hidden' name='oldtag' value='$h_old'>
+							<input type='hidden' name='newtag' value='$h_new'>
 							<input type='submit' value='Remove'>
 						</form>
 					</td>

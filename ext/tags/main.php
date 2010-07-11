@@ -730,8 +730,12 @@ class TagList extends SimpleExtension {
 	public function remove_tag_alias(){
 		global $database, $user, $page;
 		if($user->is_admin()) {
-			if(isset($_POST['oldtag'])) {
+			if(isset($_POST['oldtag']) && isset($_POST['newtag'])) {
+				
 				$database->Execute("DELETE FROM aliases WHERE oldtag=?", array($_POST['oldtag']));
+				
+				$this->mass_tag_edit($_POST['newtag'], $_POST['oldtag']); // GET BACK TO THE OLD TAGS
+				
 				log_info("alias_editor", "Deleted alias for ".$_POST['oldtag']);
 
 				$page->set_mode("redirect");
