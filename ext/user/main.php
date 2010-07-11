@@ -340,7 +340,7 @@ class UserPage extends SimpleExtension {
 
 		$h_join_date = html_escape($event->display_user->join_date);
 		$event->add_stats(array("Join Date", "$h_join_date"), 10);
-		$event->add_stats(array("Role", ucfirst($user->role_to_human())), 20);
+		$event->add_stats(array("Role", ucfirst($event->display_user->role_to_human())), 20);
 
 		$av = $event->display_user->get_avatar_html();
 		if($av) $event->add_stats($av, 0);
