@@ -4,6 +4,18 @@
  * Author: Shish
  * Description: Show the tags in various ways
  */
+class AddAliasEvent extends Event {
+	var $oldtag;
+	var $newtag;
+
+	public function AddAliasEvent($oldtag, $newtag) {
+		$this->oldtag = $oldtag;
+		$this->newtag = $newtag;
+	}
+}
+
+class AddAliasException extends SCoreException {}
+
 class TagList extends SimpleExtension {
 
 // event handling {{{
@@ -41,6 +53,25 @@ class TagList extends SimpleExtension {
 					$this->theme->set_heading("Popular Categories");
 					$this->theme->set_tag_list($this->build_tag_categories());
 					$this->theme->display_page($page);
+					break;
+				case 'alias':
+					switch($event->get_arg(1)) {
+						case 'add':
+								$this->add_tag_alias();
+							break;
+						case 'remove':
+								$this->remove_tag_alias();
+							break;
+						case 'import':
+								$this->import_tag_alias();
+							break;
+						case 'export':
+								$this->export_tag_alias();
+							break;
+						default:
+								$this->list_tag_alias($event);
+							break;
+					}
 					break;
 				case 'histories':
 					if(!$config->get_bool('tag_history_enabled')) {
@@ -137,6 +168,26 @@ class TagList extends SimpleExtension {
 			$page->set_mode("data");
 			$page->set_type("text/plain");
 			$page->set_data(implode("\n", $res));
+		}
+	}
+	
+	public function onAddAlias(AddAliasEvent $event) {
+		global $database;
+		$pair = array($event->oldtag, $event->newtag);
+		if($database->db->GetRow("SELECT * FROM aliases WHERE oldtag=? AND lower(newtag)=lower(?)", $pair)) {
+			throw new AddAliasException("That alias already exists");
+		}
+		else {
+			$this->mass_tag_edit($event->oldtag, $event->newtag);
+			$database->Execute("INSERT INTO aliases(oldtag, newtag) VALUES(?, ?)", $pair);
+			log_info("alias_editor", "Added alias for {$event->oldtag} -> {$event->newtag}");
+		}
+	}
+
+	public function onUserBlockBuilding(UserBlockBuildingEvent $event) {
+		global $user;
+		if($user->is_admin()) {
+			$event->add_link("Aliases", make_link("tags/alias"));
 		}
 	}
 	
@@ -633,6 +684,98 @@ class TagList extends SimpleExtension {
 				$image->set_source($source);
 			}
 			$n += 100;
+		}
+	}
+// }}}
+// {{{ Tag Aliases
+	public function list_tag_alias($event){
+		global $config, $database, $user;
+		$page_number = $event->get_arg(1);
+		if(is_null($page_number) || !is_numeric($page_number)) {
+			$page_number = 0;
+		}
+		else if ($page_number <= 0) {
+			$page_number = 0;
+		}
+		else {
+			$page_number--;
+		}
+
+		$alias_per_page = $config->get_int('alias_items_per_page', 30);
+
+		$query = "SELECT oldtag, newtag FROM aliases ORDER BY newtag ASC LIMIT ? OFFSET ?";
+		$alias = $database->db->GetAssoc($query,array($alias_per_page, $page_number * $alias_per_page));
+
+		$total_pages = ceil($database->db->GetOne("SELECT COUNT(*) FROM aliases") / $alias_per_page);
+
+		$this->theme->display_aliases($alias, $user->is_admin(), $page_number + 1, $total_pages);
+	}
+
+	public function add_tag_alias(){
+		global $user, $page;
+		if($user->is_admin()) {
+			if(isset($_POST['oldtag']) && isset($_POST['newtag'])) {
+				try {
+					send_event(new AddAliasEvent($_POST['oldtag'], $_POST['newtag']));
+					$page->set_mode("redirect");
+					$page->set_redirect(make_link("tags/alias"));
+				}
+				catch(AddAliasException $ex) {
+					$this->theme->display_error($page, "Error adding alias", $ex->getMessage());
+				}
+			}
+		}
+	}
+	
+	public function remove_tag_alias(){
+		global $database, $user, $page;
+		if($user->is_admin()) {
+			if(isset($_POST['oldtag'])) {
+				$database->Execute("DELETE FROM aliases WHERE oldtag=?", array($_POST['oldtag']));
+				log_info("alias_editor", "Deleted alias for ".$_POST['oldtag']);
+
+				$page->set_mode("redirect");
+				$page->set_redirect(make_link("tags/alias"));
+			}
+		}
+	}
+	
+	private function export_tag_alias() {
+		global $database, $page;
+		$csv = "";
+		$aliases = $database->db->GetAssoc("SELECT oldtag, newtag FROM aliases");
+		foreach($aliases as $old => $new) {
+			$csv .= "$old,$new\n";
+		}
+		$page->set_mode("data");
+		$page->set_type("text/plain");
+		$page->set_data($csv);
+	}
+
+	private function import_tag_alias() {
+		global $database, $user, $page;
+		if($user->is_admin()) {
+			if(count($_FILES) > 0) {
+				$tmp = $_FILES['alias_file']['tmp_name'];
+				$csv = file_get_contents($tmp);
+				
+				$csv = str_replace("\r", "\n", $csv);
+				foreach(explode("\n", $csv) as $line) {
+					$parts = explode(",", $line);
+					if(count($parts) == 2) {
+						$database->execute("INSERT INTO aliases(oldtag, newtag) VALUES(?, ?)", $parts);
+					}
+				}
+				
+				$page->set_mode("redirect");
+				$page->set_redirect(make_link("tags/alias"));
+			}
+			else {
+				$this->theme->display_error($page, "No File Specified", "You have to upload a file");
+			}
+		}
+		else {
+			$this->theme->display_error($page, "Admins Only", "Only admins can edit the alias list");
 		}
 	}
 // }}}
