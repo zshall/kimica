@@ -218,8 +218,6 @@ class ImageIO extends SimpleExtension {
 		$i_image_count = Image::count_images(array("user_id={$event->display_user->id}"));
 		$images_link = make_link("post/list/user_id=$u_id/1");
 		$event->add_stats(array("<a href='$images_link'>Posts</a>", "$i_image_count"), 30);
-		
-		$this->theme->display_recent_posts($this->profile_latest_posts($event->display_user));
 	}
 
 	public function onSetupBuilding($event) {
@@ -378,12 +376,6 @@ class ImageIO extends SimpleExtension {
 			$page->add_block(new Block("Image not in database",
 					"The requested image was not found in the database"));
 		}
-	}
-	
-	private function profile_latest_posts($duser){
-		global $config;
-		$max_images = $config->get_int('index_width');
-		return Image::find_images(0, $max_images, array("user=".$duser->name));
 	}
 // }}}
 }

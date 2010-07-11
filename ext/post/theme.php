@@ -8,25 +8,20 @@ class PostTheme extends Themelet {
 	}
 
 	public function display_intro(Page $page) {
-		$text = <<<EOD
-<div style="text-align: left;">
-<p>The first thing you'll probably want to do is create a new account; note
-that the first account you create will by default be marked as the board's
-administrator, and any further accounts will be regular users.
+		$text = "<div style='text-align: left;'>
+				 <p>Once logged in you can play with the settings, install extra features,
+				 and of course start organising your images :-)</p>
+				
+				 <p>This message will go away once your first image is uploaded~</p>
+				 </div>";
 
-<p>Once logged in you can play with the settings, install extra features,
-and of course start organising your images :-)
-
-<p>This message will go away once your first image is uploaded~
-</div>
-EOD;
 		$page->set_title("Welcome to Kimica ".VERSION);
 		$page->set_heading("Welcome to Kimica");
 		$page->add_block(new Block("Installation Succeeded!", $text, "main", 0));
 	}
 
-	public function display_page(Page $page, $images) {
-		global $config;
+	public function display_page($images) {
+		global $page, $config;
 
 		if(count($this->search_terms) == 0) {
 			$query = null;
@@ -64,11 +59,20 @@ EOD;
 		}
 	}
 	
-	public function display_populars(Page $page, $images, $date) {
+	public function display_populars($images, $date) {
+		global $page;
 
 		$page->set_title("Popular Images");
 		$page->set_heading("Popular Images");
 		$page->add_block(new Block("Popular Images: ".$date, $this->build_table($images, null), "main", 10));
+	}
+	
+	public function display_recent_posts($posts){
+		global $page;
+		
+		if(!empty($posts)){
+			$page->add_block(new Block("Recent Posts", $this->build_table($posts, null), "main", 30));
+		}
 	}
 
 	protected function build_navigation($page_number, $total_pages, $search_terms) {

@@ -185,7 +185,7 @@ class Post extends SimpleExtension {
 				send_event(new PostListBuildingEvent($search_terms));
 
 				$this->theme->set_page($page_number, $total_pages, $search_terms);
-				$this->theme->display_page($page, $images);
+				$this->theme->display_page($images);
 			}
 		}
 		
@@ -212,7 +212,7 @@ class Post extends SimpleExtension {
 					$images[] = Image::by_id($result["id"]);
 				}
 				
-				$this->theme->display_populars($page, $images, $date);
+				$this->theme->display_populars($images, $date);
 			}
 			else{
 				$this->theme->display_error($page, "Error", "Malformed date.");
@@ -229,6 +229,10 @@ class Post extends SimpleExtension {
 		$sb->add_int_option("index_height", "<br>Rows: ");
 
 		$event->panel->add_block($sb);
+	}
+	
+	public function onUserPageBuilding($event) {
+		$this->theme->display_recent_posts($this->profile_latest_posts($event->display_user));
 	}
 	
 	public function onSearchTermParse($event) {
@@ -293,6 +297,12 @@ class Post extends SimpleExtension {
 			}
 		}
 		return true;
+	}
+	
+	private function profile_latest_posts($duser){
+		global $config;
+		$max_images = $config->get_int('index_width');
+		return Image::find_images(0, $max_images, array("user=".$duser->name));
 	}
 }
 ?>
