@@ -230,7 +230,7 @@ class Index extends SimpleExtension {
 
 		$event->panel->add_block($sb);
 	}
-
+	
 	public function onSearchTermParse($event) {
 		global $user;
 		
