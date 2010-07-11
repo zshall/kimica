@@ -113,7 +113,7 @@ class ViewImage extends SimpleExtension {
 				$iabbe = new ImageAdminBlockBuildingEvent($image, $user);
 				send_event($iabbe);
 				ksort($iabbe->parts);
-				$this->theme->display_admin_block($page, $iabbe->parts);
+				$this->theme->display_admin_block($iabbe->parts);
 			}
 			else {
 				$this->theme->display_error($page, "Image not found", "No image in the database has the ID #$image_id");
@@ -164,12 +164,12 @@ class ViewImage extends SimpleExtension {
 	}
 
 	public function onDisplayingImage(DisplayingImageEvent $event) {
-		global $page, $user;
+		global $user;
 		$event->image->update_view();
 		$iibbe = new ImageInfoBoxBuildingEvent($event->get_image(), $user);
 		send_event($iibbe);
 		ksort($iibbe->parts);
-		$this->theme->display_page($page, $event->get_image(), $iibbe->parts);
+		$this->theme->display_page($event->get_image(), $iibbe->parts);
 	}
 }
 

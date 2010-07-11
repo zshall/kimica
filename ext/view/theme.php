@@ -4,7 +4,9 @@ class ViewImageTheme extends Themelet {
 	/*
 	 * Build a page showing $image and some info about it
 	 */
-	public function display_page(Page $page, Image $image, $editor_parts) {
+	public function display_page(Image $image, $editor_parts) {
+		global $page;
+		
 		$metatags = str_replace(" ", ", ", html_escape($image->get_tag_list()));
 
 		$page->set_title("Image {$image->id}: ".html_escape($image->get_tag_list()));
@@ -14,7 +16,8 @@ class ViewImageTheme extends Themelet {
 		$page->add_block(new Block("Editor", $this->build_info($image, $editor_parts), "main", 10));
 	}
 
-	public function display_admin_block(Page $page, $parts) {
+	public function display_admin_block($parts) {
+		global $page;
 		if(count($parts) > 0) {
 			$page->add_block(new Block("Image Controls", join("<br>", $parts), "left", 50));
 		}
