@@ -1,6 +1,6 @@
 <?php
 
-class IndexTheme extends Themelet {
+class PostTheme extends Themelet {
 	public function set_page($page_number, $total_pages, $search_terms) {
 		$this->page_number = $page_number;
 		$this->total_pages = $total_pages;

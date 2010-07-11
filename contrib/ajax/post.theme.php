@@ -1,6 +1,6 @@
 <?php
 
-class CustomIndexTheme extends IndexTheme {
+class CustomPostTheme extends PostTheme {
 	
 	protected function build_table($images, $query) {
 		global $config;

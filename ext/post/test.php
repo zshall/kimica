@@ -1,5 +1,5 @@
 <?php
-class IndexTest extends ShimmieWebTestCase {
+class PostTest extends ShimmieWebTestCase {
 	function testIndexPage() {
 		$this->get_page('post/list');
 		$this->assert_title("Welcome to Shimmie ".VERSION);
