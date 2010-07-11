@@ -242,11 +242,6 @@ class TagEdit implements Extension {
 			$event->image->delete_tags_from_image();
 		}
 		
-		// When an alias is added, oldtag becomes inaccessable
-		if($event instanceof AddAliasEvent) {
-			$this->mass_tag_edit($event->oldtag, $event->newtag);
-		}
-
 		if($event instanceof ImageInfoBoxBuildingEvent) {
 			if($this->can_tag($event->image)) {
 				$event->add_part($this->theme->get_tag_editor_html($event->image), 40);
