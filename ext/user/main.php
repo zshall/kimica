@@ -353,15 +353,6 @@ class UserPage extends SimpleExtension {
 			ksort($ubbe->parts);
 			$this->theme->display_user_links($page, $user, $ubbe->parts);
 		}
-		if(
-			($user->is_admin() || $user->id == $event->display_user->id) &&
-			($user->id != $config->get_int('anon_id'))
-		) {
-			$this->theme->display_ip_list(
-				$page,
-				$this->count_upload_ips($event->display_user),
-				$this->count_comment_ips($event->display_user));
-		}
 	}
 
 	public function onSetupBuilding(Event $event) {

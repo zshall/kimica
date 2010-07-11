@@ -175,35 +175,7 @@ class UserPageTheme extends Themelet {
 		$page->add_block(new Block("Login", $html, "left", 90));
 	}
 
-	public function display_ip_list(Page $page, $uploads, $comments) {
-		$html = "<table id='ip-history'>";
-		$html .= "<tr><td>Uploaded from: ";
-		$n = 0;
-		foreach($uploads as $ip => $count) {
-			$html .= "<br>$ip ($count)";
-			if(++$n >= 20) {
-				$html .= "<br>...";
-				break;
-			}
-		}
-
-		$html .= "</td><td>Commented from:";
-		$n = 0;
-		foreach($comments as $ip => $count) {
-			$html .= "<br>$ip ($count)";
-			if(++$n >= 20) {
-				$html .= "<br>...";
-				break;
-			}
-		}
-
-		$html .= "</td></tr>";
-		$html .= "<tr><td colspan='2'>(Most recent at top)</td></tr></table>";
-
-		$page->add_block(new Block("IPs", $html));
-	}
-
-	public function display_user_page(User $duser, $stats) {
+		public function display_user_page(User $duser, $stats) {
 		global $page, $user;
 		assert(is_array($stats));
 		
