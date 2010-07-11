@@ -38,5 +38,13 @@ class ImageIOTheme extends Themelet {
 		$page->add_block(new NavBlock());
 		$page->add_block(new Block("Thumbnail", $this->build_thumb_html($image)));
 	}
+	
+	public function display_recent_posts($posts){
+		global $page;
+		
+		if(!empty($posts)){
+			$page->add_block(new Block("Recent Posts", $this->build_table($posts, null), "main", 30));
+		}
+	}
 }
 ?>
