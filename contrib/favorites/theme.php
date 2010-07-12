@@ -3,22 +3,28 @@
 class FavoritesTheme extends Themelet {
 	public function get_voter_html(Image $image, $is_favorited) {
 		global $page, $user;
-		
-		$html = "<form action='".make_link("change_favorite")."' method='POST'>
-				 <input type='hidden' name='image_id' value='$image->id'>";
+				
+		$form_open = "<form action='".make_link("change_favorite")."' method='POST'>";
+				 
+		$image_info = "<input id='image_id' type='hidden' value='$image->id' name='image_id'>";
 		
 		if(!$is_favorited) {
-			$html .= "<input type='hidden' name='favorite_action' value='set'>
-					  <input type='submit' value='Favorite'>";
+			$buttons = "<input type='hidden' name='favorite_action' value='set'>
+					  	<input id='post-favorite' type='submit' value='Favorite'>";
 		}
 		else {
-			$html .= "<input type='hidden' name='favorite_action' value='unset'>
-					  <input type='submit' value='Un-Favorite'>";
+			$buttons = "<input type='hidden' name='favorite_action' value='unset'>
+					  	<input id='post-favorite' type='submit' value='Un-Favorite'>";
 		}
 		
-		$html .= "</form>";
-
-		return $html;
+		$form_close = "</form>";
+		
+		if(class_exists("Ajax")){
+			return $image_info.$buttons;
+		}
+		else{
+			return $form_open.$image_info.$buttons.$form_close;
+		}
 	}
 
 	public function display_people($username_array) {
