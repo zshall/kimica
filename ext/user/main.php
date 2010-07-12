@@ -539,7 +539,9 @@ class UserPage extends SimpleExtension {
 		$email = $event->email;
 
 		global $database;
-
+		
+		$ip = $_SERVER['REMOTE_ADDR'];
+		
 		if(strlen($name) < 1) {
 			throw new UserCreationException("Username must be at least 1 character");
 		}
@@ -554,6 +556,9 @@ class UserPage extends SimpleExtension {
 		}
 		else if($database->db->GetRow("SELECT * FROM users WHERE name = ?", array($name))) {
 			throw new UserCreationException("That username is already taken");
+		}
+		else if($database->db->GetRow("SELECT * FROM user_bans WHERE user_ip = ?", array($ip))) {
+			throw new UserCreationException("The ip address has been suspended.");
 		}
 	}
 
