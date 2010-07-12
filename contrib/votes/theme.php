@@ -2,39 +2,47 @@
 
 class VotesTheme extends Themelet {
 	public function get_voter_html(Image $image, $vote) {
-		$i_image_id = int_escape($image->id);
-		$i_score = int_escape($image->votes);
-
-		$html = "Current Score: $i_score";
 		
-		$button_up = "<p><form action='".make_link("votes")."' method='POST'>
-			<input type='hidden' name='image_id' value='$i_image_id'>
-			<input type='hidden' name='vote' value='up'>
-			<input type='submit' value='Vote Up'>
-			</form>";
+		$score_info = "Current Score: $image->votes";
 		
-		$button_remove ="<form action='".make_link("votes")."' method='POST'>
-			<input type='hidden' name='image_id' value='$i_image_id'>
-			<input type='hidden' name='vote' value='null'>
-			<input type='submit' value='Remove Vote'>
-			</form>";
+		$form_open = "<form action='".make_link("votes")."' method='POST'>";
+		$image_info = "<input id='image_id' type='hidden' value='$image->id' name='image_id'>";
+		
+		$button_up = "<input type='hidden' name='vote' value='up'>
+					  <input id='post-vote-up' type='submit' value='Vote Up'>";
+		
+		$button_remove ="<input type='hidden' name='vote' value='null'>
+						 <input id='post-vote-remove' type='submit' value='Remove Vote'>";
 			
-		$button_down = "<form action='".make_link("votes")."' method='POST'>
-			<input type='hidden' name='image_id' value='$i_image_id'>
-			<input type='hidden' name='vote' value='down'>
-			<input type='submit' value='Vote Down'>
-			</form>";
+		$button_down = "<input type='hidden' name='vote' value='down'>
+						<input id='post-vote-down' type='submit' value='Vote Down'>";
+						
+		$form_close = "</form>";
 		
 		if($vote["vote"] == -1){
-			$html .= $button_up.$button_remove;
+			if(class_exists("Ajax")){
+				return $score_info.$image_info.$button_up.$button_remove;
+			}
+			else{
+				return $score_info.$form_open.$image_info.$button_up.$form_close.$form_open.$image_info.$button_remove.$form_close;
+			}
 		}
 		elseif($vote["vote"] == 1){
-			$html .= $button_remove.$button_down;
+			if(class_exists("Ajax")){
+				return $score_info.$image_info.$button_remove.$button_down;
+			}
+			else{
+				return $score_info.$form_open.$image_info.$button_remove.$form_close.$form_open.$image_info.$button_down.$form_close;
+			}
 		}
 		else{
-			$html .= $button_up.$button_remove.$button_down;
-		}
-		return $html;
+			if(class_exists("Ajax")){
+				return $score_info.$image_info.$button_up.$button_remove.$button_down;
+			}
+			else{
+				return $score_info.$form_open.$image_info.$button_up.$form_close.$form_open.$image_info.$button_remove.$form_close.$form_open.$image_info.$button_down.$form_close;
+			}
+		}			
 	}
 }
 

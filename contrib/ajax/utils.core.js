@@ -88,6 +88,10 @@ function onClick(){
 		Post.Vote(image_id, "up");
 	});
 	
+	$('#post-vote-remove').click(function() {
+		Post.Vote(image_id, "null");
+	});
+	
 	$('#post-vote-down').click(function() {
 		Post.Vote(image_id, "down");
 	});
@@ -395,7 +399,7 @@ Post = {
 	},
 		
 	Vote: function(id, vote){
-		if(((vote=="up") || (vote=="down")) && (id!=null)){
+		if(((vote=="up") || (vote=="null") || (vote=="down")) && (id!=null)){
 			$.ajax({
 				type: "POST",
 				cache: false,
@@ -407,6 +411,9 @@ Post = {
 					$('#subheading p').detach();
 					if(vote=="up"){
 						$('#subheading').append("<p>Post " + id + " was voted up.</p>");
+					}
+					else if(vote=="null"){
+						$('#subheading').append("<p>Post " + id + " was removed.</p>");
 					}
 					else{
 						$('#subheading').append("<p>Post " + id + " was voted down.</p>");

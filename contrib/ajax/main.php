@@ -285,13 +285,17 @@ class Ajax extends SimpleExtension {
 			
 			$auth = $user->get_auth_from_str($config->get_string("index_mode_score"));
 			if($auth){
-				if (($vote == "up") || ($vote == "down")) {						
+				if (($vote == "up") || ($vote == "null") || ($vote == "down")) {						
 					if($vote == "up"){
 						$score = 1;
 						send_event(new VoteSetEvent($image_id, $user, $score));
 					}
 					if($vote == "down"){
 						$score = -1;
+						send_event(new VoteSetEvent($image_id, $user, $score));
+					}
+					if($vote == "null"){
+						$score = 0;
 						send_event(new VoteSetEvent($image_id, $user, $score));
 					}
 					
