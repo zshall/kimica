@@ -11,6 +11,7 @@ function _new_user($row) {
  */
 class User {
 	var $id;
+	var $ip;
 	var $name;
 	var $email;
 	var $join_date;
@@ -22,6 +23,7 @@ class User {
 	var $user;
 	var $cont;
 	var $anon;
+	var $banned;
 
 	/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 	* Initialisation                                               *
@@ -40,6 +42,7 @@ class User {
 	 */
 	public function User($row) {
 		$this->id = int_escape($row['id']);
+		$this->ip = $row['ip'];
 		$this->name = $row['name'];
 		$this->email = $row['email'];
 		$this->join_date = $row['joindate'];
@@ -51,6 +54,7 @@ class User {
 		$this->cont = ($row['role'] == 'c');
 		$this->user = ($row['role'] == 'u');
 		$this->anon = ($row['role'] == 'g');
+		$this->banned = ($row['role'] == 'b');
 	}
 
 	public static function by_session($name, $session) {
@@ -278,6 +282,7 @@ class User {
 	 */
 	public function role_to_human(){
 		switch($this->role) {
+			case "b": return "banned";
 			case "g": return "guest";
 			case "u": return "user";
 			case "c": return "contributor";

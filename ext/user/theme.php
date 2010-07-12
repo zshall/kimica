@@ -18,13 +18,18 @@ class UserPageTheme extends Themelet {
 				$(\"#users\").tablesorter();
 			});
 			</script>
+			<form action='".make_link("account/bans/bulk")."' method='POST'>
 			<table id='users' class='zebra'>";
 			
 		$message = "";
 		if(!$user->is_anon()){
 			$message = "<th>Contact</th>";
 		}
-		$html .= "<thead><tr><th>User</th><th>Role</th><th>Joined</th>$message</thead>
+		$actions = "";
+		if($user->is_admin() || $user->is_owner()){
+			$actions = "<th>Actions</th>";
+		}
+		$html .= "<thead><tr><th>User</th><th>Role</th><th>Joined</th>$message$actions</thead>
 				<tbody>";
 		$n = 0;
 		foreach($users as $duser) {
@@ -36,10 +41,96 @@ class UserPageTheme extends Themelet {
 			if(!$user->is_anon()){
 				$html .= "<th><a href='".make_link("account/messages/new/".$duser->id)."'>Send Message</a></th>";
 			}
+			if($user->is_admin() || $user->is_owner()){
+				$html .= "<th><input name='user_id[]' type='checkbox' value='".$duser->id."' /></th>";
+			}
 			$html .= "</tr>";
 		}
-		$html .= "</tbody></table>";
+		if($user->is_admin() || $user->is_owner()){
+			$actions = "<input type='Submit' value='Ban'>";
+		}
+		$html .= "</tbody></table>$actions</form>";
 		$page->add_block(new Block("Users", $html));
+	}
+	
+	public function display_user_bans($banned){
+		global $user, $page;
+		$page->set_title("Banned Users");
+		$page->set_heading("Banned Users");
+		$html = "<script>
+			$(document).ready(function() {
+				$(\"#users\").tablesorter();
+			});
+			</script>
+			<form action='".make_link("account/bans/remove")."' method='POST'>
+			<table id='users' class='zebra'>";
+		
+		$actions = "";
+		if($user->is_admin() || $user->is_owner()){
+			$actions = "<th>Un-Ban</th>";
+		}
+		
+		$html .= "<thead><tr><th>User</th><th>End Date</th><th>Reason</th>$actions</thead>
+				<tbody>";
+		$n = 0;
+		foreach($banned as $duser) {
+			$oe = ($n++ % 2 == 0) ? "even" : "odd";
+			$html .= "<tr class='$oe'>";
+			$html .= "<td><a href='".make_link("user/".$duser["name"])."'>".html_escape($duser["name"])."</a></td>";
+			$html .= "<td>".$duser["end_date"]."</td>";
+			$html .= "<td>".$duser["reason"]."</td>";
+			if($user->is_admin() || $user->is_owner()){
+				$html .= "<th><input name='user_id[]' type='checkbox' value='".$duser["id"]."' /></th>";
+			}
+			$html .= "</tr>";
+		}
+		if($user->is_admin() || $user->is_owner()){
+			$actions = "<input type='Submit' value='Un-Ban'>";
+		}
+		$html .= "</tbody></table>$actions</form>";
+		$page->add_block(new Block("Banned Users", $html));
+		
+	}
+	
+	public function display_user_prebans($prebans){
+		global $user, $page;
+		$page->set_title("Banned Users");
+		$page->set_heading("Banned Users");
+		$html = "<script>
+			$(document).ready(function() {
+				$(\"#users\").tablesorter();
+			});
+			</script>
+			<form action='".make_link("account/bans/add")."' method='POST'>
+			<table id='users' class='zebra'>";
+			
+		$actions = "";
+		if($user->is_admin() || $user->is_owner()){
+			$actions = "<th>Ban</th>";
+		}
+			
+		$html .= "<thead><tr><th>User</th><th>End Date</th><th>Reason</th>$actions</thead>
+				<tbody>";
+		$n = 0;
+		foreach($prebans as $duser) {
+			$oe = ($n++ % 2 == 0) ? "even" : "odd";
+			$html .= "<tr class='$oe'>";
+			$html .= "<td><a href='".make_link("user/".$duser->name)."'>".html_escape($duser->name)."</a></td>";
+			$html .= "<td><input name='bans[".$n."][]' type='text' /></td>";
+			$html .= "<td><input name='bans[".$n."][]' type='text' /></td>";
+			if($user->is_admin() || $user->is_owner()){
+				$html .= "<th><input name='bans[".$n."][]' type='checkbox' value='".$duser->id."' /></th>";
+			}
+			$html .= "</tr>";
+		}
+		
+		$actions = "";
+		if($user->is_admin() || $user->is_owner()){
+			$actions = "<input type='Submit' value='Ban'>";
+		}
+		$html .= "</tbody></table>$actions</form>";
+		$page->add_block(new Block("Banned Users", $html));
+		
 	}
 	
 	public function display_user_block(Page $page, User $user, $parts) {

@@ -147,6 +147,66 @@ class UserPage extends SimpleExtension {
 				}
 			}
 			
+			else if($event->get_arg(0) == "bans") {
+				global $database;
+				switch ($event->get_arg(1)) {
+					case "list":
+						$result = $database->get_all("
+						SELECT usr.id, usr.name, ban.user_id, ban.end_date, ban.reason
+						FROM user_bans AS ban
+						INNER JOIN users AS usr ON usr.id = ban.user_id
+						ORDER BY usr.name DESC
+						LIMIT ?",
+						array(20));
+						
+						$this->theme->display_user_bans($result);
+					break;
+					
+					case "bulk":
+						$users = array();
+						foreach($_POST['user_id'] as $user_id) {
+							$users[] = User::by_id($user_id);
+						}
+						
+						if($users){
+							$this->theme->display_user_prebans($users);
+						}
+						else{
+							$page->set_mode("redirect");
+							$page->set_redirect(make_link("account/list"));
+						}
+					break;
+					
+					case "add":
+						foreach($_POST['bans'] as $data) {
+							list($end_date, $reason, $user_id) = $data;
+							
+							$duser = User::by_id($user_id);
+							if($duser){
+								send_event(new UserBanEvent($duser, $end_date, $reason));
+							}
+						}
+						
+						$page->set_mode("redirect");
+						$page->set_redirect(make_link("account/bans/list"));
+					break;
+					
+					case "remove":
+						foreach($_POST['user_id'] as $user_id) {
+							$duser = User::by_id($user_id);
+							$this->reset_user_ban($duser);
+						}
+						
+						$page->set_mode("redirect");
+						$page->set_redirect(make_link("account/bans/list"));
+					break;
+					
+					default:
+					break;
+				}
+				
+			}
+			
 			// account/validate  - Validate Account
 			else if($event->get_arg(0) == "validate") {
 				
@@ -418,8 +478,8 @@ class UserPage extends SimpleExtension {
 		$this->create_user($event);
 	}
 	
-	public function onUserBanEvent(Event $event) {
-		$this->ban_user($event->duser, $event->end_date, $event->reason);
+	public function onUserBan(Event $event) {
+		$this->add_user_ban($event->duser, $event->end_date, $event->reason);
 	}
 
 	public function onSearchTermParse(Event $event) {
@@ -489,6 +549,9 @@ class UserPage extends SimpleExtension {
 		$hash = md5(strtolower($name) . $pass);
 
 		$duser = User::by_name_and_hash($name, $hash);
+		
+		$this->reset_user_ban($duser);
+		
 		if(!is_null($duser)) {
 			if(($duser->role != "b") && ($duser->role != "g")){
 			
@@ -523,9 +586,12 @@ class UserPage extends SimpleExtension {
 					$page->set_redirect(make_link("setup/easy"));
 				}
 			}
-			else{
+			elseif($duser->role != "b"){
 				$validate_link = "<a href='".make_link("account/validate")."'>Validate</a>";
 				$this->theme->display_error($page, "Error", "You need validate your account. $validate_link");
+			}
+			else{
+				$this->theme->display_error($page, "Account", "Your account has been suspended.");
 			}
 		}
 		else {
@@ -609,16 +675,31 @@ class UserPage extends SimpleExtension {
 		set_prefixed_cookie("session", md5($hash.$addr),
 				time()+60*60*24*$config->get_int('login_memory'), '/');
 	}
-	
-	private function ban_user($duser, $end_date, $reason){
-		global $database, $user;
 		
+	private function add_user_ban($duser, $end_date, $reason){
+		global $database, $user;
+				
 		if($user->is_owner() || $user->is_admin()){
-			$database->Execute("UPDATE users SET role = b WHERE id = ?", array($duser->id));
-			$database->Execute("UPDATE users SET role = b WHERE id = ?", array($duser->id));
 			$database->Execute("INSERT INTO user_bans (banner_id, user_id, user_ip, user_role, end_date, reason) VALUES (?, ?, ?, ?, ?, ?)", 
 			array($user->id, $duser->id, $duser->ip, $duser->role, $end_date, $reason));
+			$database->Execute("UPDATE users SET role = 'b' WHERE id = ?", array($duser->id));
 		}
+	}
+	
+	private function reset_user_ban($duser){
+		global $database, $user;
+		
+		$banned = $database->db->GetRow("SELECT end_date, user_role FROM user_bans WHERE user_id = ?", array($duser->id));
+		
+		if($banned){
+			$end_date = $banned["end_date"];
+			$today = date("Y-m-d",time());
+		
+			if($today >= $end_date || ($user->is_owner() || $user->is_admin())){
+				$database->Execute("UPDATE users SET role = ? WHERE id = ?", array($banned["user_role"], $duser->id));
+				$database->execute("DELETE FROM user_bans WHERE user_id = ?", array($duser->id));
+			}
+		}		
 	}
 //}}}
 // Things done *to* the user {{{
