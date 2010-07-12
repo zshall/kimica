@@ -232,7 +232,12 @@ class Post extends SimpleExtension {
 	}
 	
 	public function onUserPageBuilding($event) {
-		$this->theme->display_recent_posts($this->profile_latest_posts($event->display_user));
+		$this->theme->display_recent_posts($this->recent_posts($event->display_user));
+	}
+	
+	public function onPortalBuilding($event) {
+		$this->theme->display_recent_posts($this->recent_posts());
+		$this->theme->display_random_posts($this->random_posts());
 	}
 	
 	public function onSearchTermParse($event) {
@@ -299,10 +304,23 @@ class Post extends SimpleExtension {
 		return true;
 	}
 	
-	private function profile_latest_posts($duser){
+	private function recent_posts($duser=null){
 		global $config;
 		$max_images = $config->get_int('index_width');
-		return Image::find_images(0, $max_images, array("user=".$duser->name));
+		if(!is_null($duser)) {
+			return Image::find_images(0, $max_images, array("user=".$duser->name));
+		} else {
+			return Image::find_images(0, $max_images);
+		}
+	}
+	
+	private function random_posts(){
+		global $config;
+		$max_images = $config->get_int('index_width');
+		for($i=0;$i<$max_images;$i++) {
+			$images[] = Image::by_random();
+		}
+		return $images;
 	}
 }
 ?>
