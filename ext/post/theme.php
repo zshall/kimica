@@ -75,6 +75,14 @@ class PostTheme extends Themelet {
 		}
 	}
 
+	public function display_random_posts($posts){
+		global $page;
+		
+		if(!empty($posts)){
+			$page->add_block(new Block("Random Posts", $this->build_table($posts, null), "main", 30));
+		}
+	}
+
 	protected function build_navigation($page_number, $total_pages, $search_terms) {
 		$prev = $page_number - 1;
 		$next = $page_number + 1;

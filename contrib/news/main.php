@@ -16,6 +16,13 @@ class News extends SimpleExtension {
 		}
 	}
 
+	public function onPortalBuilding($event) {
+		global $config, $page;
+		if(strlen($config->get_string("news_text")) > 0) {
+			$this->theme->display_news_portal($page, $config->get_string("news_text"));
+		}
+	}
+
 	public function onSetupBuilding($event) {
 		$sb = new SetupBlock("News");
 		$sb->add_longtext_option("news_text");
