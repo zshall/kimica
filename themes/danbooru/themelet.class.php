@@ -15,36 +15,39 @@ class Themelet {
 	}
 
 
+	protected function build_table($images, $query) {
+		global $config;
+		$columns = floor(100 / $config->get_int('index_width'));
+		$table = "<ul class='thumbblock'>";
+		foreach($images as $image) {
+			$table .= "<li class=\"thumb\" style='width: {$columns}%;'>" . $this->build_thumb_html($image, $query) . "</li>";
+		}
+		$table .= "</ul>";
+		return $table;
+	}
+
+	/**
+	 * Generic thumbnail code; returns HTML rather than adding
+	 * a block since thumbs tend to go inside blocks...
+	 */
 	public function build_thumb_html(Image $image, $query=null) {
 		global $config;
-		$h_view_link = make_link("post/view/{$image->id}", $query);
+		$i_id = int_escape($image->id);
+		$h_view_link = make_link("post/view/$i_id", $query);
 		$h_tip = html_escape($image->get_tooltip());
 		$h_thumb_link = $image->get_thumb_link();
 		$tsize = get_thumbnail_size($image->width, $image->height);
-		return "<a href='$h_view_link'><img title='$h_tip' alt='$h_tip' ".
-				"width='{$tsize[0]}' height='{$tsize[1]}' src='$h_thumb_link' /></a>";
+		$style = "display:inline-block; height: {$tsize[1]}px; width: {$tsize[0]}px;";
+		return "<a href='$h_view_link' style='$style'>
+					<img id='thumb_$i_id' title='$h_tip' alt='$h_tip' style='height: {$tsize[1]}px; width: {$tsize[0]}px;' src='$h_thumb_link'>
+				</a>";
 	}
 
 
-	public function display_paginator(Page $page, $base, $query, $page_number, $total_pages) {
-		if($total_pages == 0) $total_pages = 1;
-		$body = $this->build_paginator($page_number, $total_pages, $base, $query);
-		$page->add_block(new Block(null, $body, "main", 90));
-	}
-
-	private function gen_page_link($base_url, $query, $page, $name) {
-		$link = make_link("$base_url/$page", $query);
-	    return "<a href='$link'>$name</a>";
-	}
-	
-	private function gen_page_link_block($base_url, $query, $page, $current_page, $name) {
-		$paginator = "";
-	    if($page == $current_page) $paginator .= "<b>$page</b>";
-	    else $paginator .= $this->gen_page_link($base_url, $query, $page, $name);
-	    return $paginator;
-	}
-					
-	private function build_paginator($current_page, $total_pages, $base_url, $query) {
+	/**
+	 * Add a generic paginator
+	 */
+	public function build_paginator($base_url, $query, $current_page, $total_pages) {
 		$next = $current_page + 1;
 		$prev = $current_page - 1;
 		$rand = rand(1, $total_pages);
@@ -72,7 +75,22 @@ class Themelet {
 		if(strlen($last_html) > 0) $ndots = "...";
 		else $ndots = "";
 
-		return "<div id='paginator'>$prev_html $first_html $pdots $pages_html $ndots $last_html $next_html</div>";
+		if($total_pages > 0){
+			return "<div id='paginator'>$prev_html $first_html $pdots $pages_html $ndots $last_html $next_html</div>";
+		}
+	}
+	
+	private function gen_page_link($base_url, $query, $page, $name) {
+		$link = make_link("$base_url/$page", $query);
+	    return "<a href='$link'>$name</a>";
+	}
+	
+	private function gen_page_link_block($base_url, $query, $page, $current_page, $name) {
+		$paginator = "";
+	    if($page == $current_page) $paginator .= "<b>";
+	    $paginator .= $this->gen_page_link($base_url, $query, $page, $name);
+	    if($page == $current_page) $paginator .= "</b>";
+	    return $paginator;
 	}
 }
 ?>
