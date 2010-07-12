@@ -165,11 +165,18 @@ class ViewImage extends SimpleExtension {
 
 	public function onDisplayingImage(DisplayingImageEvent $event) {
 		global $user;
-		$event->image->update_view();
+		$this->update_views($event->image);
 		$iibbe = new ImageInfoBoxBuildingEvent($event->get_image(), $user);
 		send_event($iibbe);
 		ksort($iibbe->parts);
 		$this->theme->display_page($event->get_image(), $iibbe->parts);
+	}
+	
+	public function update_views($image) {
+		global $database, $user;
+		$database->Execute("DELETE FROM image_views WHERE image_id = ? AND user_id = ?",array($image->id, $user->id));
+		$database->Execute("INSERT INTO image_views(image_id, user_id) VALUES(?, ?)",array($image->id, $user->id));
+		$database->Execute("UPDATE images SET views=(SELECT COUNT(*) FROM image_views WHERE image_id = ?) WHERE id = ?",array($image->id, $image->id));
 	}
 }
 

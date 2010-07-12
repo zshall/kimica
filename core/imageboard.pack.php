@@ -418,11 +418,6 @@ class Image {
 		return $this->views;
 	}
 	
-	public function update_view() {
-		global $database;
-		$database->execute("UPDATE images SET views = views + 1 WHERE id = ?", array($this->id));
-	}
-	
 	/**
 	 * Delete all tags from this image.
 	 *
