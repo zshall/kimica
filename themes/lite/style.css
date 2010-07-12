@@ -339,17 +339,9 @@ UL {
 #nav .thumb {
 	margin-bottom: 0px;
 }
-.thumbblock {
-	width: 220px;
-	height: 220px;
-	display: inline-block;
-	float: left;
-}
-.thumb {
-	display: inline-block;
-	text-align: center;
-	margin-bottom: 32px;
-}
+	
+#body .thumbblock{height: auto; text-align:center; padding:0;}
+#body .thumb {list-style:none; padding:0; min-width:180px; width:25%; height:180px; vertical-align:top;display:inline-block;}
 
 #downtime #message, #downtime #login {
 	text-align: center;

@@ -23,6 +23,17 @@ class Themelet {
 	}
 
 
+	protected function build_table($images, $query) {
+		global $config;
+		$columns = floor(100 / $config->get_int('index_width'));
+		$table = "<ul class='thumbblock'>";
+		foreach($images as $image) {
+			$table .= "<li class=\"thumb\" style='width: {$columns}%;'>" . $this->build_thumb_html($image, $query) . "</li>";
+		}
+		$table .= "</ul>";
+		return $table;
+	}
+
 	/**
 	 * Generic thumbnail code; returns HTML rather than adding
 	 * a block since thumbs tend to go inside blocks...
@@ -34,15 +45,10 @@ class Themelet {
 		$h_tip = html_escape($image->get_tooltip());
 		$h_thumb_link = $image->get_thumb_link();
 		$tsize = get_thumbnail_size($image->width, $image->height);
-		return "
-			<div class='thumbblock'>
-			
-				<a href='$h_view_link' style='position: relative; display: block; height: {$tsize[1]}px; width: {$tsize[0]}px;'>
-					<img id='thumb_$i_id' title='$h_tip' alt='$h_tip' class='highlighted' style='height: {$tsize[1]}px; width: {$tsize[0]}px;' src='$h_thumb_link'>
-				</a>
-			
-			</div>
-		";
+		$style = "display:inline-block; height: {$tsize[1]}px; width: {$tsize[0]}px;";
+		return "<a href='$h_view_link' style='$style'>
+					<img id='thumb_$i_id' title='$h_tip' alt='$h_tip' style='height: {$tsize[1]}px; width: {$tsize[0]}px;' src='$h_thumb_link'>
+				</a>";
 	}
 
 
@@ -61,42 +67,21 @@ class Themelet {
 	/**
 	 * Add a generic paginator
 	 */
-	public function display_paginator(Page $page, $base, $query, $page_number, $total_pages) {
-		if($total_pages == 0) $total_pages = 1;
-		$body = $this->build_paginator($page_number, $total_pages, $base, $query);
-		$page->add_block(new Block(null, $body, "main", 90));
-	}
-
-	private function gen_page_link($base_url, $query, $page, $name, $link_class=null) {
-		$link = make_link("$base_url/$page", $query);
-	    return "<a class='$link_class' href='$link'>$name</a>";
-	}
-	
-	private function gen_page_link_block($base_url, $query, $page, $current_page, $name) {
-		$paginator = "";
-	    
-	    if($page == $current_page) {$link_class = "tab-selected";} else {$link_class = "";}
-	    $paginator .= $this->gen_page_link($base_url, $query, $page, $name, $link_class);
-	    
-	    return $paginator;
-	}
-					
-	private function build_paginator($current_page, $total_pages, $base_url, $query) {
+	public function build_paginator($base_url, $query, $current_page, $total_pages) {
 		$next = $current_page + 1;
 		$prev = $current_page - 1;
 		$rand = rand(1, $total_pages);
 
-		$at_start = ($current_page <= 1 || $total_pages <= 1);
-		$at_end = ($current_page >= $total_pages);
+		$at_start = ($current_page <= 3 || $total_pages <= 3);
+		$at_end = ($current_page >= $total_pages -2);
 
-		$first_html  = $at_start ? "<span class='tab'>First</span>" : $this->gen_page_link($base_url, $query, 1,            "First");
-		$prev_html   = $at_start ? "<span class='tab'>Prev</span>"  : $this->gen_page_link($base_url, $query, $prev,        "Prev");
-		$random_html =                       			      $this->gen_page_link($base_url, $query, $rand,        "Random");
-		$next_html   = $at_end   ? "<span class='tab'>Next</span>"  : $this->gen_page_link($base_url, $query, $next,        "Next");
-		$last_html   = $at_end   ? "<span class='tab'>Last</span>"  : $this->gen_page_link($base_url, $query, $total_pages, "Last");
+		$first_html  = $at_start ? "" : $this->gen_page_link($base_url, $query, 1,            "1");
+		$prev_html   = $at_start ? "" : $this->gen_page_link($base_url, $query, $prev,        "&lt;&lt;");
+		$next_html   = $at_end   ? "" : $this->gen_page_link($base_url, $query, $next,        "&gt;&gt;");
+		$last_html   = $at_end   ? "" : $this->gen_page_link($base_url, $query, $total_pages, "$total_pages");
 
-		$start = $current_page-5 > 1 ? $current_page-5 : 1;
-		$end = $start+10 < $total_pages ? $start+10 : $total_pages;
+		$start = $current_page-2 > 1 ? $current_page-2 : 1;
+		$end   = $current_page+2 <= $total_pages ? $current_page+2 : $total_pages;
 
 		$pages = array();
 		foreach(range($start, $end) as $i) {
@@ -104,13 +89,28 @@ class Themelet {
 		}
 		$pages_html = implode(" ", $pages);
 
-		return "<div class='paginator sfoot'>
-			$first_html
-			$prev_html
-			$random_html
-			&lt;&lt; $pages_html &gt;&gt;
-			$next_html $last_html
-			</div>";
+		if(strlen($first_html) > 0) $pdots = "...";
+		else $pdots = "";
+
+		if(strlen($last_html) > 0) $ndots = "...";
+		else $ndots = "";
+
+		if($total_pages > 0){
+			return "<div id='paginator'>$prev_html $first_html $pdots $pages_html $ndots $last_html $next_html</div>";
+		}
+	}
+	
+	private function gen_page_link($base_url, $query, $page, $name) {
+		$link = make_link("$base_url/$page", $query);
+	    return "<a href='$link'>$name</a>";
+	}
+	
+	private function gen_page_link_block($base_url, $query, $page, $current_page, $name) {
+		$paginator = "";
+	    if($page == $current_page) $paginator .= "<b>";
+	    $paginator .= $this->gen_page_link($base_url, $query, $page, $name);
+	    if($page == $current_page) $paginator .= "</b>";
+	    return $paginator;
 	}
 }
 ?>
