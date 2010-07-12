@@ -40,6 +40,18 @@ class UserCreationEvent extends Event {
 	}
 }
 
+class UserBanEvent extends Event {
+	var $duser;
+	var $end_date;
+	var $reason;
+
+	public function __construct($duser, $end_date, $reason) {
+		$this->duser = $duser;
+		$this->end_date = $end_date;
+		$this->reason = $reason;
+	}
+}
+
 class UserCreationException extends SCoreException {}
 
 class UserPage extends SimpleExtension {
@@ -405,6 +417,10 @@ class UserPage extends SimpleExtension {
 		$this->check_user_creation($event);
 		$this->create_user($event);
 	}
+	
+	public function onUserBanEvent(Event $event) {
+		$this->ban_user($event->duser, $event->end_date, $event->reason);
+	}
 
 	public function onSearchTermParse(Event $event) {
 		$matches = array();
@@ -443,7 +459,7 @@ class UserPage extends SimpleExtension {
 		global $database, $user;
 				
 		$duser = User::by_name($name);
-		if(!is_null($duser) && ($duser->email == $email)) {
+		if(!is_null($duser) && ($duser->email == $email) && ($duser->role != "b")) {
 			
 			$pass = substr(md5(microtime()), 0, 16);
 			
@@ -457,8 +473,11 @@ class UserPage extends SimpleExtension {
 			$page->set_mode("redirect");
 			$page->set_redirect(make_link("account/login"));
 		}
+		elseif($duser->role == "b"){
+			$this->theme->display_error($page, "Account", "Your account has been suspended.");
+		}
 		else{
-			$this->theme->display_error($page, "Error", "No user with those details was found.");
+			$this->theme->display_error($page, "Account", "No user with those details was found.");
 		}
 	}
 	
@@ -471,7 +490,7 @@ class UserPage extends SimpleExtension {
 
 		$duser = User::by_name_and_hash($name, $hash);
 		if(!is_null($duser)) {
-			if(!($duser->role == "g")){
+			if(($duser->role != "b") && ($duser->role != "g")){
 			
 				$this->set_login_cookie($name, $pass);
 				
@@ -484,6 +503,9 @@ class UserPage extends SimpleExtension {
 						break;
 					case "m":
 						log_warning("user", "Moderator logged in ({$duser->name})");
+						break;
+					case "c":
+						log_warning("user", "Contributor logged in ({$duser->name})");
 						break;
 					case "u":
 						log_info("user", "User logged in ({$duser->name})");
@@ -581,6 +603,17 @@ class UserPage extends SimpleExtension {
 				time()+60*60*24*365, '/');
 		set_prefixed_cookie("session", md5($hash.$addr),
 				time()+60*60*24*$config->get_int('login_memory'), '/');
+	}
+	
+	private function ban_user($duser, $end_date, $reason){
+		global $database, $user;
+		
+		if($user->is_owner() || $user->is_admin()){
+			$database->Execute("UPDATE users SET role = b WHERE id = ?", array($duser->id));
+			$database->Execute("UPDATE users SET role = b WHERE id = ?", array($duser->id));
+			$database->Execute("INSERT INTO user_bans (banner_id, user_id, user_ip, user_role, end_date, reason) VALUES (?, ?, ?, ?, ?, ?)", 
+			array($user->id, $duser->id, $duser->ip, $duser->role, $end_date, $reason));
+		}
 	}
 //}}}
 // Things done *to* the user {{{
@@ -685,35 +718,6 @@ class UserPage extends SimpleExtension {
 			}
 		}
 	}
-// }}}
-// ips {{{
-	private function count_upload_ips($duser) {
-		global $database;
-		$rows = $database->db->GetAssoc("
-				SELECT
-					owner_ip,
-					COUNT(images.id) AS count,
-					MAX(posted) AS most_recent
-				FROM images
-				WHERE owner_id=?
-				GROUP BY owner_ip
-				ORDER BY most_recent DESC", array($duser->id), false, true);
-		return $rows;
-	}
-	private function count_comment_ips($duser) {
-		global $database;
-		$rows = $database->db->GetAssoc("
-				SELECT
-					owner_ip,
-					COUNT(comments.id) AS count,
-					MAX(posted) AS most_recent
-				FROM comments
-				WHERE owner_id=?
-				GROUP BY owner_ip
-				ORDER BY most_recent DESC", array($duser->id), false, true);
-		return $rows;
-	}
-	
 // }}}
 // private messages {{{
 	private function add_message() {

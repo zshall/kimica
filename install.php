@@ -273,14 +273,15 @@ function create_tables($dsn) { // {{{
 			pass CHAR(32),
 			joindate SCORE_DATETIME NOT NULL DEFAULT SCORE_NOW,
 			validate CHAR(16),
-			role ENUM('g', 'u', 'c', 'm', 'a', 'o') NOT NULL DEFAULT 'g',
+			role ENUM('b', 'g', 'u', 'c', 'm', 'a', 'o') NOT NULL DEFAULT 'g',
 			email VARCHAR(128)
 		"));
 		$db->execute($engine->create_table_sql("user_bans", "
 			id SCORE_AIPK,
 			banner_id INTEGER NOT NULL,
-			banned_id INTEGER NOT NULL,
-			banned_ip CHAR(15) NOT NULL,
+			user_id INTEGER NOT NULL,
+			user_ip CHAR(15) NOT NULL,
+			user_role ENUM('u', 'c', 'm', 'a', 'o') NOT NULL DEFAULT 'u',
 			end_date SCORE_DATETIME,
 			reason TEXT
 		"));
