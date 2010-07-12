@@ -317,8 +317,14 @@ class Post extends SimpleExtension {
 	private function random_posts(){
 		global $config;
 		$max_images = $config->get_int('index_width');
-		for($i=0;$i<$max_images;$i++) {
-			$images[] = Image::by_random();
+		$all_images = Image::count_images();
+		if($all_images < $max_images) {$max_images = $all_images;}
+		$images = array();
+		while(count($images)<$max_images) {
+			$tmp_image = Image::by_random();
+			if(!in_array($tmp_image, $images)) {
+				$images[] = $tmp_image;
+			}
 		}
 		return $images;
 	}
