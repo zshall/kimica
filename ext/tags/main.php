@@ -174,12 +174,12 @@ class TagList extends SimpleExtension {
 	public function onAddAlias(AddAliasEvent $event) {
 		global $database;
 		$pair = array($event->oldtag, $event->newtag);
-		if($database->db->GetRow("SELECT * FROM aliases WHERE oldtag=? AND lower(newtag)=lower(?)", $pair)) {
+		if($database->db->GetRow("SELECT * FROM tag_alias WHERE oldtag=? AND lower(newtag)=lower(?)", $pair)) {
 			throw new AddAliasException("That alias already exists");
 		}
 		else {
 			$this->mass_tag_edit($event->oldtag, $event->newtag);
-			$database->Execute("INSERT INTO aliases(oldtag, newtag) VALUES(?, ?)", $pair);
+			$database->Execute("INSERT INTO tag_alias(oldtag, newtag) VALUES(?, ?)", $pair);
 			log_info("alias_editor", "Added alias for {$event->oldtag} -> {$event->newtag}");
 		}
 	}
@@ -703,10 +703,10 @@ class TagList extends SimpleExtension {
 
 		$alias_per_page = $config->get_int('alias_items_per_page', 30);
 
-		$query = "SELECT oldtag, newtag FROM aliases ORDER BY newtag ASC LIMIT ? OFFSET ?";
+		$query = "SELECT oldtag, newtag FROM tag_alias ORDER BY newtag ASC LIMIT ? OFFSET ?";
 		$alias = $database->db->GetAssoc($query,array($alias_per_page, $page_number * $alias_per_page));
 
-		$total_pages = ceil($database->db->GetOne("SELECT COUNT(*) FROM aliases") / $alias_per_page);
+		$total_pages = ceil($database->db->GetOne("SELECT COUNT(*) FROM tag_alias") / $alias_per_page);
 
 		$this->theme->display_aliases($alias, $user->is_admin(), $page_number + 1, $total_pages);
 	}
@@ -732,7 +732,7 @@ class TagList extends SimpleExtension {
 		if($user->is_admin()) {
 			if(isset($_POST['oldtag']) && isset($_POST['newtag'])) {
 				
-				$database->Execute("DELETE FROM aliases WHERE oldtag=?", array($_POST['oldtag']));
+				$database->Execute("DELETE FROM tag_alias WHERE oldtag=?", array($_POST['oldtag']));
 				
 				$this->mass_tag_edit($_POST['newtag'], $_POST['oldtag']); // GET BACK TO THE OLD TAGS
 				
@@ -747,7 +747,7 @@ class TagList extends SimpleExtension {
 	private function export_tag_alias() {
 		global $database, $page;
 		$csv = "";
-		$aliases = $database->db->GetAssoc("SELECT oldtag, newtag FROM aliases");
+		$aliases = $database->db->GetAssoc("SELECT oldtag, newtag FROM tag_alias");
 		foreach($aliases as $old => $new) {
 			$csv .= "$old,$new\n";
 		}
@@ -767,7 +767,7 @@ class TagList extends SimpleExtension {
 				foreach(explode("\n", $csv) as $line) {
 					$parts = explode(",", $line);
 					if(count($parts) == 2) {
-						$database->execute("INSERT INTO aliases(oldtag, newtag) VALUES(?, ?)", $parts);
+						$database->execute("INSERT INTO tag_alias(oldtag, newtag) VALUES(?, ?)", $parts);
 					}
 				}
 				

@@ -260,18 +260,13 @@ function create_tables($dsn) { // {{{
 	}
 	else {
 		$engine->init($db);
-
-		$db->execute($engine->create_table_sql("aliases", "
-			oldtag VARCHAR(128) NOT NULL PRIMARY KEY,
-			newtag VARCHAR(128) NOT NULL,
-			INDEX(newtag)
-		"));
 		$db->execute($engine->create_table_sql("users", "
 			id SCORE_AIPK,
 			ip CHAR(15) NOT NULL,
 			name VARCHAR(32) UNIQUE NOT NULL,
 			pass CHAR(32),
 			joindate SCORE_DATETIME NOT NULL DEFAULT SCORE_NOW,
+			logindate SCORE_DATETIME,
 			validate CHAR(16),
 			role ENUM('b', 'g', 'u', 'c', 'm', 'a', 'o') NOT NULL DEFAULT 'g',
 			email VARCHAR(128)
@@ -350,10 +345,16 @@ function create_tables($dsn) { // {{{
 			tag VARCHAR(64) UNIQUE NOT NULL,
 			count INTEGER NOT NULL DEFAULT 0
 		"));
+		$db->execute($engine->create_table_sql("tag_alias", "
+			oldtag VARCHAR(64) NOT NULL PRIMARY KEY,
+			newtag VARCHAR(64) NOT NULL,
+			INDEX(newtag)
+		"));
 		$db->execute($engine->create_table_sql("tag_bans", "
 			id SCORE_AIPK,
-			name VARCHAR(64) UNIQUE NOT NULL,
-			status ENUM('p', 'd') NOT NULL DEFAULT 'p'
+			tag VARCHAR(64) UNIQUE NOT NULL,
+			status ENUM('p', 'd') NOT NULL DEFAULT 'p',
+			UNIQUE(tag)
 		"));
 		$db->execute($engine->create_table_sql("tag_histories", "
 			id SCORE_AIPK,
@@ -381,13 +382,13 @@ function create_tables($dsn) { // {{{
 			FOREIGN KEY (owner_id) REFERENCES users(id) ON DELETE CASCADE
 		"));
 		$db->execute($engine->create_table_sql("comment_votes", "
-				comment_id INTEGER NOT NULL,
-				user_id INTEGER NOT NULL,
-				vote INTEGER NOT NULL,
-				UNIQUE(comment_id, user_id),
-				INDEX(comment_id),
-				FOREIGN KEY (comment_id) REFERENCES comments(id) ON DELETE CASCADE,
-				FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+			comment_id INTEGER NOT NULL,
+			user_id INTEGER NOT NULL,
+			vote INTEGER NOT NULL,
+			UNIQUE(comment_id, user_id),
+			INDEX(comment_id),
+			FOREIGN KEY (comment_id) REFERENCES comments(id) ON DELETE CASCADE,
+			FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 		"));
 		$db->execute("INSERT INTO config(name, value) VALUES('db_version', 8)");
 	}
