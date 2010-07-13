@@ -81,6 +81,11 @@ class UserPage extends SimpleExtension {
 			ksort($ubbe->parts);
 			$this->theme->display_user_block($page, $user, $ubbe->parts);
 		}
+		
+		if($user->is_banned()){
+			set_prefixed_cookie("session", "", time()+60*60*24*$config->get_int('login_memory'), "/");
+			log_info("user", "Logged out");
+		}
 
 		if($event->page_matches("account")) {
 		
@@ -581,7 +586,7 @@ class UserPage extends SimpleExtension {
 				
 				$ip = $_SERVER['REMOTE_ADDR'];
 				
-				$database->Execute("UPDATE users SET ip = ? WHERE id = ?", array($ip, $duser->id));
+				$database->Execute("UPDATE users SET ip = ?, logindate = now() WHERE id = ?", array($ip, $duser->id));
 				
 				$page->set_mode("redirect");
 				if(!isset($_GET['easysetup'])) {

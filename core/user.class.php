@@ -186,6 +186,17 @@ class User {
 		return ($this->anon || ($this->id == $config->get_int('anon_id')));
 	}
 	
+	
+	/**
+	 * Test if this user is an verified user
+	 *
+	 * @retval bool
+	 */
+	public function is_banned() {
+		global $config;
+		return $this->banned;
+	}
+	
 	public function set_role($role) {
 		global $database;
 		switch($role) { // security check
