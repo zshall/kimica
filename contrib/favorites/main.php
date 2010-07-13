@@ -36,7 +36,7 @@ class Favorites extends SimpleExtension {
 
 	public function onImageAdminBlockBuilding($event) {
 		global $database, $page, $user;
-		if(!$user->is_anonymous()) {
+		if(!$user->is_anon()) {
 			$user_id = $user->id;
 			$image_id = $event->image->id;
 
@@ -57,7 +57,7 @@ class Favorites extends SimpleExtension {
 
 	public function onPageRequest($event) {
 		global $page, $user;
-		if($event->page_matches("change_favorite") && !$user->is_anonymous()) {
+		if($event->page_matches("change_favorite") && !$user->is_anon()) {
 			$image_id = int_escape($_POST['image_id']);
 			if (($_POST['favorite_action'] == "set") || ($_POST['favorite_action'] == "unset")) {
 				send_event(new FavoriteSetEvent($image_id, $user, ($_POST['favorite_action'] == "set")));

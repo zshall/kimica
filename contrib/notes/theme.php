@@ -282,7 +282,7 @@ class NotesTheme extends Themelet {
             	"<th>Date</th>";
 				
 		
-		if(!$user->is_anonymous()){
+		if(!$user->is_anon()){
 			$html .= "<th>Action</th>";
 		}
 		
@@ -305,7 +305,7 @@ class NotesTheme extends Themelet {
                 	 "<td>".$user_link."</td>".
 					 "<td>".autodate($history['date'])."</td>";
 					 
-			if(!$user->is_anonymous()){
+			if(!$user->is_anon()){
 				$html .= "<td>".$revert_link."</td>";
 			}
                 	 
@@ -332,7 +332,7 @@ class NotesTheme extends Themelet {
             	"<th>Date</th>";
 				
 		
-		if(!$user->is_anonymous()){
+		if(!$user->is_anon()){
 			$html .= "<th>Action</th>";
 		}
 		
@@ -355,7 +355,7 @@ class NotesTheme extends Themelet {
                 	 "<td>".$user_link."</td>".
 					 "<td>".autodate($history['date'])."</td>";
 					 
-			if(!$user->is_anonymous()){
+			if(!$user->is_anon()){
 				$html .= "<td>".$revert_link."</td>";
 			}
                 	 

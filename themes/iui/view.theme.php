@@ -36,7 +36,7 @@ class CustomViewImageTheme extends ViewImageTheme {
 	private function can_comment() {
 		global $config;
 		global $user;
-		return ($config->get_bool('comment_anon') || !$user->is_anonymous());
+		return ($config->get_bool('comment_anon') || !$user->is_anon());
 	}
 
 	private function get_html(Page $page, Image $image, $editor_parts, $metatags) {

@@ -189,8 +189,8 @@ class Wiki extends SimpleExtension {
 		if($page->is_locked()) return false;
 
 		// anon / user can edit if allowed by config
-		if($config->get_bool("wiki_edit_anon", false) && $user->is_anonymous()) return true;
-		if($config->get_bool("wiki_edit_user", false) && !$user->is_anonymous()) return true;
+		if($config->get_bool("wiki_edit_anon", false) && $user->is_anon()) return true;
+		if($config->get_bool("wiki_edit_user", false) && !$user->is_anon()) return true;
 
 		return false;
 	}

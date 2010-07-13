@@ -197,7 +197,7 @@ public function displayComments($comments, $journalID, $pageNumber, $totalPages)
 
 public function displayCommentComposer($disable, $journalID){
 	global $user, $page;
-	if (!$user->is_anonymous()){
+	if (!$user->is_anon()){
 		if($disable == 'N') {
 			$html = '<form action="'.make_link("journals/comment").'" method="POST">';
 			 

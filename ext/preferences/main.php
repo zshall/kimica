@@ -208,7 +208,7 @@ class UserPrefsSetup extends SimpleExtension {
 				$user_id_preferences = $GLOBALS['uid-preferences'];
 				if($user->id != $user_id_preferences && !$user->is_admin()) { $this->theme->display_error($page, "Error", "You don't have privileges"); }
 				else {
-				if($user->is_anonymous()) {
+				if($user->is_anon()) {
 					$this->theme->display_permission_denied($page);
 				} else {
 						// The magic code:

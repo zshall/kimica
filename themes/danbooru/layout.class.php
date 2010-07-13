@@ -102,7 +102,7 @@ class Layout {
 
 		// bzchan: CUSTOM LINKS are prepared here, change these to whatever you like
 		$custom_links = "";
-		if($user->is_anonymous()) {
+		if($user->is_anon()) {
 			$custom_links .= $this->navlinks(make_link('account/login'), "My Account", array("user", "account", "setup", "admin"));
 		}
 		else {

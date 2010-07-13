@@ -40,7 +40,7 @@ class CustomCommentListTheme extends CommentListTheme {
 			"onclick=\"Comment.Remove($i_comment_id); return false;\" ".
 			"href='#'>Del</a> |" : "";
 		
-		$h_toolslinks = !$user->is_anonymous() ?
+		$h_toolslinks = !$user->is_anon() ?
 			"<br>($h_dellink <a id=\"vote-up-$i_comment_id\" href=\"#\" onclick=\"Comment.Vote($i_comment_id,'up'); return false;\">Vote Up</a> | <a id=\"vote-down-$i_comment_id\" href=\"#\" onclick=\"Comment.Vote($i_comment_id,'down'); return false;\">Vote Down</a>)" : "";
 
 		//$avatar = "";

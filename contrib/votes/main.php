@@ -33,7 +33,7 @@ class Votes implements Extension {
 		}
 
 		if($event instanceof DisplayingImageEvent) {
-			if(!$user->is_anonymous()) {
+			if(!$user->is_anon()) {
 				$vote = $database->get_row("SELECT vote FROM image_votes WHERE user_id = ? AND image_id = ?", array($user->id, $event->image->id));
 				$html = $this->theme->get_voter_html($event->image, $vote);
 				$page->add_block(new Block("Image Votes", $html, "left", 20));
@@ -41,7 +41,7 @@ class Votes implements Extension {
 		}
 
 		if(($event instanceof PageRequestEvent) && $event->page_matches("votes")) {
-			if(!$user->is_anonymous()) {
+			if(!$user->is_anon()) {
 				$image_id = int_escape($_POST['image_id']);
 				$char = $_POST['vote'];
 				$score = null;

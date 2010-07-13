@@ -75,7 +75,7 @@ class Pools extends SimpleExtension {
 					break;
 
 				case "new": // Show form
-					if(!$user->is_anonymous()){
+					if(!$user->is_anon()){
 						$this->theme->new_pool_composer($page);
 					} else {
 						$errMessage = "You must be registered and logged in to create a new pool.";
@@ -104,7 +104,7 @@ class Pools extends SimpleExtension {
 					break;
 
 				case "revert":
-					if(!$user->is_anonymous()) {
+					if(!$user->is_anon()) {
 						$historyID = int_escape($event->get_arg(1));
 						$this->revert_history($historyID);
 						$page->set_mode("redirect");
@@ -118,7 +118,7 @@ class Pools extends SimpleExtension {
 
 					foreach($pools as $pool) {
 						// if the pool is public and user is logged OR if the user is admin OR the user is the owner
-						if(($pool['public'] == "Y" && !$user->is_anonymous()) || $user->is_admin() || $user->id == $pool['user_id']) {
+						if(($pool['public'] == "Y" && !$user->is_anon()) || $user->is_admin() || $user->id == $pool['user_id']) {
 							$this->theme->edit_pool($page, $this->get_pool($poolID), $this->edit_posts($poolID));
 						} else {
 							$page->set_mode("redirect");
@@ -134,7 +134,7 @@ class Pools extends SimpleExtension {
 
 						foreach($pools as $pool) {
 							//if the pool is public and user is logged OR if the user is admin
-							if(($pool['public'] == "Y" && !$user->is_anonymous()) || $user->is_admin() || $user->id == $pool['user_id']) {
+							if(($pool['public'] == "Y" && !$user->is_anon()) || $user->is_admin() || $user->id == $pool['user_id']) {
 								$this->theme->edit_order($page, $this->get_pool($poolID), $this->edit_order($poolID));
 							} else {
 								$page->set_mode("redirect");
@@ -146,7 +146,7 @@ class Pools extends SimpleExtension {
 						$pool_id = int_escape($_POST["pool_id"]);
 						$pool = $this->get_single_pool($pool_id);
 
-						if(($pool['public'] == "Y" && !$user->is_anonymous()) || $user->is_admin() || $user->id == $pool['user_id']) {
+						if(($pool['public'] == "Y" && !$user->is_anon()) || $user->is_admin() || $user->id == $pool['user_id']) {
 							$this->order_posts();
 							$page->set_mode("redirect");
 							$page->set_redirect(make_link("pool/view/".$pool_id));
@@ -160,7 +160,7 @@ class Pools extends SimpleExtension {
 					$pool_id = int_escape($_POST["pool_id"]);
 					$pool = $this->get_single_pool($pool_id);
 
-					if(($pool['public'] == "Y" && !$user->is_anonymous()) || $user->is_admin() || $user->id == $pool['user_id']) {
+					if(($pool['public'] == "Y" && !$user->is_anon()) || $user->is_admin() || $user->id == $pool['user_id']) {
 						$this->import_posts();
 					} else {
 						$this->theme->display_error("Permssion denied.");
@@ -171,7 +171,7 @@ class Pools extends SimpleExtension {
 					$pool_id = int_escape($_POST["pool_id"]);
 					$pool = $this->get_single_pool($pool_id);
 
-					if(($pool['public'] == "Y" && !$user->is_anonymous()) || $user->is_admin() || $user->id == $pool['user_id']) {
+					if(($pool['public'] == "Y" && !$user->is_anon()) || $user->is_admin() || $user->id == $pool['user_id']) {
 						$this->add_posts();
 						$page->set_mode("redirect");
 						$page->set_redirect(make_link("pool/view/".$pool_id));
@@ -184,7 +184,7 @@ class Pools extends SimpleExtension {
 					$pool_id = int_escape($_POST["pool_id"]);
 					$pool = $this->get_single_pool($pool_id);
 
-					if(($pool['public'] == "Y" && !$user->is_anonymous()) || $user->is_admin() || $user->id == $pool['user_id']) {
+					if(($pool['public'] == "Y" && !$user->is_anon()) || $user->is_admin() || $user->id == $pool['user_id']) {
 						$this->remove_posts();
 						$page->set_mode("redirect");
 						$page->set_redirect(make_link("pool/view/".$pool_id));
@@ -259,7 +259,7 @@ class Pools extends SimpleExtension {
 
 	public function onImageAdminBlockBuilding($event) {
 		global $config, $database, $user;
-		if($config->get_bool("poolsAdderOnViewImage") && !$user->is_anonymous()) {
+		if($config->get_bool("poolsAdderOnViewImage") && !$user->is_anon()) {
 			if($user->is_admin()) {
 				$pools = $database->get_all("SELECT * FROM pools");
 			}
@@ -311,7 +311,7 @@ class Pools extends SimpleExtension {
 	private function add_pool() {
 		global $user, $database;
 
-		if($user->is_anonymous()) {
+		if($user->is_anon()) {
 			throw new PoolCreationException("You must be registered and logged in to add a image.");
 		}
 		if(empty($_POST["title"])) {
@@ -581,7 +581,7 @@ class Pools extends SimpleExtension {
 			$database->execute("DELETE FROM pool_history WHERE pool_id = ?", array($poolID));
 			$database->execute("DELETE FROM pool_images WHERE pool_id = ?", array($poolID));
 			$database->execute("DELETE FROM pools WHERE id = ?", array($poolID));
-		} elseif(!$user->is_anonymous()) {
+		} elseif(!$user->is_anon()) {
 			// FIXME: WE CHECK IF THE USER IS THE OWNER OF THE POOL IF NOT HE CAN'T DO ANYTHING
 			$database->execute("DELETE FROM pool_history WHERE pool_id = ?", array($poolID));
 			$database->execute("DELETE FROM pool_images WHERE pool_id = ?", array($poolID));

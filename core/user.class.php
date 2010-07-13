@@ -122,16 +122,6 @@ class User {
 	 */
 
 	/**
-	 * Test if this user is anonymous (not logged in)
-	 *
-	 * @retval bool
-	 */
-	public function is_anonymous() {
-		global $config;
-		return ($this->id == $config->get_int('anon_id'));
-	}
-
-	/**
 	 * Test if this user is logged in
 	 *
 	 * @retval bool

@@ -85,7 +85,7 @@ class Notes extends SimpleExtension {
 				}
 				case "search":
 				{
-					if(!$user->is_anonymous())
+					if(!$user->is_anon())
 						$this->theme->search_notes_page($page);
 					break;
 				}
@@ -103,7 +103,7 @@ class Notes extends SimpleExtension {
 				{
 					$noteID = $event->get_arg(1);
 					$reviewID = $event->get_arg(2);
-					if(!$user->is_anonymous()){
+					if(!$user->is_anon()){
 						$this->revert_history($noteID, $reviewID);
 					}
 					
@@ -113,7 +113,7 @@ class Notes extends SimpleExtension {
 				}
 				case "add_note":
 				{
-					if(!$user->is_anonymous())
+					if(!$user->is_anon())
 						$this->add_new_note();
 						
 						$page->set_mode("redirect");
@@ -122,7 +122,7 @@ class Notes extends SimpleExtension {
 				}
 				case "add_request":
 				{
-					if(!$user->is_anonymous())
+					if(!$user->is_anon())
 						$this->add_note_request();
 						
 						$page->set_mode("redirect");
@@ -149,7 +149,7 @@ class Notes extends SimpleExtension {
 				}
 				case "edit_note":
 				{
-					if (!$user->is_anonymous()) {
+					if (!$user->is_anon()) {
 						$this->update_note();
 						$page->set_mode("redirect");
 						$page->set_redirect(make_link("post/view/".$_POST["image_id"]));
@@ -193,7 +193,7 @@ class Notes extends SimpleExtension {
 	 */
 	public function onImageAdminBlockBuilding($event) {
 		global $user;
-		if(!$user->is_anonymous()) {
+		if(!$user->is_anon()) {
 			$event->add_part($this->theme->note_button($event->image->id));
 			$event->add_part($this->theme->request_button($event->image->id));
 			if($user->is_admin()) {

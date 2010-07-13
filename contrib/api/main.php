@@ -119,7 +119,7 @@ private function setPost(){
 	
 	$this->getAuth();
 	
-	if($config->get_bool("upload_anon") || !$user->is_anonymous()){
+	if($config->get_bool("upload_anon") || !$user->is_anon()){
 		$file = NULL;
 		$filename = "";
 		$source = "";
@@ -315,7 +315,7 @@ private function getFile(){
 	
 	$this->getAuth();
 	
-	if(!$user->is_anonymous()){
+	if(!$user->is_anon()){
 		if($this->downloadCheck($user->id)){
 			
 			if(isset($_GET['id'])){
@@ -490,7 +490,7 @@ private function setFavorite(){
 	
 	$this->getAuth();
 	
-	if(!$user->is_anonymous()){
+	if(!$user->is_anon()){
 		
 		if(isset($_REQUEST['id']) && !empty($_REQUEST['id'])){
 			$id = $_GET['id'];
@@ -548,7 +548,7 @@ private function setScore(){
 	
 	$this->getAuth();
 	
-	if(!$user->is_anonymous()){
+	if(!$user->is_anon()){
 		
 		if(isset($_REQUEST['id']) && !empty($_REQUEST['id'])){
 			$id = $_GET['id'];
@@ -642,7 +642,7 @@ private function getSync(){
 	
 	$this->authenticate_user();
 
-	if(!$user->is_anonymous()){
+	if(!$user->is_anon()){
 		$scores = $database->get_all("SELECT image_id, score FROM image_votes WHERE user_id = ?", array($user->id));
 		$favorites = $database->get_all("SELECT image_id FROM user_favorites WHERE user_id = ?", array($user->id));
 

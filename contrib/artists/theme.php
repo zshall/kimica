@@ -154,7 +154,7 @@ class ArtistsTheme extends Themelet {
                     "<th>Posts</th>";
 
 
-            if(!$user->is_anonymous()) $html .= "<th colspan='2'>Action</th>"; // space for edit link
+            if(!$user->is_anon()) $html .= "<th colspan='2'>Action</th>"; // space for edit link
             
             $html .= "</tr></thead>";
 
@@ -204,7 +204,7 @@ class ArtistsTheme extends Themelet {
                     "<td>".$user_link."</td>".
                     "<td>".$artist['posts']."</td>";
 
-                if(!$user->is_anonymous()) $html .= "<td>".$edit_link."</td>";
+                if(!$user->is_anon()) $html .= "<td>".$edit_link."</td>";
                 if($user->is_admin()) $html .= "<td>".$del_link."</td>";
 
                 $html .= "</tr>";

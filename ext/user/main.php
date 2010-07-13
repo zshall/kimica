@@ -72,7 +72,7 @@ class UserPage extends SimpleExtension {
 		global $config, $database, $page, $user;
 
 		// user info is shown on all pages
-		if($user->is_anonymous()) {
+		if($user->is_anon()) {
 			$this->theme->display_login_block($page);
 		}
 		else {
@@ -712,7 +712,7 @@ class UserPage extends SimpleExtension {
 		global $config;
 		global $database;
 
-		if($user->is_anonymous()) {
+		if($user->is_anon()) {
 			$this->theme->display_error($page, "Error", "You aren't logged in");
 		}
 		else if(isset($_POST['id']) && isset($_POST['pass1']) && isset($_POST['pass2'])) {
@@ -747,7 +747,7 @@ class UserPage extends SimpleExtension {
 		global $config;
 		global $database;
 
-		if($user->is_anonymous()) {
+		if($user->is_anon()) {
 			$this->theme->display_error($page, "Error", "You aren't logged in");
 		}
 		else if(isset($_POST['id']) && isset($_POST['address'])) {

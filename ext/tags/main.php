@@ -82,7 +82,7 @@ class TagList extends SimpleExtension {
 					switch($event->get_arg(1)) {
 						case 'revert':
 								// this is a request to revert to a previous version of the tags
-								if($config->get_bool("tag_edit_anon") || !$user->is_anonymous()) {
+								if($config->get_bool("tag_edit_anon") || !$user->is_anon()) {
 									$this->process_revert_request($_POST['revert']);
 								}
 							break;

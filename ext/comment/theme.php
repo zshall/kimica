@@ -53,7 +53,7 @@ class CommentListTheme extends Themelet {
 			foreach($comments as $comment) {
 				$comment_html .= $this->comment_to_html($comment);
 			}
-			if(!$user->is_anonymous()) {
+			if(!$user->is_anon()) {
 				if($can_post) {
 					$comment_html .= $this->build_postbox($image->id);
 				}
@@ -142,7 +142,7 @@ class CommentListTheme extends Themelet {
 			"onclick=\"return confirm('Delete comment by $h_name:\\n$stripped_nonl');\" ".
 			"href='".make_link("comment/delete/$i_comment_id/$i_image_id")."'>Del</a> |" : "";
 		
-		$h_toolslinks = !$user->is_anonymous() ?
+		$h_toolslinks = !$user->is_anon() ?
 			"<br>($h_dellink <a href=".make_link("comment/vote/up/".$i_comment_id).">Vote Up</a> | <a href=".make_link("comment/vote/down/".$i_comment_id).">Vote Down</a>)" : "";
 
 		if($trim) {

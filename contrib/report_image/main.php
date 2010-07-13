@@ -81,7 +81,7 @@ class ReportImage implements Extension {
 		}
 
 		if($event instanceof DisplayingImageEvent) {
-			if($config->get_bool('report_image_anon') || !$user->is_anonymous()) {
+			if($config->get_bool('report_image_anon') || !$user->is_anon()) {
 				$this->theme->display_image_banner($page, $event->image);
 			}
 		}

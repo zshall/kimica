@@ -73,7 +73,7 @@ class Forum extends SimpleExtension {
                     case "index":
                     {
                         $this->show_last_threads($page, $event, $user->is_admin());
-                        if(!$user->is_anonymous()) $this->theme->display_new_thread_composer($page);
+                        if(!$user->is_anon()) $this->theme->display_new_thread_composer($page);
                         break;
                     }
                     case "view":
@@ -83,7 +83,7 @@ class Forum extends SimpleExtension {
 
                         $this->show_posts($event);
                         if($user->is_admin()) $this->theme->add_actions_block($page, $threadID);
-                        if(!$user->is_anonymous()) $this->theme->display_new_post_composer($page, $threadID);
+                        if(!$user->is_anon()) $this->theme->display_new_post_composer($page, $threadID);
                         break;
                     }
                     case "new":
@@ -95,7 +95,7 @@ class Forum extends SimpleExtension {
                     case "create":
                     {
                         $redirectTo = "forum/index";
-                        if (!$user->is_anonymous())
+                        if (!$user->is_anon())
                         {
                             list($hasErrors, $errors) = $this->valid_values_for_new_thread();
 
@@ -135,7 +135,7 @@ class Forum extends SimpleExtension {
                         $page->set_redirect(make_link("forum/index"));
                         break;
                     case "answer":
-                        if (!$user->is_anonymous())
+                        if (!$user->is_anon())
                         {
                             list($hasErrors, $errors) = $this->valid_values_for_new_post();
 
@@ -305,7 +305,7 @@ class Forum extends SimpleExtension {
 			
 			$threadTitle = $this->get_thread_title($threadID);
 			
-			$this->theme->display_thread($posts, $user->is_admin(), $user->is_anonymous(), $threadTitle, $threadID, $pageNumber + 1, $totalPages);
+			$this->theme->display_thread($posts, $user->is_admin(), $user->is_anon(), $threadTitle, $threadID, $pageNumber + 1, $totalPages);
         }
 
         private function save_new_thread($user)

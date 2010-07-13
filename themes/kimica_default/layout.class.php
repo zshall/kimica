@@ -104,7 +104,7 @@ class Layout {
 
 		// bzchan: CUSTOM LINKS are prepared here, change these to whatever you like
 		$custom_links = "";
-/*		if($user->is_anonymous()) {
+/*		if($user->is_anon()) {
 			$custom_links .= $this->navlinks(make_link('account/login'), "My Account", array("user", "account", "setup", "admin"));
 		}
 		else {
@@ -192,7 +192,7 @@ class Layout {
 			//--></script>";
 		$user_bar_search .= '<form action="'.make_link('post/list').'" method="GET"><ul class="flat-list" style="float:right;"><li><input id="userbar_search"  name="search" type="text" autocomplete="off"> <input type="hidden" name="q" value="/post/list">
 				<input type="submit" value="»" style="display: none;" /></li></ul></form>';
-		if($user->is_anonymous()) {
+		if($user->is_anon()) {
 			$user_bar = '<div id="userbar">
 				<form action="'.make_link("account/login").'" method="post">
 				<ul class="flat-list" style="float:left; width:650px;">

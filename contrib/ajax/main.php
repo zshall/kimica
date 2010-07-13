@@ -365,7 +365,7 @@ class Ajax extends SimpleExtension {
 		global $config, $user;
 		
 		$image = Image::by_id($image_id);
-		return (($config->get_bool("tag_edit_anon") || !$user->is_anonymous()) && ($user->is_admin() || !$image->is_locked()));
+		return (($config->get_bool("tag_edit_anon") || !$user->is_anon()) && ($user->is_admin() || !$image->is_locked()));
 	}
 }
 ?>

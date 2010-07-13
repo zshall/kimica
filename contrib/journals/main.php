@@ -83,7 +83,7 @@ public function onPageRequest($event) {
 			}
 			case "new":
 			{
-				if(!$user->is_anonymous()){
+				if(!$user->is_anon()){
 					$this->theme->displayNewForm();
 				}else{
 					$page->set_mode("redirect");
@@ -117,7 +117,7 @@ public function onPageRequest($event) {
 			{
 				$journalID = int_escape($event->get_arg(1));
 				
-				if(!$user->is_anonymous()){
+				if(!$user->is_anon()){
 					$this->editJournal($journalID);
 				}else{
 					$page->set_mode("redirect");
@@ -219,7 +219,7 @@ private function canAddJournal(){
 	$error = FALSE;
 	$warnings = "";
 	
-	if($user->is_anonymous()){
+	if($user->is_anon()){
 		$error = TRUE;
 		$warnings .= "You must be logged in.<br>";
 	}
@@ -270,7 +270,7 @@ private function addJournal(){
 		$disable = "N";
 	}
 	
-	if (!$user->is_anonymous()){
+	if (!$user->is_anon()){
 		$database->execute("
 					INSERT INTO journals
 						(user_id, disable, title, message, posted, mood, listening, reading, watching, playing, eating, drinking)
@@ -313,7 +313,7 @@ private function viewJournal($journalID){
 	
 	$this->theme->sidebar_profile($info);
 	
-	if (!$user->is_anonymous()){
+	if (!$user->is_anon()){
 		$this->theme->sidebar_options($journal['id'], $this->isOwner($journal['user_id']));
 	}
 }
@@ -398,7 +398,7 @@ private function canAddComment(){
 	$error = FALSE;
 	$warnings = "";
 	
-	if($user->is_anonymous()){
+	if($user->is_anon()){
 		$error = TRUE;
 		$warnings .= "You must be logged in.<br>";
 	}

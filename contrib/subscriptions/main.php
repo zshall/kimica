@@ -267,7 +267,7 @@ private function deleteSubscription($tagID) {
 	global $user, $database;
 	$userID = $user->id;
 	
-	if(!$user->is_anonymous()){
+	if(!$user->is_anon()){
 		$database->execute("DELETE FROM subscriptions WHERE id = ? AND user_id = ?", array($tagID, $userID));
 	} 
 	elseif($user->is_admin){

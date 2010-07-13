@@ -159,7 +159,7 @@ class Ratings implements Extension {
 
 	public static function get_config_privs($user) {
 		global $config;
-		if($user->is_anonymous()) {
+		if($user->is_anon()) {
 			$sqes = $config->get_string("ext_rating_anon_privs");
 		}
 		else if($user->is_admin()) {
@@ -231,9 +231,9 @@ class Ratings implements Extension {
 	// FIXME: this is a bit ugly and guessey, should have proper options
 	private function can_rate() {
 		global $config, $user;
-		if($user->is_anonymous() && $config->get_string("ext_rating_anon_privs") == "sqeu") return false;
+		if($user->is_anon() && $config->get_string("ext_rating_anon_privs") == "sqeu") return false;
 		if($user->is_admin()) return true;
-		if(!$user->is_anonymous() && $config->get_string("ext_rating_user_privs") == "sqeu") return true;
+		if(!$user->is_anon() && $config->get_string("ext_rating_user_privs") == "sqeu") return true;
 		return false;
 	}
 

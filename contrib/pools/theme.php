@@ -115,7 +115,7 @@ class PoolsTheme extends Themelet {
 		if(count($pools) == 1) {
 			$pool = $pools[0];
 			if($pool['public'] == "Y" || $user->is_admin()) {// IF THE POOL IS PUBLIC OR IS ADMIN SHOW EDIT PANEL
-				if(!$user->is_anonymous()) {// IF THE USER IS REGISTERED AND LOGGED IN SHOW EDIT PANEL
+				if(!$user->is_anon()) {// IF THE USER IS REGISTERED AND LOGGED IN SHOW EDIT PANEL
 					$this->sidebar_options($page, $pool, $check_all);
 				}
 			}
@@ -139,7 +139,7 @@ class PoolsTheme extends Themelet {
 
 				// this will make disasters if more than one pool comes in the parameter
 				if($pool['public'] == "Y" || $user->is_admin()) {// IF THE POOL IS PUBLIC OR IS ADMIN SHOW EDIT PANEL
-					if(!$user->is_anonymous()) {// IF THE USER IS REGISTERED AND LOGGED IN SHOW EDIT PANEL
+					if(!$user->is_anon()) {// IF THE USER IS REGISTERED AND LOGGED IN SHOW EDIT PANEL
 						$this->sidebar_options($page, $pool, $check_all);
 					}
 				}

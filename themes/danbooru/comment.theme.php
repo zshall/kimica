@@ -53,7 +53,7 @@ class CustomCommentListTheme extends CommentListTheme {
 				$comment_html .= $this->comment_to_html($comment);
 			}
 			if($can_post) {
-				if(!$user->is_anonymous()) {
+				if(!$user->is_anon()) {
 					$comment_html .= $this->build_postbox($image->id);
 				}
 				else {

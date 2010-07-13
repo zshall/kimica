@@ -182,7 +182,7 @@ class Upload implements Extension {
 // do things {{{
 	private function can_upload($user) {
 		global $config;
-		return ($config->get_bool("upload_anon") || !$user->is_anonymous());
+		return ($config->get_bool("upload_anon") || !$user->is_anon());
 	}
 
 	private function try_upload($file, $tags, $source) {

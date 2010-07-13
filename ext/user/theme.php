@@ -290,7 +290,7 @@ class UserPageTheme extends Themelet {
 		$page->add_block(new NavBlock());
 		$page->add_block(new Block("Stats", $html, "main", 0));
 
-		if(!$user->is_anonymous()) {
+		if(!$user->is_anon()) {
 			if($user->id == $duser->id || $user->is_admin()) {
 				$page->add_block(new Block("Options", $this->build_options($duser), "main", 20));
 			}

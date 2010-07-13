@@ -152,7 +152,7 @@ class Artists implements Extension {
                 }
                 case "new":
                 {
-                    if(!$user->is_anonymous()){
+                    if(!$user->is_anon()){
                     	$this->theme->new_artist_composer();
                     }else{
                         $errMessage = "You must be registered and logged in to create a new artist.";
@@ -168,7 +168,7 @@ class Artists implements Extension {
                 }
                 case "create":
                 {
-                    if(!$user->is_anonymous())
+                    if(!$user->is_anon())
                     {
                         $newArtistID = $this->add_artist();
                         if ($newArtistID == -1)
@@ -198,7 +198,7 @@ class Artists implements Extension {
                     $members = $this->get_members($artist['id']);
                     $urls = $this->get_urls($artist['id']);
 
-                    $userIsLogged = !$user->is_anonymous();
+                    $userIsLogged = !$user->is_anon();
                     $userIsAdmin = $user->is_admin();
 					
                     $images = Image::find_images(0, 4, Tag::explode($artist['name']));
@@ -224,7 +224,7 @@ class Artists implements Extension {
                     $members = $this->get_members($artistID);
                     $urls = $this->get_urls($artistID);
 					
-                    if(!$user->is_anonymous()){
+                    if(!$user->is_anon()){
                     	$this->theme->show_artist_editor($artist, $aliases, $members, $urls);
 						
                         $userIsAdmin = $user->is_admin();
@@ -415,7 +415,7 @@ class Artists implements Extension {
     {
 		global $user;
         $artistName = $this->get_artistName_by_imageID($event->image->id);
-		if(!$user->is_anonymous()) {
+		if(!$user->is_anon()) {
 	        $event->add_part($this->theme->get_author_editor_html($artistName), 42);
 		}
     }

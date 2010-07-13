@@ -116,7 +116,7 @@ class DanbooruApi implements Extension
 			$this->authenticate_user();
 			// Now we check if a file was uploaded or a url was provided to transload
 			// Much of this code is borrowed from /ext/upload
-			if($config->get_bool("upload_anon") || !$user->is_anonymous())
+			if($config->get_bool("upload_anon") || !$user->is_anon())
 			{
 				$file = null;
 				$filename = "";

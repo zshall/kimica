@@ -270,7 +270,7 @@ class TagEdit implements Extension {
 	private function can_tag($image) {
 		global $config, $user;
 		return (
-			($config->get_bool("tag_edit_anon") || !$user->is_anonymous()) &&
+			($config->get_bool("tag_edit_anon") || !$user->is_anon()) &&
 			($user->is_admin() || !$image->is_locked())
 			);
 	}
@@ -278,7 +278,7 @@ class TagEdit implements Extension {
 	private function can_source($image) {
 		global $config, $user;
 		return (
-			($config->get_bool("source_edit_anon") || !$user->is_anonymous()) &&
+			($config->get_bool("source_edit_anon") || !$user->is_anon()) &&
 			($user->is_admin() || !$image->is_locked())
 			);
 	}

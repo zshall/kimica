@@ -126,7 +126,7 @@ class CommentList extends SimpleExtension {
 				$vote = $event->get_arg(1);
 				$comment_id = $event->get_arg(2);
 				if(isset($vote) && isset($comment_id)) {
-					if(!$user->is_anonymous()) {
+					if(!$user->is_anon()) {
 						send_event(new CommentVoteEvent($comment_id, $user, $vote));
 						
 						$page->set_mode("redirect");
@@ -388,7 +388,7 @@ class CommentList extends SimpleExtension {
 	private function can_comment() {
 		global $config;
 		global $user;
-		return ($config->get_bool('comment_anon') || !$user->is_anonymous());
+		return ($config->get_bool('comment_anon') || !$user->is_anon());
 	}
 
 	private function is_dupe($image_id, $comment) {
@@ -401,7 +401,7 @@ class CommentList extends SimpleExtension {
 		global $config;
 
 		// basic sanity checks
-		if(!$config->get_bool('comment_anon') && $user->is_anonymous()) {
+		if(!$config->get_bool('comment_anon') && $user->is_anon()) {
 			throw new CommentPostingException("Anonymous posting has been disabled");
 		}
 		else if(is_null(Image::by_id($image_id))) {
@@ -418,7 +418,7 @@ class CommentList extends SimpleExtension {
 		else if(strlen($comment)/strlen(gzcompress($comment)) > 10) {
 			throw new CommentPostingException("Comment too repetitive~");
 		}
-		else if($user->is_anonymous() && !$this->hash_match()) {
+		else if($user->is_anon() && !$this->hash_match()) {
 			throw new CommentPostingException(
 					"Comment submission form is out of date; refresh the ".
 					"comment form to show you aren't a spammer~");
@@ -436,7 +436,7 @@ class CommentList extends SimpleExtension {
 		else if($config->get_bool('comment_captcha') && !captcha_check()) {
 			throw new CommentPostingException("Error in captcha");
 		}
-		else if($user->is_anonymous() && $this->is_spam_akismet($comment)) {
+		else if($user->is_anon() && $this->is_spam_akismet($comment)) {
 			throw new CommentPostingException("Akismet thinks that your comment is spam. Try rewriting the comment, or logging in.");
 		}
 
