@@ -699,10 +699,11 @@ class UserPage extends SimpleExtension {
 		global $database, $user;
 		
 		$banned = $database->db->GetRow("SELECT end_date, user_role FROM user_bans WHERE user_id = ?", array($duser->id));
-		
 		if($banned){
-			$end_date = $banned["end_date"];
-			$today = date("Y-m-d",time());
+			$end_date = date("Y-m-d", strtotime($banned["end_date"]));
+			$today = date("Y-m-d", time());
+			
+			echo($end_date." - ".$today);
 		
 			if($today >= $end_date || ($user->is_owner() || $user->is_admin())){
 				$database->Execute("UPDATE users SET role = ? WHERE id = ?", array($banned["user_role"], $duser->id));
