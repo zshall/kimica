@@ -284,17 +284,6 @@ class UserPage extends SimpleExtension {
 			else if($event->get_arg(0) == "set_more") {
 				$this->set_more_wrapper($page);
 			}
-			else if($event->get_arg(0) == "list") {
-// select users.id,name,joindate,admin,
-// (select count(*) from images where images.owner_id=users.id) as images,
-// (select count(*) from comments where comments.owner_id=users.id) as comments from users;
-
-// select users.id,name,joindate,admin,image_count,comment_count
-// from users
-// join (select owner_id,count(*) as image_count from images group by owner_id) as _images on _images.owner_id=users.id
-// join (select owner_id,count(*) as comment_count from comments group by owner_id) as _comments on _comments.owner_id=users.id;
-				$this->theme->display_user_list($page, User::by_list(0), $user);
-			}
 			
 			// account/messages  - Account Messages
 			else if($event->get_arg(0) == "messages") {
@@ -389,22 +378,26 @@ class UserPage extends SimpleExtension {
 				$this->theme->display_messages_sidebar($page, $this->get_count_unread($user));
 			}
 		}
-
-		if(($event instanceof PageRequestEvent) && $event->page_matches("user")) {
-			$display_user = ($event->count_args() == 0) ? $user : User::by_name($event->get_arg(0));
-			if($event->count_args() == 0 && $user->is_anonymous()) {
-				$this->theme->display_error($page, "Not Logged In",
-					"You aren't logged in. First do that, then you can see your stats.");
+		
+		if($event->page_matches("user")) {
+			switch ($event->get_arg(0)) {
+				case "view":
+					$display_user = User::by_name($event->get_arg(1));
+					
+					if(!is_null($display_user)) {
+						send_event(new UserPageBuildingEvent($display_user));
+					}
+					else {
+						$this->theme->display_error($page, "No Such User","If you typed the ID by hand, try again; if you came from a link on this site, it might be bug report time...");
+					}
+				break;
+				case "list": 
+					$this->theme->display_user_list($page, User::by_list(2), $user);
+				break;
 			}
-			else if(!is_null($display_user)) {
-				send_event(new UserPageBuildingEvent($display_user));
-			}
-			else {
-				$this->theme->display_error($page, "No Such User",
-					"If you typed the ID by hand, try again; if you came from a link on this ".
-					"site, it might be bug report time...");
-			}
-		}
+		}	
+	
+		
 	}
 
 	public function onUserPageBuilding(Event $event) {
@@ -469,7 +462,7 @@ class UserPage extends SimpleExtension {
 	public function onUserBlockBuilding(Event $event) {
 		global $user;
 		$event->add_link("Messages", make_link("account/messages/inbox"));
-		$event->add_link("My Profile", make_link("user/$user->name"));
+		$event->add_link("My Profile", make_link("user/view/$user->name"));
 		$event->add_link("Log Out", make_link("account/logout"), 99);
 	}
 
@@ -581,7 +574,7 @@ class UserPage extends SimpleExtension {
 				
 				$page->set_mode("redirect");
 				if(!isset($_GET['easysetup'])) {
-					$page->set_redirect(make_link("user/$duser->name"));
+					$page->set_redirect(make_link("user/view/$duser->name"));
 				} else {
 					$page->set_redirect(make_link("setup/easy"));
 				}
@@ -733,7 +726,7 @@ class UserPage extends SimpleExtension {
 				}
 				
 				$page->set_mode("redirect");
-				$page->set_redirect(make_link("user/{$duser->name}"));
+				$page->set_redirect(make_link("user/view/{$duser->name}"));
 			}
 		}
 	}
@@ -764,7 +757,7 @@ class UserPage extends SimpleExtension {
 				$duser->set_email($address);
 
 				$page->set_mode("redirect");
-				$page->set_redirect(make_link("user/{$duser->name}"));
+				$page->set_redirect(make_link("user/view/{$duser->name}"));
 			}
 		}
 	}
@@ -796,7 +789,7 @@ class UserPage extends SimpleExtension {
 					else{
 						$duser->set_role($role);
 						$page->set_mode("redirect");
-						$page->set_redirect(make_link("user/{$duser->name}"));
+						$page->set_redirect(make_link("user/view/{$duser->name}"));
 					}
 				}
 			} else {
