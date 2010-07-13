@@ -380,6 +380,7 @@ class UserPage extends SimpleExtension {
 		}
 		
 		if($event->page_matches("user")) {
+			global $page;
 			switch ($event->get_arg(0)) {
 				case "view":
 					$display_user = User::by_name($event->get_arg(1));
@@ -391,8 +392,18 @@ class UserPage extends SimpleExtension {
 						$this->theme->display_error($page, "No Such User","If you typed the ID by hand, try again; if you came from a link on this site, it might be bug report time...");
 					}
 				break;
-				case "list": 
-					$this->theme->display_user_list($page, User::by_list(0), $user);
+				case "list": 				
+					$pageNumber = $event->get_arg(1);
+					if(is_null($pageNumber) || !is_numeric($pageNumber))
+						$pageNumber = 0;
+					else if ($pageNumber <= 0)
+						$pageNumber = 0;
+					else
+						$pageNumber--;
+					
+					$totalPages = ceil($database->db->GetOne("SELECT COUNT(*) FROM users") / 50);
+						
+					$this->theme->display_user_list(User::by_list($pageNumber * 50), $user, $pageNumber + 1, $totalPages);
 				break;
 			}
 		}	

@@ -112,7 +112,7 @@ class User {
 		assert(is_numeric($offset));
 		assert(is_numeric($limit));
 		global $database;
-		$rows = $database->get_all("SELECT * FROM users WHERE id >= ? AND id < ?", array($offset+2, $offset+$limit+2));
+		$rows = $database->get_all("SELECT * FROM users LIMIT ?, ?", array($offset+1, $offset+$limit+1));
 		return array_map("_new_user", $rows);
 	}
 

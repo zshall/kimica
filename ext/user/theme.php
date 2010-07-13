@@ -9,7 +9,9 @@ class UserPageTheme extends Themelet {
 			"There should be a login box to the left"));
 	}
 
-	public function display_user_list(Page $page, $users, User $user) {
+	public function display_user_list($users, User $user, $page_number, $total_pages) {	
+		global $page;
+			
 		$page->set_title("User List");
 		$page->set_heading("User List");
 		$page->add_block(new NavBlock());
@@ -50,7 +52,9 @@ class UserPageTheme extends Themelet {
 			$actions = "<input type='Submit' value='Ban'>";
 		}
 		$html .= "</tbody></table>$actions</form>";
-		$page->add_block(new Block("Users", $html));
+		
+		$pagination = $this->build_paginator("user/list", null, $page_number, $total_pages);
+		$page->add_block(new Block("Users", $html.$pagination));
 	}
 	
 	public function display_user_bans($banned){
