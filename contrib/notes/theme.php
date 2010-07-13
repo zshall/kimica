@@ -295,7 +295,7 @@ class NotesTheme extends Themelet {
 		
 			$image_link = "<a href='".make_link("post/view/".$history['image_id'])."'>".$history['image_id']."</a>";
 			$history_link = "<a href='".make_link("note/history/".$history['note_id'])."'>".$history['note_id'].".".$history['review_id']."</a>";
-			$user_link = "<a href='".make_link("user/".$history['user_name'])."'>".$history['user_name']."</a>";
+			$user_link = "<a href='".make_link("user/view/".$history['user_name'])."'>".$history['user_name']."</a>";
 			$revert_link = "<a href='".make_link("note/revert/".$history['note_id']."/".$history['review_id'])."'>Revert</a>";
 		
 			$html .= "<tr class='$oe'>".
@@ -345,7 +345,7 @@ class NotesTheme extends Themelet {
 		
 			$image_link = "<a href='".make_link("post/view/".$history['image_id'])."'>".$history['image_id']."</a>";
 			$history_link = "<a href='".make_link("note/history/".$history['note_id'])."'>".$history['note_id'].".".$history['review_id']."</a>";
-			$user_link = "<a href='".make_link("user/".$history['user_name'])."'>".$history['user_name']."</a>";
+			$user_link = "<a href='".make_link("user/view/".$history['user_name'])."'>".$history['user_name']."</a>";
 			$revert_link = "<a href='".make_link("note/revert/".$history['note_id']."/".$history['review_id'])."'>Revert</a>";
 		
 			$html .= "<tr class='$oe'>".

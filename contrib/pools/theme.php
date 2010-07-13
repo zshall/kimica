@@ -57,7 +57,7 @@ class PoolsTheme extends Themelet {
 			$oe = ($n++ % 2 == 0) ? "even" : "odd";
 
 			$pool_link = '<a href="'.make_link("pool/view/".$pool['id']).'">'.html_escape($pool['title'])."</a>";
-			$user_link = '<a href="'.make_link("user/".url_escape($pool['user_name'])).'">'.html_escape($pool['user_name'])."</a>";
+			$user_link = '<a href="'.make_link("user/view/".url_escape($pool['user_name'])).'">'.html_escape($pool['user_name'])."</a>";
 			$public = ($pool['public'] == "Y" ? "Yes" : "No");
 
 			$html .= "<tr class='$oe'>".
@@ -370,7 +370,7 @@ class PoolsTheme extends Themelet {
 			$oe = ($n++ % 2 == 0) ? "even" : "odd";
 
 			$pool_link = "<a href='".make_link("pool/view/".$history['pool_id'])."'>".html_escape($history['title'])."</a>";
-			$user_link = "<a href='".make_link("user/".url_escape($history['user_name']))."'>".html_escape($history['user_name'])."</a>";
+			$user_link = "<a href='".make_link("user/view/".url_escape($history['user_name']))."'>".html_escape($history['user_name'])."</a>";
 			$revert_link = "<a href='".make_link("pool/revert/".$history['id'])."'>Revert</a>";
 
 			if ($history['action'] == 1) {

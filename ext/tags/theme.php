@@ -310,7 +310,7 @@ class TagListTheme extends Themelet {
 			$current_id = $fields['id'];
 			$current_tags = html_escape($fields['tags']);
 			$name = $fields['name'];
-			$setter = "<a href='".make_link("user/".url_escape($name))."'>".html_escape($name)."</a>";
+			$setter = "<a href='".make_link("user/view/".url_escape($name))."'>".html_escape($name)."</a>";
 			if($user->is_admin()) {
 				$setter .= " / " . $fields['user_ip'];
 			}
