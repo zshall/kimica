@@ -392,7 +392,7 @@ class UserPage extends SimpleExtension {
 					}
 				break;
 				case "list": 
-					$this->theme->display_user_list($page, User::by_list(2), $user);
+					$this->theme->display_user_list($page, User::by_list(0), $user);
 				break;
 			}
 		}	
