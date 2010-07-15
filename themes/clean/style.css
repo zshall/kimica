@@ -97,6 +97,10 @@ a img {border: none;}
 #content-header span{font: 1.25em "myriad pro", helvetica, arial, sans-serif; position: relative; top: 6px; left: 6px;}
 #content-main {background: #FFFFFF; border-left: #cfcfbd solid 1px; border-right: #cfcfbd solid 1px; border-bottom: #cfcfbd solid 1px; color:#838375;margin-bottom:10px;text-align: center;padding:5px;-moz-border-radius: 0 0 5px 5px;-webkit-border-radius: 0 0 5px 5px;}
 
-#paginator {display: block;	padding: 2em 0 1em 0;font-size: 1em;text-align: center;font-weight: bold;clear:both;}
+#paginator {display: block;	padding: 2em 0 1em 0;font-size: 1em;text-align: center;clear:both; }
+
+#paginator a {text-decoration: none;color: #838375;border: 1px solid #CFCFBD;padding: 3px;-moz-border-radius: 3px;}
+#paginator a.current {text-decoration: none;color: #000000;border: 1px solid #CFCFBD;background-color: #EBEADB;padding: 3px;-moz-border-radius: 3px;}
+
 
 #footer {background: #302f2f url("img/sub-nav.png") repeat-x; height: 30px;	clear:both; text-align:center;} 
