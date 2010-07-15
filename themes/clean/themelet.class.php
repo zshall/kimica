@@ -65,8 +65,8 @@ class Themelet {
 		$at_end = ($current_page >= $total_pages -2);
 
 		$first_html  = $at_start ? "" : $this->gen_page_link($base_url, $query, 1,            "1");
-		$prev_html   = $at_start ? "" : $this->gen_page_link($base_url, $query, $prev,        "&lt;&lt;");
-		$next_html   = $at_end   ? "" : $this->gen_page_link($base_url, $query, $next,        "&gt;&gt;");
+		$prev_html   = $at_start ? "" : $this->gen_page_link($base_url, $query, $prev,        "Prev");
+		$next_html   = $at_end   ? "" : $this->gen_page_link($base_url, $query, $next,        "Next");
 		$last_html   = $at_end   ? "" : $this->gen_page_link($base_url, $query, $total_pages, "$total_pages");
 
 		$start = $current_page-2 > 1 ? $current_page-2 : 1;
@@ -89,16 +89,14 @@ class Themelet {
 		}
 	}
 	
-	private function gen_page_link($base_url, $query, $page, $name) {
+	private function gen_page_link($base_url, $query, $page, $name, $current = "") {
 		$link = make_link("$base_url/$page", $query);
-	    return "<a href='$link'>$name</a>";
+	    return "<a $current href='$link'>$name</a>";
 	}
 	
 	private function gen_page_link_block($base_url, $query, $page, $current_page, $name) {
-		$paginator = "";
-	    if($page == $current_page) $paginator .= "<b>";
-	    $paginator .= $this->gen_page_link($base_url, $query, $page, $name);
-	    if($page == $current_page) $paginator .= "</b>";
+	    $paginator = $this->gen_page_link($base_url, $query, $page, $name);
+		if($page == $current_page) $paginator = $this->gen_page_link($base_url, $query, $page, $name, "class='current'");
 	    return $paginator;
 	}
 }

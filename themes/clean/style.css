@@ -55,14 +55,14 @@ a img {border: none;}
 
 #nav {background: #302f2f url("img/nav.png") repeat-x; min-height: 37px;}
 #nav ul{list-style: none; padding: 0; margin: 0;} 
-#nav li{float: left; min-height: 37px; padding: 0 7px 0 7px; min-width: 75px; text-align:center;}
+#nav li{float: left; min-height: 37px; min-width: 100px; text-align:center;}
 #nav li:hover{background: #67c0b8;} 
-#nav a{color: #FFF; text-decoration: none;position:relative; top: 9px;}
+#nav a{color: #FFF; text-decoration: none; display: block; min-width: 75px; min-height: 27px; padding-top:10px;}
 #nav a:hover{color: #FFF; text-decoration: none;}
 
 #sub-nav {background: #302f2f url("img/sub-nav.png") repeat-x; min-height: 30px;}
 #sub-nav ul{list-style: none; padding: 0; margin: 0;} 
-#sub-nav li{float: left; min-height: 30px; padding: 0 7px 0 7px; min-width: 75px; text-align:center;}
+#sub-nav li{float: left; min-height: 30px; min-width: 100px; text-align:center;}
 #sub-nav a{color: #FFF; text-decoration: none;position:relative; top: 7px;}
 #sub-nav a:hover{color: #FFF; text-decoration: none;}
 
