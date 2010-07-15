@@ -78,25 +78,25 @@ class Themelet {
 		}
 		$pages_html = implode(" ", $pages);
 
-		if(strlen($first_html) > 0) $pdots = "...";
+		if(strlen($first_html) > 0) $pdots = "<li>...</li>";
 		else $pdots = "";
 
-		if(strlen($last_html) > 0) $ndots = "...";
+		if(strlen($last_html) > 0) $ndots = "<li>...</li>";
 		else $ndots = "";
 
 		if($total_pages > 0){
-			return "<div id='paginator'>$prev_html $first_html $pdots $pages_html $ndots $last_html $next_html</div>";
+			return "<div id='paginator'><ul>$prev_html $first_html $pdots $pages_html $ndots $last_html $next_html</ul></div>";
 		}
 	}
 	
 	private function gen_page_link($base_url, $query, $page, $name, $current = "") {
 		$link = make_link("$base_url/$page", $query);
-	    return "<a $current href='$link'>$name</a>";
+	    return "<li $current><a href='$link'>$name</a></li>";
 	}
 	
 	private function gen_page_link_block($base_url, $query, $page, $current_page, $name) {
 	    $paginator = $this->gen_page_link($base_url, $query, $page, $name);
-		if($page == $current_page) $paginator = $this->gen_page_link($base_url, $query, $page, $name, "class='current'");
+		if($page == $current_page) $paginator = $this->gen_page_link($base_url, $query, $page, $name, "class='active'");
 	    return $paginator;
 	}
 }

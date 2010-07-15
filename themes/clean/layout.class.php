@@ -62,7 +62,7 @@ class Layout {
 		// bzchan: CUSTOM LINKS are prepared here, change these to whatever you like
 		$custom_links = "";
 		if(!$user->is_anon()){
-			$custom_links .= "<li><a href='".make_link('user/'.$username)."'><span>My Account</span></a></li>";
+			$custom_links .= "<li><a href='".make_link('user/view/'.$username)."'><span>My Account</span></a></li>";
 		}
 		$custom_links .= "<li><a href='".make_link('post/list')."'><span>Posts</span></a></li>";
 		$custom_links .= "<li><a href='".make_link('comment/list')."'><span>Comments</span></a></li>";

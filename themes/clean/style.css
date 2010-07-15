@@ -76,7 +76,7 @@ a img {border: none;}
 
 #block-header {background: #302f2f url("img/block-header.png") repeat-x; border: #59b7ad solid 1px; width:160px; height:30px;}
 #block-header span{font: 1.25em "myriad pro", helvetica, arial, sans-serif; position: relative; top: 6px; left: 6px;}
-#block-main {background: #FFFFFF; width:150px; border-left: #cfcfbd solid 1px; border-right: #cfcfbd solid 1px; border-bottom: #cfcfbd solid 1px; color:#838375; margin-bottom:10px;padding:5px;-moz-border-radius: 0 0 5px 5px;-webkit-border-radius: 0 0 5px 5px;}
+#block-main {background: #FFFFFF; width:150px; border-left: #cfcfbd solid 1px; border-right: #cfcfbd solid 1px; border-bottom: #cfcfbd solid 1px; color:#838375; margin-bottom:10px;padding:5px;-moz-border-radius: 0 0 5px 5px;-webkit-border-radius: 0 0 5px 5px;border-radius: 0 0 5px 5px;}
 
 #content {margin-left: 170px;}
 
@@ -95,12 +95,14 @@ a img {border: none;}
 
 #content-header {background: #302f2f url("img/sub-nav.png") repeat-x; border: #ca4e2d solid 1px; height:30px;}
 #content-header span{font: 1.25em "myriad pro", helvetica, arial, sans-serif; position: relative; top: 6px; left: 6px;}
-#content-main {background: #FFFFFF; border-left: #cfcfbd solid 1px; border-right: #cfcfbd solid 1px; border-bottom: #cfcfbd solid 1px; color:#838375;margin-bottom:10px;text-align: center;padding:5px;-moz-border-radius: 0 0 5px 5px;-webkit-border-radius: 0 0 5px 5px;}
+#content-main {background: #FFFFFF; border-left: #cfcfbd solid 1px; border-right: #cfcfbd solid 1px; border-bottom: #cfcfbd solid 1px; color:#838375;margin-bottom:10px;text-align: center;padding:5px;-moz-border-radius: 0 0 5px 5px;-webkit-border-radius: 0 0 5px 5px; border-radius: 0 0 5px 5px;}
 
-#paginator {display: block;	padding: 2em 0 1em 0;font-size: 1em;text-align: center;clear:both; }
-
-#paginator a {text-decoration: none;color: #838375;border: 1px solid #CFCFBD;padding: 3px;-moz-border-radius: 3px;}
-#paginator a.current {text-decoration: none;color: #000000;border: 1px solid #CFCFBD;background-color: #EBEADB;padding: 3px;-moz-border-radius: 3px;}
+#paginator {display: block;	padding: 2em 0 1em 0; clear:both;}
+#paginator ul{list-style: none; padding: 0; margin: 0;} 
+#paginator li{font-size:11px; display:inline;}
+#paginator a{border:solid 1px #EBEADB;color:#33333;padding:3px 6px;text-decoration:none; -moz-border-radius: 5px;-webkit-border-radius: 5px; border-radius: 5px;}
+#paginator a:hover{border:solid 1px #CFCFBD;}
+#paginator .active a{border:solid 1px #CFCFBD;margin:5px;}
 
 
 #footer {background: #302f2f url("img/sub-nav.png") repeat-x; height: 30px;	clear:both; text-align:center;} 
