@@ -13,7 +13,8 @@ class ViewImageTheme extends Themelet {
 		$page->add_header("<meta name=\"keywords\" content=\"$metatags\">");
 		$page->set_heading(html_escape($image->get_tag_list()));
 		$page->add_block(new Block("Navigation", $this->build_navigation($image), "left", 0));
-		$page->add_block(new Block("Editor", $this->build_info($image, $editor_parts), "main", 10));
+		$page->add_block(new Block("Statistics", $this->build_stats($image), "left", 10));
+		$page->add_block(new Block("Editor", $this->build_image_editor($image, $editor_parts), "main", 10));
 	}
 
 	public function display_admin_block($parts) {
@@ -73,32 +74,45 @@ class ViewImageTheme extends Themelet {
 		return "$h_pin<br>$h_search";
 	}
 
-	protected function build_info(Image $image, $editor_parts) {
-		global $user;
-		$owner = $image->get_owner();
-		$h_owner = html_escape($owner->name);
+	private function build_stats($image) {
+		$h_owner = html_escape($image->get_owner()->name);
+		$h_ownerlink = "<a href='".make_link("user/$h_owner")."'>$h_owner</a>";
 		$h_ip = html_escape($image->owner_ip);
-		$h_source = html_escape($image->source);
-		$i_owner_id = int_escape($owner->id);
 		$h_date = autodate($image->posted);
-
-		$html = "";
-		$html .= "<p>Uploaded by <a href='".make_link("account/profile/$h_owner")."'>$h_owner</a> $h_date";
-
-		if($user->is_admin()) {
-			$html .= " ($h_ip)";
+		$h_filesize = to_shorthand_int($image->filesize);
+		
+		
+		$votes = "";
+		if(class_exists("Votes")){
+		$votes = "<br>Score: ".$image->votes;
 		}
+		
+		$rating = "";
+		if(class_exists("Ratings")){
+		$rating = "<br>Rating: ".Ratings::rating_to_human($image->rating);
+		}
+
+		$html = "
+		Id: {$image->id}
+		<br>Posted: $h_date
+		<br>Poster: $h_ownerlink
+		$votes
+		$rating
+		<br>Size: {$image->width}x{$image->height}
+		<br>Filesize: $h_filesize
+		";
+		
 		if(!is_null($image->source)) {
-			if(substr($image->source, 0, 7) == "http://") {
-				$html .= " (<a href='$h_source'>source</a>)";
+			$h_source = html_escape($image->source);
+			if(substr($image->source, 0, 7) != "http://") {
+				$h_source = "http://" . $h_source;
 			}
-			else {
-				$html .= " (<a href='http://$h_source'>source</a>)";
-			}
+			$html .= "<br>Source: <a href='$h_source' target='_blank'>Link</a>";
 		}
-
-		$html .= $this->build_image_editor($image, $editor_parts);
-
+		
+		$h_link = $image->get_image_link();
+		$html .= "<br>Download: <a href='$h_link'>Link</a>";
+		
 		return $html;
 	}
 
@@ -108,8 +122,7 @@ class ViewImageTheme extends Themelet {
 		if(isset($_GET['search'])) {$h_query = "search=".url_escape($_GET['search']);}
 		else {$h_query = "";}
 
-		$html = " (<a href=\"javascript: toggle('imgdata')\">edit info</a>)";
-		$html .= "
+		$html = "
 			<div id='imgdata'>
 				<form action='".make_link("post/set")."' method='POST'>
 					<input type='hidden' name='image_id' value='{$image->id}'>
