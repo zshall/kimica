@@ -303,7 +303,14 @@ Post = {
 			type: "POST",
 			cache: false,
 			url: server.host + server.path + "ajax/image/edit",
-			data: "image_id=" + id + "&tags=" + tags
+			data: "image_id=" + id + "&tags=" + tags,
+			success: function(data){
+					var msg = $("<p>Tags has been setted for the post " + id + ".</p>").hide();
+					
+					$('#subheading p').detach();					
+					$('#subheading').append(msg);
+					msg.fadeIn("slow").delay(3000).fadeOut("slow");
+			}
 		});
 	},
 	
@@ -383,16 +390,20 @@ Post = {
 				success: function(){
 					style_selector(id, favorite);
 					
-					$('#subheading p').detach();
+					var msg = $("<p>Error.</p>").hide();
+					
 					if(favorite=="set"){
 						$('#post-favorite').attr('value','Un-Favorite');
-						$('#subheading').append("<p>Post " + id + " was added to favorites.</p>");
+						msg = $("<p>Post " + id + " was added to favorites.</p>").hide();
 					}
 					else{
 						$('#post-favorite').attr('value','Favorite');
-						$('#subheading').append("<p>Post " + id + " was removed from favorites.</p>");
+						msg = $("<p>Post " + id + " was removed from favorites.</p>").hide();
 					}
-					$('#subheading').slideDown("slow").delay(3000).slideUp("slow");
+					
+					$('#subheading p').detach();
+					$('#subheading').append(msg);
+					msg.fadeIn("slow").delay(3000).fadeOut("slow");
 				}
 			});
 		}
@@ -408,18 +419,21 @@ Post = {
 				success: function(){
 					style_selector(id, vote);
 					
-					$('#subheading p').detach();
+					var msg = $("<p>Error.</p>").hide();
+					
 					if(vote=="up"){
-						$('#subheading').append("<p>Post " + id + " was voted up.</p>");
+						msg = $("<p>Post " + id + " was voted up.</p>").hide();
 					}
 					else if(vote=="null"){
-						$('#subheading').append("<p>Post " + id + " was removed.</p>");
+						msg = $("<p>Post " + id + " was removed.</p>").hide();
 					}
 					else{
-						$('#subheading').append("<p>Post " + id + " was voted down.</p>");
+						msg = $("<p>Post " + id + " was voted down.</p>").hide();
 					}
 					
-					$('#subheading').slideDown("slow").delay(3000).slideUp("slow");
+					$('#subheading p').detach();
+					$('#subheading').append(msg);
+					msg.fadeIn("slow").delay(3000).fadeOut("slow");
 				}
 			});
 		}
@@ -447,9 +461,11 @@ Post = {
 						break;
 					}
 					
-					$('#subheading p').detach();
-					$('#subheading').append("<p>Post " + id + " was rated as " + rate_name + ".</p>");
-					$('#subheading').slideDown("slow").delay(3000).slideUp("slow");
+					var msg = $("<p>Post " + id + " was rated as " + rate_name + ".</p>").hide();
+					
+					$('#subheading p').detach();					
+					$('#subheading').append(msg);
+					msg.fadeIn("slow").delay(3000).fadeOut("slow");
 				}
 			});
 		}
