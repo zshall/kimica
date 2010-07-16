@@ -17,13 +17,13 @@ class Bookmarks implements Extension {
 			if($event->get_arg(0) == "add") {
 				if(isset($_POST['url'])) {
 					$page->set_mode("redirect");
-					$page->set_redirect(make_link("user"));
+					$page->set_redirect(make_link("profile"));
 				}
 			}
 			else if($event->get_arg(0) == "remove") {
 				if(isset($_POST['id'])) {
 					$page->set_mode("redirect");
-					$page->set_redirect(make_link("user"));
+					$page->set_redirect(make_link("profile"));
 				}
 			}
 		}

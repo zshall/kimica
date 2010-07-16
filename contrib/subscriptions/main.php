@@ -59,7 +59,7 @@ public function onPageRequest($event) {
 			{			
 				$this->addSubscription();
 				$page->set_mode("redirect");
-				$page->set_redirect(make_link("user"));
+				$page->set_redirect(make_link("profile"));
 				break;
 			}
 			case "delete":
@@ -67,7 +67,7 @@ public function onPageRequest($event) {
 				$tagID = $event->get_arg(1);
 				$this->deleteSubscription($tagID);
 				$page->set_mode("redirect");
-				$page->set_redirect(make_link("user"));
+				$page->set_redirect(make_link("profile"));
 				break;
 			}
 			case "private":
@@ -75,7 +75,7 @@ public function onPageRequest($event) {
 				$subscription_id = $event->get_arg(1);
 				$this->changeSubscription($subscription_id);
 				$page->set_mode("redirect");
-				$page->set_redirect(make_link("user"));
+				$page->set_redirect(make_link("profile"));
 				break;
 			}
 			case "cron":
@@ -97,7 +97,7 @@ public function onPageRequest($event) {
 			default:
 			{
 			$page->set_mode("redirect");
-            $page->set_redirect(make_link("user"));
+            $page->set_redirect(make_link("profile"));
             break;
             }
 		}

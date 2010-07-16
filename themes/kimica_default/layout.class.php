@@ -266,7 +266,7 @@ class Layout {
 			$user_bar .= "<div id='userbar_transparent'>&nbsp;</div>"; } else { $user_bar = ''; }
 			$user_bar .= '<div id="userbar"><ul class="flat-list" style="float:left; display:inline; width:700px;">
 			<li><a href="'.make_link().'"><img src="'.$data_href.'/themes/'.$theme_name.'/res/home.gif">'.$site_name.'</a></li>
-			<li><a href="'.make_link("user").'"><img src="'.$data_href.'/themes/'.$theme_name.'/res/user.gif">'.$user->name.'</a></li>
+			<li><a href="'.make_link("profile").'"><img src="'.$data_href.'/themes/'.$theme_name.'/res/user.gif">'.$user->name.'</a></li>
 			<li><a href="'.make_link("account/messages").'"><img src="'.$data_href.'/themes/'.$theme_name.'/res/mail.gif">(0)</a></li>
 			<li><a href="'.make_link("account/preferences").'"><img src="'.$data_href.'/themes/'.$theme_name.'/res/pref.gif">Prefs</a></li>';
 			if($user->is_mod()) {

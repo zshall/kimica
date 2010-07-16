@@ -108,7 +108,13 @@ class UserPage extends SimpleExtension {
 			}
 			
 			else if($event->get_arg(0) == "profile"){
-				$display_user = User::by_name($event->get_arg(1));
+				$account = $event->get_arg(1);
+				if(isset($account)){
+					$display_user = User::by_name($event->get_arg(1));
+				}
+				else{
+					$display_user = $user;
+				}
 					
 				if(!is_null($display_user)) {
 					send_event(new UserPageBuildingEvent($display_user));
