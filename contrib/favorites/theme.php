@@ -10,21 +10,16 @@ class FavoritesTheme extends Themelet {
 		
 		if(!$is_favorited) {
 			$buttons = "<input type='hidden' name='favorite_action' value='set'>
-					  	<input id='post-favorite' type='submit' value='Favorite'>";
+					  	<input id='post-favorite-set' type='submit' value='Favorite'>";
 		}
 		else {
 			$buttons = "<input type='hidden' name='favorite_action' value='unset'>
-					  	<input id='post-favorite' type='submit' value='Un-Favorite'>";
+					  	<input id='post-favorite-unset' type='submit' value='Un-Favorite'>";
 		}
 		
 		$form_close = "</form>";
 		
-		if(class_exists("Ajax")){
-			return $image_info.$buttons;
-		}
-		else{
-			return $form_open.$image_info.$buttons.$form_close;
-		}
+		return $form_open.$image_info.$buttons.$form_close;
 	}
 
 	public function display_people($username_array) {

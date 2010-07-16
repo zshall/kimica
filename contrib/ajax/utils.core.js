@@ -17,7 +17,6 @@ var savedStyle = {
 $(document).ready(function(){
 	setPath();
 	onPageRefresh();
-	onClick();
 });
 
 function setPath(){
@@ -70,33 +69,6 @@ function onPageRefresh(){
 		tempPosts.push($(this).attr("id").substring(6));
 	});
 }
-
-
-function onClick(){
-	var image_id = $('#image_id').val();
-	$('#post-favorite').click(function() {
-		var set = $(this).val();
-  		if(set == "Favorite"){
-			Post.Favorite(image_id, "set");
-		}
-		else{
-			Post.Favorite(image_id, "unset");
-		}
-	});
-	
-	$('#post-vote-up').click(function() {
-		Post.Vote(image_id, "up");
-	});
-	
-	$('#post-vote-remove').click(function() {
-		Post.Vote(image_id, "null");
-	});
-	
-	$('#post-vote-down').click(function() {
-		Post.Vote(image_id, "down");
-	});
-}
-
 
 function removeItem(originalArray, itemToRemove) {
 	var j = 0;
@@ -393,11 +365,13 @@ Post = {
 					var msg = $("<p>Error.</p>").hide();
 					
 					if(favorite=="set"){
-						$('#post-favorite').attr('value','Un-Favorite');
+						$('#post-favorite-set').hide();
+						$('#post-favorite-unset').show();
 						msg = $("<p>Post " + id + " was added to favorites.</p>").hide();
 					}
 					else{
-						$('#post-favorite').attr('value','Favorite');
+						$('#post-favorite-unset').hide();
+						$('#post-favorite-set').show();
 						msg = $("<p>Post " + id + " was removed from favorites.</p>").hide();
 					}
 					
@@ -422,12 +396,24 @@ Post = {
 					var msg = $("<p>Error.</p>").hide();
 					
 					if(vote=="up"){
+						$('#post-vote-up').hide();
+						$('#post-vote-remove').show();
+						$('#post-vote-down').show();
+
 						msg = $("<p>Post " + id + " was voted up.</p>").hide();
 					}
 					else if(vote=="null"){
+						$('#post-vote-up').show();
+						$('#post-vote-remove').hide();
+						$('#post-vote-down').show();
+						
 						msg = $("<p>Post " + id + " was removed.</p>").hide();
 					}
 					else{
+						$('#post-vote-up').show();
+						$('#post-vote-remove').show();
+						$('#post-vote-down').hide();
+						
 						msg = $("<p>Post " + id + " was voted down.</p>").hide();
 					}
 					
