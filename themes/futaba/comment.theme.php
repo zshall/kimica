@@ -66,7 +66,7 @@ class CustomCommentListTheme extends CommentListTheme {
 		$i_comment_id = int_escape($comment->comment_id);
 		$i_image_id = int_escape($comment->image_id);
 
-		$h_userlink = "<a href='".make_link("user/$h_name")."'>$h_name</a>";
+		$h_userlink = "<a href='".make_link("account/profile/$h_name")."'>$h_name</a>";
 		$h_date = $comment->posted;
 		$h_dellink = $user->is_admin() ? 
 			" ($h_poster_ip, <a ".

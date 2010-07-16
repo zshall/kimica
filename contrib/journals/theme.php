@@ -169,7 +169,7 @@ public function displayComments($comments, $journalID, $pageNumber, $totalPages)
 	$gravatar = $poster->get_avatar_html();
 	
 	$date = autodate($comment['posted']);
-	$user_link = "<a href='".make_link("user/view/".$comment['user_name'])."'>".$comment['user_name']."</a>";
+	$user_link = "<a href='".make_link("account/profile/".$comment['user_name'])."'>".$comment['user_name']."</a>";
 	
 	$tfe = new TextFormattingEvent($comment['comment']);
     send_event($tfe);
@@ -252,7 +252,7 @@ public function displayAllJournals($journals, $pageNumber, $totalPages){
 		}
 			
 		$date = autodate($journal['posted']);
-		$user_link = "<a href='".make_link("user/view/".$journal['user_name'])."'>".$journal['user_name']."</a>";
+		$user_link = "<a href='".make_link("account/profile/".$journal['user_name'])."'>".$journal['user_name']."</a>";
 		$title_link = "<a href='".make_link("journals/view/".$journal['id'])."'>".$title."</a>";
 		$edit_link = "<a href='".make_link("journals/edit/".$journal['id'])."'>Delete</a>";
 		$delete_link = "<a href='".make_link("journals/delete/".$journal['id'])."'>Delete</a>";
@@ -310,7 +310,7 @@ public function displayUserJournals($journals, $userNAME, $is_owner, $pageNumber
 		}
 			
 		$date = autodate($journal['posted']);
-		$user_link = "<a href='".make_link("user/view/".$journal['user_name'])."'>".$journal['user_name']."</a>";
+		$user_link = "<a href='".make_link("account/profile/".$journal['user_name'])."'>".$journal['user_name']."</a>";
 		$title_link = "<a href='".make_link("journals/view/".$journal['id'])."'>".$title."</a>";
 		$edit_link = "<a href='".make_link("journals/edit/".$journal['id'])."'>Delete</a>";
 		$delete_link = "<a href='".make_link("journals/delete/".$journal['id'])."'>Delete</a>";
@@ -340,7 +340,7 @@ public function sidebar_profile($info){
 	$poster = User::by_name($info['user']);
 	$gravatar = $poster->get_avatar_html();
 	
-	$user_link = "<a href='".make_link("user/view/".$info['user'])."'>".$info['user']."</a>";
+	$user_link = "<a href='".make_link("account/profile/".$info['user'])."'>".$info['user']."</a>";
 
 	$profile = '<div align="center">'.$gravatar.'<br>'.$user_link.'</div><br>';
 	

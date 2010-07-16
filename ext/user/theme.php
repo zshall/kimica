@@ -37,7 +37,7 @@ class UserPageTheme extends Themelet {
 		foreach($users as $duser) {
 			$oe = ($n++ % 2 == 0) ? "even" : "odd";
 			$html .= "<tr class='$oe'>";
-			$html .= "<td><a href='".make_link("user/view/".$duser->name)."'>".html_escape($duser->name)."</a></td>";
+			$html .= "<td><a href='".make_link("account/profile/".$duser->name)."'>".html_escape($duser->name)."</a></td>";
 			$html .= "<td>".ucfirst($duser->role_to_human())."</td>";
 			$html .= "<td>".$duser->join_date."</td>";
 			if(!$user->is_anon()){
@@ -53,7 +53,7 @@ class UserPageTheme extends Themelet {
 		}
 		$html .= "</tbody></table>$actions</form>";
 		
-		$pagination = $this->build_paginator("user/list", null, $page_number, $total_pages);
+		$pagination = $this->build_paginator("account/list", null, $page_number, $total_pages);
 		$page->add_block(new Block("Users", $html.$pagination));
 	}
 	
@@ -80,7 +80,7 @@ class UserPageTheme extends Themelet {
 		foreach($banned as $duser) {
 			$oe = ($n++ % 2 == 0) ? "even" : "odd";
 			$html .= "<tr class='$oe'>";
-			$html .= "<td><a href='".make_link("user/view/".$duser["name"])."'>".html_escape($duser["name"])."</a></td>";
+			$html .= "<td><a href='".make_link("account/profile/".$duser["name"])."'>".html_escape($duser["name"])."</a></td>";
 			$html .= "<td>".$duser["end_date"]."</td>";
 			$html .= "<td>".$duser["reason"]."</td>";
 			if($user->is_admin() || $user->is_owner()){
@@ -119,7 +119,7 @@ class UserPageTheme extends Themelet {
 		foreach($prebans as $duser) {
 			$oe = ($n++ % 2 == 0) ? "even" : "odd";
 			$html .= "<tr class='$oe'>";
-			$html .= "<td><a href='".make_link("user/view/".$duser->name)."'>".html_escape($duser->name)."</a></td>";
+			$html .= "<td><a href='".make_link("account/profile/".$duser->name)."'>".html_escape($duser->name)."</a></td>";
 			$html .= "<td><input name='bans[".$n."][]' type='text' /></td>";
 			$html .= "<td><input name='bans[".$n."][]' type='text' /></td>";
 			if($user->is_admin() || $user->is_owner()){
@@ -460,7 +460,7 @@ class UserPageTheme extends Themelet {
 			if(strlen(trim($h_subject)) == 0) $h_subject = "no subject";
 			$from_name = $pm["from_name"];
 			$h_from = html_escape($from_name);
-			$from_url = make_link("user/view/".url_escape($from_name));
+			$from_url = make_link("account/profile/".url_escape($from_name));
 			$pm_url = make_link("account/messages/view/".$pm["id"]);
 			$h_date = html_escape($pm["sent_date"]);
 			$html .= "<tr class='$oe'><td><a href='$pm_url'>$h_subject</a></td>
@@ -515,7 +515,7 @@ class UserPageTheme extends Themelet {
 			if(strlen(trim($h_subject)) == 0) $h_subject = "(No subject)";
 			$from_name = $pm["to_name"];
 			$h_from = html_escape($from_name);
-			$from_url = make_link("user/view/".url_escape($from_name));
+			$from_url = make_link("account/profile/".url_escape($from_name));
 			$pm_url = make_link("account/messages/view/".$pm["id"]);
 			$h_date = html_escape($pm["sent_date"]);
 			$html .= "<tr class='$oe'><td><a href='$pm_url'>$h_subject</a></td>

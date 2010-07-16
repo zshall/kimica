@@ -107,6 +107,34 @@ class UserPage extends SimpleExtension {
 				$page->set_redirect(make_link());
 			}
 			
+			else if($event->get_arg(0) == "profile"){
+				$display_user = User::by_name($event->get_arg(1));
+					
+				if(!is_null($display_user)) {
+					send_event(new UserPageBuildingEvent($display_user));
+				}
+				else {
+					$this->theme->display_error($page, "No Such User","If you typed the ID by hand, try again; if you came from a link on this site, it might be bug report time...");
+				}
+			}
+			
+			else if($event->get_arg(0) == "list"){
+				$pageNumber = $event->get_arg(1);
+				
+				if(is_null($pageNumber) || !is_numeric($pageNumber)){
+					$pageNumber = 0;
+				}
+				else if ($pageNumber <= 0){
+					$pageNumber = 0;
+				}
+				else{
+					$pageNumber--;
+				}
+					
+				$totalPages = ceil($database->db->GetOne("SELECT COUNT(*) FROM users") / 50);
+				$this->theme->display_user_list(User::by_list($pageNumber * 50), $user, $pageNumber + 1, $totalPages);
+			}
+			
 			// account/change_pass - Change Pass
 			else if($event->get_arg(0) == "change_pass") {
 				$this->change_password_wrapper($page);
@@ -382,38 +410,7 @@ class UserPage extends SimpleExtension {
 				}
 				$this->theme->display_messages_sidebar($page, $this->get_count_unread($user));
 			}
-		}
-		
-		if($event->page_matches("user")) {
-			global $page;
-			switch ($event->get_arg(0)) {
-				case "view":
-					$display_user = User::by_name($event->get_arg(1));
-					
-					if(!is_null($display_user)) {
-						send_event(new UserPageBuildingEvent($display_user));
-					}
-					else {
-						$this->theme->display_error($page, "No Such User","If you typed the ID by hand, try again; if you came from a link on this site, it might be bug report time...");
-					}
-				break;
-				case "list": 				
-					$pageNumber = $event->get_arg(1);
-					if(is_null($pageNumber) || !is_numeric($pageNumber))
-						$pageNumber = 0;
-					else if ($pageNumber <= 0)
-						$pageNumber = 0;
-					else
-						$pageNumber--;
-					
-					$totalPages = ceil($database->db->GetOne("SELECT COUNT(*) FROM users") / 50);
-						
-					$this->theme->display_user_list(User::by_list($pageNumber * 50), $user, $pageNumber + 1, $totalPages);
-				break;
-			}
-		}	
-	
-		
+		}		
 	}
 
 	public function onUserPageBuilding(Event $event) {
@@ -478,7 +475,7 @@ class UserPage extends SimpleExtension {
 	public function onUserBlockBuilding(Event $event) {
 		global $user;
 		$event->add_link("Messages", make_link("account/messages/inbox"));
-		$event->add_link("My Profile", make_link("user/view/$user->name"));
+		$event->add_link("My Profile", make_link("account/profile/$user->name"));
 		$event->add_link("Log Out", make_link("account/logout"), 99);
 	}
 
@@ -590,7 +587,7 @@ class UserPage extends SimpleExtension {
 				
 				$page->set_mode("redirect");
 				if(!isset($_GET['easysetup'])) {
-					$page->set_redirect(make_link("user/view/$duser->name"));
+					$page->set_redirect(make_link("account/profile/$duser->name"));
 				} else {
 					$page->set_redirect(make_link("setup/easy"));
 				}
@@ -745,7 +742,7 @@ class UserPage extends SimpleExtension {
 				}
 				
 				$page->set_mode("redirect");
-				$page->set_redirect(make_link("user/view/{$duser->name}"));
+				$page->set_redirect(make_link("account/profile/{$duser->name}"));
 			}
 		}
 	}
@@ -776,7 +773,7 @@ class UserPage extends SimpleExtension {
 				$duser->set_email($address);
 
 				$page->set_mode("redirect");
-				$page->set_redirect(make_link("user/view/{$duser->name}"));
+				$page->set_redirect(make_link("account/profile/{$duser->name}"));
 			}
 		}
 	}
@@ -808,7 +805,7 @@ class UserPage extends SimpleExtension {
 					else{
 						$duser->set_role($role);
 						$page->set_mode("redirect");
-						$page->set_redirect(make_link("user/view/{$duser->name}"));
+						$page->set_redirect(make_link("account/profile/{$duser->name}"));
 					}
 				}
 			} else {

@@ -103,7 +103,7 @@ class CustomViewImageTheme extends ViewImageTheme {
 		$html .= "<fieldset>
 					<div class='row'>
 						<label>Uploaded by</label>
-						<span><a href='".make_link("user/$h_owner")."'>$h_owner</a></span>
+						<span><a href='".make_link("account/profile/$h_owner")."'>$h_owner</a></span>
 					</div>
 					<div class='row'>
 						<label>Date Added</label>

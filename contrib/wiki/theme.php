@@ -99,7 +99,7 @@ class WikiTheme extends Themelet {
 			<hr>
 			<p class='wiki-footer'>
 				Revision {$page->revision}
-				by <a href='".make_link("user/{$owner->name}")."'>{$owner->name}</a>
+				by <a href='".make_link("account/profile/{$owner->name}")."'>{$owner->name}</a>
 				at {$page->date}
 				$edit
 			</p>

@@ -35,7 +35,7 @@ class FavoritesTheme extends Themelet {
 
 		foreach($username_array as $row) {
 			$username = html_escape($row['name']);
-			$html .= "<br><a href='".make_link("user/$username")."'>$username</a>";
+			$html .= "<br><a href='".make_link("account/profile/$username")."'>$username</a>";
 		}
 
 		$page->add_block(new Block("Favorited By", $html, "left", 25));

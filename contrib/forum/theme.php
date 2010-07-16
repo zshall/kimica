@@ -159,7 +159,7 @@ class ForumTheme extends Themelet {
             $message = str_replace('\r', '<br>', $message);
 			
 			
-            $user = "<a href='".make_link("user/view/".$post["user_name"]."")."'>".$post["user_name"]."</a>";
+            $user = "<a href='".make_link("account/profile/".$post["user_name"]."")."'>".$post["user_name"]."</a>";
 
             $poster = User::by_name($post["user_name"]);
 			$gravatar = $poster->get_avatar_html();
@@ -268,7 +268,7 @@ class ForumTheme extends Themelet {
             
             $html .= "<tr class='$oe'>".
                 '<td class="left">'.$sticky.'<a href="'.make_link("forum/view/".$thread["id"]).'">'.$title."</a></td>".
-				'<td><a href="'.make_link("user/view/".$thread["user_name"]).'">'.$thread["user_name"]."</a></td>".
+				'<td><a href="'.make_link("account/profile/".$thread["user_name"]).'">'.$thread["user_name"]."</a></td>".
 				"<td>".autodate($thread["uptodate"])."</td>".
                 "<td>".$thread["response_count"]."</td>";
              

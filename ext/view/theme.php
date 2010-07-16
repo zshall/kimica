@@ -83,7 +83,7 @@ class ViewImageTheme extends Themelet {
 		$h_date = autodate($image->posted);
 
 		$html = "";
-		$html .= "<p>Uploaded by <a href='".make_link("user/$h_owner")."'>$h_owner</a> $h_date";
+		$html .= "<p>Uploaded by <a href='".make_link("account/profile/$h_owner")."'>$h_owner</a> $h_date";
 
 		if($user->is_admin()) {
 			$html .= " ($h_ip)";

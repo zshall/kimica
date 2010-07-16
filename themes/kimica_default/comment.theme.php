@@ -97,7 +97,7 @@ class CustomCommentListTheme extends CommentListTheme {
 		$i_image_id = int_escape($comment->image_id);
 		$h_posted = autodate($comment->posted);
 
-		$h_userlink = "<a class='username' href='".make_link("user/$h_name")."'>$h_name</a>";
+		$h_userlink = "<a class='username' href='".make_link("account/profile/$h_name")."'>$h_name</a>";
 		$h_dellink = $user->is_admin() ? 
 			"<br>($h_poster_ip, <a ".
 			"onclick=\"return confirm('Delete comment by $h_name:\\n".$tfe->stripped."');\" ".

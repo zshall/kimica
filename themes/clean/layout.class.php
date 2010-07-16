@@ -62,7 +62,7 @@ class Layout {
 		// bzchan: CUSTOM LINKS are prepared here, change these to whatever you like
 		$custom_links = "";
 		if(!$user->is_anon()){
-			$custom_links .= "<li><a href='".make_link('user/view/'.$username)."'><span>My Account</span></a></li>";
+			$custom_links .= "<li><a href='".make_link('account/profile/'.$username)."'><span>My Account</span></a></li>";
 		}
 		$custom_links .= "<li><a href='".make_link('post/list')."'><span>Posts</span></a></li>";
 		$custom_links .= "<li><a href='".make_link('comment/list')."'><span>Comments</span></a></li>";
@@ -81,7 +81,7 @@ class Layout {
 			default:
 				$custom_sublinks .= $user_block_html;
 				break;
-			case "user":
+			case "account":
 				if(!$user->is_anon()){
 					$custom_sublinks .= "<li><a href='".make_link("post/list/favorited_by=$username/1")."'><span>Favorites</span></a></li>";
 					$custom_sublinks .= "<li><a href='".make_link("account/messages")."'><span>Messages</span></a></li>";

@@ -52,7 +52,7 @@ class LogDatabaseTheme extends Themelet {
 			}
 			else {
 				$table .= "<td><span title='".$event['address']."'>".
-					"<a href='".make_link("user/view/".url_escape($event['username']))."'>".html_escape($event['username'])."</a>".
+					"<a href='".make_link("account/profile/".url_escape($event['username']))."'>".html_escape($event['username'])."</a>".
 					"</span></td>";
 			}
 			$table .= "<td>".$this->scan_entities(html_escape($event['message']))."</td>";
