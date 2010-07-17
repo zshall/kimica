@@ -5,12 +5,12 @@ if(class_exists("Favorites")){
 			global $page, $user;
 									
 			if(!$is_favorited) {
-				$buttons = "<input id='post-favorite-set' onclick='Post.Favorite($image->id, \"set\");' type='submit' value='Favorite'>";
-				$buttons .= "<input style='display:none;' id='post-favorite-unset' onclick='Post.Favorite($image->id, \"unset\");' type='submit' value='Un-Favorite'>";
+				$buttons = "<input id='post-favorite-set' onclick='Post.Favorite($image->id, \"set\");' type='button' value='Favorite'>";
+				$buttons .= "<input style='display:none;' id='post-favorite-unset' onclick='Post.Favorite($image->id, \"unset\");' type='button' value='Un-Favorite'>";
 			}
 			else {
-				$buttons = "<input style='display:none;' id='post-favorite-set' onclick='Post.Favorite($image->id, \"set\");' type='submit' value='Favorite'>";
-				$buttons .= "<input id='post-favorite-unset' onclick='Post.Favorite($image->id, \"unset\");' type='submit' value='Un-Favorite'>";
+				$buttons = "<input style='display:none;' id='post-favorite-set' onclick='Post.Favorite($image->id, \"set\");' type='button' value='Favorite'>";
+				$buttons .= "<input id='post-favorite-unset' onclick='Post.Favorite($image->id, \"unset\");' type='button' value='Un-Favorite'>";
 			}
 			
 			return $buttons;

@@ -215,8 +215,8 @@ class ImageIO extends SimpleExtension {
 	
 	public function onUserPageBuilding($event) {
 		$u_id = url_escape($event->display_user->id);
-		$i_image_count = Image::count_images(array("user_id={$event->display_user->id}"));
-		$images_link = make_link("post/list/user_id=$u_id/1");
+		$i_image_count = Image::count_images(array("user_id={$event->display_user->name}"));
+		$images_link = make_link("post/list/user=$u_id/1");
 		$event->add_stats(array("<a href='$images_link'>Posts</a>", "$i_image_count"), 30);
 	}
 
@@ -290,9 +290,11 @@ class ImageIO extends SimpleExtension {
 		/*
 		* Check for user roles or if the image contains a banned tag. It set the image as approved or deleted for review.
 		*/
-		$auto_aprove = "p";
 		if($user->get_auth_from_str($config->get_string("upload_autoapprove"))){
 			$auto_aprove = "a";
+		}
+		else{
+			$auto_aprove = "p";
 		}
 		
 		foreach ($image->get_tag_array() as $banned) {
