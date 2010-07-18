@@ -193,6 +193,10 @@ class ImageIO extends SimpleExtension {
 
 	public function onImageDeletion($event) {
 		$event->image->delete();
+		
+		if(class_exists("Backups")){
+			send_event(new BackupDeletionEvent($event->image));
+		}
 	}
 	
 	public function onImageTagBan($event) {
@@ -331,6 +335,10 @@ class ImageIO extends SimpleExtension {
 		$tags_to_set = $image->get_tag_array();
 		$image->tag_array = array();
 		send_event(new TagSetEvent($image, $tags_to_set));
+		
+		if(class_exists("Backups")){
+			send_event(new BackupAdditionEvent($image));
+		}
 	}
 // }}}
 // fetch image {{{
