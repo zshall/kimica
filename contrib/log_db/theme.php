@@ -61,13 +61,14 @@ class LogDatabaseTheme extends Themelet {
 		$table .= "</tbody></table>";
 
 		global $page;
+		
+		$args = $this->ueie("time")."&".$this->ueie("module")."&".$this->ueie("user")."&".$this->ueie("priority");
+		$pagination = $this->build_paginator("log/view", $args, $page_num, $page_total);
+		
 		$page->set_title("Event Log");
 		$page->set_heading("Event Log");
 		$page->add_block(new NavBlock());
-		$page->add_block(new Block("Events", $table));
-
-		$args = $this->ueie("time")."&".$this->ueie("module")."&".$this->ueie("user")."&".$this->ueie("priority");
-		$this->display_paginator($page, "log/view", $args, $page_num, $page_total);
+		$page->add_block(new Block("Events", $table.$pagination));
 	}
 
 	protected function pri_to_col($pri) {
