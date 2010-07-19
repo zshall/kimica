@@ -318,6 +318,7 @@ function create_tables($dsn) { // {{{
 			height INTEGER NOT NULL,
 			posted SCORE_DATETIME NOT NULL DEFAULT SCORE_NOW,
 			status ENUM('l', 'a', 'p', 'd') NOT NULL DEFAULT 'p',
+			warehoused ENUM('y', 'n') NOT NULL DEFAULT 'n',
 			views INTEGER NOT NULL DEFAULT 0,
 			INDEX(owner_id),
 			INDEX(width),

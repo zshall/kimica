@@ -1,8 +1,8 @@
 <?php
 
 class PixelFileHandlerTheme extends Themelet {
-	public function display_image(Page $page, Image $image) {
-		global $config;
+	public function display_image(Image $image) {
+		global $config, $page;
 
 		$ilink = $image->get_image_link();
 		$html = "<img id='main_image' src='$ilink'>";

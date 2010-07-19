@@ -409,6 +409,15 @@ class Image {
 		}
 	}
 	
+	/*
+	 * Get if the image is warehoused
+	 *
+	 * @retval bool
+	 */
+	public function is_warehoused() {
+		return ($this->warehoused == "y");
+	}
+	
 	/**
 	* Stats system
 	*
@@ -522,6 +531,7 @@ class Image {
 		$tmpl = str_replace('$filesize', to_shorthand_int($this->filesize), $tmpl);
 		$tmpl = str_replace('$filename', $_escape($base_fname), $tmpl);
 		$tmpl = str_replace('$title', $_escape($config->get_string("title")), $tmpl);
+		$tmpl = str_replace('$status', $this->status_to_human(), $tmpl);
 
 		$plte = new ParseLinkTemplateEvent($tmpl, $this);
 		send_event($plte);

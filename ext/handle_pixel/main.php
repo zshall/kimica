@@ -5,7 +5,39 @@
  * Description: Handle JPEG, PNG, GIF, etc files
  */
 
-class PixelFileHandler extends DataHandlerExtension {
+class PixelFileHandler extends SimpleExtension {
+	
+	public function onDataUpload($event){
+		if($this->supported_ext($event->type) && $this->check_contents($event->tmpname)){
+		
+			if(!move_upload_to_archive($event)) return;
+			
+			log_info("image", "$event->type");
+					
+			send_event(new ThumbnailGenerationEvent($event->hash, $event->type));
+			$image = $this->create_image_from_data(warehouse_path("images", $event->hash), $event->metadata);
+				
+			if(is_null($image)) {
+				throw new UploadException("Data handler failed to create image object from data");
+			}
+			
+			$iae = new ImageAdditionEvent($event->user, $image);
+			send_event($iae);
+				
+			$event->image_id = $iae->image->id;		
+		}
+	}
+	
+	public function onThumbnailGeneration($event) {
+		if($this->supported_ext($event->type)) {
+			$this->create_thumb($event->hash);
+		}
+	}
+	
+	public function onDisplayingImage($event) {
+		$this->theme->display_image($event->image);
+	}
+	
 	protected function supported_ext($ext) {
 		$exts = array("jpg", "jpeg", "gif", "png");
 		return in_array(strtolower($ext), $exts);

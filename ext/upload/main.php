@@ -41,16 +41,6 @@ class Upload implements Extension {
 		global $config, $database, $page, $user;
 		if(is_null($this->theme)) $this->theme = get_theme_object($this);
 
-		
-		$free_num = @disk_free_space(realpath("./images/"));
-		if($free_num === FALSE) {
-			$is_full = false;
-		}
-		else {
-			$is_full = $free_num < 100*1024*1024;
-		}
-
-
 		if($event instanceof InitExtEvent) {
 			$config->set_default_int('upload_count', 3);
 			$config->set_default_int('upload_size', '1MB');
@@ -60,6 +50,14 @@ class Upload implements Extension {
 
 		if($event instanceof PostListBuildingEvent) {
 			if($this->can_upload($user)) {
+				$free_num = @disk_free_space(realpath("./images/"));
+				if($free_num === FALSE) {
+					$is_full = false;
+				}
+				else {
+					$is_full = $free_num < 100*1024*1024;
+				}
+		
 				if($is_full) {
 					$this->theme->display_full($page);
 				}
@@ -151,23 +149,11 @@ class Upload implements Extension {
 			$sb->add_choice_option("upload_autoapprove", $arr_autoaprove, "<br>Auto approve for: ");
 			$event->panel->add_block($sb);
 		}
-
-		if($event instanceof DataUploadEvent) {
-			if($is_full) {
-				throw new UploadException("Upload failed; disk nearly full");
-			}
-			if(filesize($event->tmpname) > $config->get_int('upload_size')) {
-				$size = to_shorthand_int(filesize($event->tmpname));
-				$limit = to_shorthand_int($config->get_int('upload_size'));
-				throw new UploadException("File too large ($size &gt; $limit)");
-			}
-		}
-		
+				
 		if($event instanceof AdminBuildingEvent) {
 			global $page;
 			$this->theme->display_admin_block($page);
 		}
-
 		
 		if(($event instanceof PageRequestEvent) && $event->page_matches("bulk_add")) {
 			if($user->is_admin() && isset($_POST['dir'])) {
@@ -346,9 +332,29 @@ class Upload implements Extension {
 
 		global $user;
 		$pathinfo = pathinfo($filename);
+		
 		if(!array_key_exists('extension', $pathinfo)) {
 			throw new UploadException("File has no extension");
 		}
+		
+		$free_num = @disk_free_space(realpath("./images/"));
+		if($free_num === FALSE) {
+			$is_full = false;
+		}
+		else {
+			$is_full = $free_num < 100*1024*1024;
+		}
+		
+		if($is_full) {
+			throw new UploadException("Upload failed; disk nearly full");
+		}
+				
+		if(filesize($tmpname) > $config->get_int('upload_size')) {
+			$size = to_shorthand_int(filesize($event->tmpname));
+			$limit = to_shorthand_int($config->get_int('upload_size'));
+			throw new UploadException("File too large ($size &gt; $limit)");
+		}
+		
 		$metadata['filename'] = $pathinfo['basename'];
 		$metadata['extension'] = $pathinfo['extension'];
 		$metadata['tags'] = $tags;
@@ -356,7 +362,7 @@ class Upload implements Extension {
 		$event = new DataUploadEvent($user, $tmpname, $metadata);
 		send_event($event);
 		if($event->image_id == -1) {
-			throw new UploadException("File type not recognised");
+			throw new UploadException("1 File type not recognised");
 		}
 	}
 	

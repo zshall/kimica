@@ -16,7 +16,7 @@ class FlashFileHandler extends DataHandlerExtension {
 		return in_array(strtolower($ext), $exts);
 	}
 
-	protected function create_image_from_data($filename, $metadata) {
+	private function create_image_from_data($filename, $metadata) {
 		global $config;
 
 		$image = new Image();
