@@ -24,9 +24,11 @@ class PixelFileHandler extends SimpleExtension {
 			$event->image_id = $iae->image->id;		
 		}
 	}
-		
+			
 	public function onDisplayingImage($event) {
-		$this->theme->display_image($event->image);
+		if($this->supported_ext($event->image->ext)) {
+			$this->theme->display_image($event->image);
+		}
 	}
 	
 	protected function supported_ext($ext) {
