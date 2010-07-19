@@ -202,9 +202,9 @@ class ImageIO extends SimpleExtension {
 	public function onImageTagBan($event) {
 		global $database;
 		foreach ($event->image->get_tag_array() as $banned) {
-			$is_banned = $database->db->GetOne("SELECT COUNT(*) FROM tag_bans WHERE name = ?", array($banned)) > 0;
+			$is_banned = $database->db->GetOne("SELECT COUNT(*) FROM tag_bans WHERE tag = ?", array($banned)) > 0;
 			if($is_banned){
-				$row = $database->db->GetRow("SELECT status FROM tag_bans WHERE name = ?", $banned);
+				$row = $database->db->GetRow("SELECT status FROM tag_bans WHERE tag = ?", $banned);
 				$event->image->set_status($row["status"]);
 			}
 		}
@@ -302,9 +302,9 @@ class ImageIO extends SimpleExtension {
 		}
 		
 		foreach ($image->get_tag_array() as $banned) {
-			$is_banned = $database->db->GetOne("SELECT COUNT(*) FROM tag_bans WHERE name = ?",array($banned)) > 0;
+			$is_banned = $database->db->GetOne("SELECT COUNT(*) FROM tag_bans WHERE tag = ?",array($banned)) > 0;
 			if($is_banned){
-				$row = $database->db->GetRow("SELECT status FROM tag_bans WHERE name = ?", $banned);
+				$row = $database->db->GetRow("SELECT status FROM tag_bans WHERE tag = ?", $banned);
 				$auto_aprove = $row["status"];
 			}
 		}

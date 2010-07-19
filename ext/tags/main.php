@@ -496,7 +496,7 @@ class TagList extends SimpleExtension {
 		
 		$tag = $_POST["tag"];
 		if($user->is_admin()){
-			$database->execute("DELETE FROM tag_bans WHERE name = ?", array($tag));
+			$database->execute("DELETE FROM tag_bans WHERE tag = ?", array($tag));
 			
 			$n = 0;
 			while(true) {
