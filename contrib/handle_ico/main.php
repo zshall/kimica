@@ -10,7 +10,7 @@ class IcoFileHandler extends SimpleExtension {
 	public function onDataUpload($event) {
 		if($this->supported_ext($event->type) && $this->check_contents($event->tmpname)) {
 		
-			if(!move_upload_to_archive($event)) return;
+			if(!warehouse_file($event)) return;
 			
 			send_event(new ThumbnailGenerationEvent($event->hash, $event->type));
 			$image = $this->create_image_from_data(warehouse_path("images", $event->hash), $event->metadata);

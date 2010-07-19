@@ -10,7 +10,7 @@ class PixelFileHandler extends SimpleExtension {
 	public function onDataUpload($event){
 		if($this->supported_ext($event->type) && $this->check_contents($event->tmpname)){
 		
-			if(!move_upload_to_archive($event)) return;
+			if(!warehouse_file($event)) return;
 			
 			log_info("image", "$event->type");
 					

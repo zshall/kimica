@@ -501,7 +501,7 @@ function warehouse_path($base, $hash, $create=true) {
  * Move a file from PHP's temporary area into shimmie's image storage
  * heirachy, or throw an exception trying
  */
-function move_upload_to_archive($event) {
+function warehouse_file($event) {
 	$target = warehouse_path("images", $event->hash);
 	if(!file_exists(dirname($target))) mkdir(dirname($target), 0755, true);
 	if(!@copy($event->tmpname, $target)) {
