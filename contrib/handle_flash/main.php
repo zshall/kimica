@@ -5,10 +5,36 @@
  * Description: Handle Flash files
  */
 
-class FlashFileHandler extends DataHandlerExtension {
+class FlashFileHandler extends SimpleExtension {
+
+	public function onDataUpload($event) {
+		if($this->supported_ext($event->type) && $this->check_contents($event->tmpname)) {
+		
+			if(!warehouse_file($event)) return;
+			
+			$this->create_thumb($event->hash);
+			$image = $this->create_image_from_data(warehouse_path("images", $event->hash), $event->metadata);
+			
+			if(is_null($image)) {
+				throw new UploadException("Flash handler failed to create image object from data");
+			}
+			
+			$iae = new ImageAdditionEvent($event->user, $image);
+			send_event($iae);
+			
+			$event->image_id = $iae->image->id;
+		}
+	}
+	
+	public function onDisplayingImage($event) {
+		if($this->supported_ext($event->image->ext)) {
+			$this->theme->display_image($event->image);
+		}
+	}
+	
 	protected function create_thumb($hash) {
-		// FIXME: scale image, as not all boards use 192x192
-		copy("ext/handle_flash/thumb.jpg", warehouse_path("thumbs", $hash));
+		$event = (object) array('tmpname'=>'contrib/handle_flash/thumb.jpg', 'hash'=>$hash, 'type'=>'jpg');
+		if(!warehouse_thumb($event)) return;
 	}
 
 	protected function supported_ext($ext) {

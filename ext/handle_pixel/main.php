@@ -11,10 +11,7 @@ class PixelFileHandler extends SimpleExtension {
 		if($this->supported_ext($event->type) && $this->check_contents($event->tmpname)){
 		
 			if(!warehouse_file($event)) return;
-			
-			log_info("image", "$event->type");
-					
-			send_event(new ThumbnailGenerationEvent($event->hash, $event->type));
+							
 			$image = $this->create_image_from_data(warehouse_path("images", $event->hash), $event->metadata);
 				
 			if(is_null($image)) {
@@ -27,13 +24,7 @@ class PixelFileHandler extends SimpleExtension {
 			$event->image_id = $iae->image->id;		
 		}
 	}
-	
-	public function onThumbnailGeneration($event) {
-		if($this->supported_ext($event->type)) {
-			$this->create_thumb($event->hash);
-		}
-	}
-	
+		
 	public function onDisplayingImage($event) {
 		$this->theme->display_image($event->image);
 	}
@@ -72,122 +63,6 @@ class PixelFileHandler extends SimpleExtension {
 		if(in_array($info[2], $valid)) return true;
 		return false;
 	}
-
-	protected function create_thumb($hash) {
-		$inname  = warehouse_path("images", $hash);
-		$outname = warehouse_path("thumbs", $hash);
-		global $config;
-
-		$ok = false;
-
-		switch($config->get_string("thumb_engine")) {
-			default:
-			case 'gd':
-				$ok = $this->make_thumb_gd($inname, $outname);
-				break;
-			case 'convert':
-				$ok = $this->make_thumb_convert($inname, $outname);
-				break;
-		}
-
-		return $ok;
-	}
-
-// IM thumber {{{
-	private function make_thumb_convert($inname, $outname) {
-		global $config;
-
-		$w = $config->get_int("thumb_width");
-		$h = $config->get_int("thumb_height");
-		$q = $config->get_int("thumb_quality");
-		$mem = $config->get_int("thumb_max_memory") / 1024 / 1024; // IM takes memory in MB
-
-		// convert to bitmap & back to strip metadata -- otherwise we
-		// can end up with 3KB of jpg data and 200KB of misc extra...
-		// "-limit memory $mem" broken?
-
-		// Windows is a special case
-		if(in_array("OS", $_SERVER) && $_SERVER["OS"] == 'Windows_NT') {
-			$imageMagick = $config->get_string("thumb_convert_path");
-
-			// running the call with cmd.exe requires quoting for our paths
-			$stringFormat = '"%s" "%s[0]" -strip -thumbnail %ux%u jpg:"%s"';
-
-			// Concat the command altogether
-			$cmd = sprintf($stringFormat, $imageMagick, $inname, $w, $h, $outname);
-		}
-		else {
-			$cmd = "convert {$inname}[0] -strip -thumbnail {$w}x{$h} jpg:$outname";
-		}
-
-		// Execute IM's convert command, grab the output and return code it'll help debug it
-		exec($cmd, $output, $ret);
-
-		log_debug('handle_pixel', "Generating thumnail with command `$cmd`, returns $ret");
-
-		return true;
-	}
-// }}}
-// epeg thumber {{{
-	private function make_thumb_epeg($inname, $outname) {
-		global $config;
-		$w = $config->get_int("thumb_width");
-		exec("epeg $inname -c 'Created by EPEG' --max $w $outname");
-		return true;
-	}
-	// }}}
-// GD thumber {{{
-	private function make_thumb_gd($inname, $outname) {
-		global $config;
-		$thumb = $this->get_thumb($inname);
-		$ok = imagejpeg($thumb, $outname, $config->get_int('thumb_quality'));
-		imagedestroy($thumb);
-		return $ok;
-	}
-
-	private function get_thumb($tmpname) {
-		global $config;
-
-		$info = getimagesize($tmpname);
-		$width = $info[0];
-		$height = $info[1];
-
-		$memory_use = (filesize($tmpname)*2) + ($width*$height*4) + (4*1024*1024);
-		$memory_limit = get_memory_limit();
-
-		if($memory_use > $memory_limit) {
-			$w = $config->get_int('thumb_width');
-			$h = $config->get_int('thumb_height');
-			$thumb = imagecreatetruecolor($w, min($h, 64));
-			$white = imagecolorallocate($thumb, 255, 255, 255);
-			$black = imagecolorallocate($thumb, 0,   0,   0);
-			imagefill($thumb, 0, 0, $white);
-			imagestring($thumb, 5, 10, 24, "Image Too Large :(", $black);
-			return $thumb;
-		}
-		else {
-			$image = imagecreatefromstring($this->read_file($tmpname));
-			$tsize = get_thumbnail_size($width, $height);
-
-			$thumb = imagecreatetruecolor($tsize[0], $tsize[1]);
-			imagecopyresampled(
-					$thumb, $image, 0, 0, 0, 0,
-					$tsize[0], $tsize[1], $width, $height
-					);
-			return $thumb;
-		}
-	}
-
-	private function read_file($fname) {
-		$fp = fopen($fname, "r");
-		if(!$fp) return false;
-
-		$data = fread($fp, filesize($fname));
-		fclose($fp);
-
-		return $data;
-	}
-// }}}
 }
 add_event_listener(new PixelFileHandler());
 ?>

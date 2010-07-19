@@ -506,7 +506,15 @@ function warehouse_path($base, $hash, $create=true) {
 		$target = "$base/$ab/$hash";
 	}
 	
-	if($create && !file_exists(dirname($target))) mkdir(dirname($target), 0755, true);
+	if(in_array('local', $methods)){
+		if($create && !file_exists(dirname($target))) mkdir(dirname($target), 0755, true);
+	}
+	
+	if(in_array('amazon', $methods)){
+		$amazon_bucket = $config->get_string('warehouse_amazon_bucket');
+		$target = 'https://s3.amazonaws.com/'.$amazon_bucket.'/'.$target;
+	}
+	
 	return $target;
 }
 
@@ -520,8 +528,9 @@ function warehouse_file($event) {
 	
 	$methods = explode("_",$backup_method);
 	
-	if(in_array('local', $methods)){
-		$target = warehouse_path("images", $event->hash);
+	$target = warehouse_path("images", $event->hash);
+	
+	if(in_array('local', $methods)){		
 		if(!@copy($event->tmpname, $target)) {
 			throw new UploadException("Failed to copy file from uploads ({$event->tmpname}) to archive ($target)");
 			return false;
@@ -529,10 +538,209 @@ function warehouse_file($event) {
 	}
 	
 	if(in_array('amazon', $methods)){
+		$amazon_access = $config->get_string('warehouse_amazon_access');
+		$amazon_secret = $config->get_string('warehouse_amazon_secret');
+		$amazon_bucket = $config->get_string('warehouse_amazon_bucket');
+		
+		if(!empty($amazon_bucket)) {	
+			$s3 = new S3($amazon_access, $amazon_secret);
+			$s3->putBucket($amazon_bucket, S3::ACL_PUBLIC_READ);
+			
+			$s3->putObjectFile(
+				$event->tmpname,
+				$amazon_bucket,
+				$target,
+				S3::ACL_PUBLIC_READ,
+				array(),
+				array(
+					"Content-Type" => $event->type,
+					"Content-Disposition" => "inline; filename=Post-" . $event->hash . "." . $event->type,
+				)
+			);
+		}
+		else{
+			return false;
+		}
 	}
+	
+	warehouse_thumb($event);
 	
 	return true;
 }
+
+function warehouse_thumb($event) {
+	global $config;
+	$backup_method = $config->get_string('warehouse_method','local_hierarchy');
+	
+	$methods = explode("_",$backup_method);
+	
+	if(supported_ext($event->type)) {
+		$temp_thumb = sys_get_temp_dir()."/$event->hash";
+		create_thumb($event->tmpname, $temp_thumb);
+	}
+	else{
+		return false;
+	}
+	
+	$target = warehouse_path("thumbs", $event->hash);
+	
+	if(in_array('local', $methods)){			
+		if(!@copy($temp_thumb, $target)) {
+			throw new UploadException("Failed to copy file from uploads ({$event->tmpname}) to archive ($target)");
+			return false;
+		}
+	}
+	
+	if(in_array('amazon', $methods)){
+		$amazon_access = $config->get_string('warehouse_amazon_access');
+		$amazon_secret = $config->get_string('warehouse_amazon_secret');
+		$amazon_bucket = $config->get_string('warehouse_amazon_bucket');
+		
+		if(!empty($amazon_bucket)) {	
+			$s3 = new S3($amazon_access, $amazon_secret);
+			$s3->putBucket($amazon_bucket, S3::ACL_PUBLIC_READ);
+			
+			$s3->putObjectFile(
+				$temp_thumb,
+				$amazon_bucket,
+				$target,
+				S3::ACL_PUBLIC_READ,
+				array(),
+				array(
+					"Content-Type" => $event->type,
+					"Content-Disposition" => "inline; filename=Post-" . $event->hash . ".jpg",
+				)
+			);
+		}
+		else{
+			return false;
+		}
+	}
+	
+	return true;
+	
+}
+
+function supported_ext($ext) {
+	$exts = array("jpg", "jpeg", "gif", "png");
+	return in_array(strtolower($ext), $exts);
+}
+
+function create_thumb($inname, $outname) {
+	global $config;
+
+	$ok = false;
+
+	switch($config->get_string("thumb_engine")) {
+		default:
+		case 'gd':
+			$ok = make_thumb_gd($inname, $outname);
+			break;
+		case 'convert':
+			$ok = make_thumb_convert($inname, $outname);
+			break;
+	}
+
+	return $ok;
+}
+
+// IM thumber {{{
+function make_thumb_convert($inname, $outname) {
+	global $config;
+
+	$w = $config->get_int("thumb_width");
+	$h = $config->get_int("thumb_height");
+	$q = $config->get_int("thumb_quality");
+	$mem = $config->get_int("thumb_max_memory") / 1024 / 1024; // IM takes memory in MB
+
+	// convert to bitmap & back to strip metadata -- otherwise we
+	// can end up with 3KB of jpg data and 200KB of misc extra...
+	// "-limit memory $mem" broken?
+
+	// Windows is a special case
+	if(in_array("OS", $_SERVER) && $_SERVER["OS"] == 'Windows_NT') {
+		$imageMagick = $config->get_string("thumb_convert_path");
+
+		// running the call with cmd.exe requires quoting for our paths
+		$stringFormat = '"%s" "%s[0]" -strip -thumbnail %ux%u jpg:"%s"';
+
+		// Concat the command altogether
+		$cmd = sprintf($stringFormat, $imageMagick, $inname, $w, $h, $outname);
+	}
+	else {
+		$cmd = "convert {$inname}[0] -strip -thumbnail {$w}x{$h} jpg:$outname";
+	}
+
+	// Execute IM's convert command, grab the output and return code it'll help debug it
+	exec($cmd, $output, $ret);
+
+	log_debug('handle_pixel', "Generating thumnail with command `$cmd`, returns $ret");
+
+	return true;
+}
+// }}}
+// epeg thumber {{{
+function make_thumb_epeg($inname, $outname) {
+	global $config;
+	$w = $config->get_int("thumb_width");
+	exec("epeg $inname -c 'Created by EPEG' --max $w $outname");
+	return true;
+}
+// }}}
+// GD thumber {{{
+function make_thumb_gd($inname, $outname) {
+	global $config;
+	$thumb = get_thumb($inname);
+	$ok = imagejpeg($thumb, $outname, $config->get_int('thumb_quality'));
+	imagedestroy($thumb);
+	return $ok;
+}
+
+function get_thumb($tmpname) {
+	global $config;
+
+	$info = getimagesize($tmpname);
+	$width = $info[0];
+	$height = $info[1];
+
+	$memory_use = (filesize($tmpname)*2) + ($width*$height*4) + (4*1024*1024);
+	$memory_limit = get_memory_limit();
+
+	if($memory_use > $memory_limit) {
+		$w = $config->get_int('thumb_width');
+		$h = $config->get_int('thumb_height');
+		$thumb = imagecreatetruecolor($w, min($h, 64));
+		$white = imagecolorallocate($thumb, 255, 255, 255);
+		$black = imagecolorallocate($thumb, 0,   0,   0);
+		imagefill($thumb, 0, 0, $white);
+		imagestring($thumb, 5, 10, 24, "Image Too Large :(", $black);
+		return $thumb;
+	}
+	else {
+		$image = imagecreatefromstring(read_file($tmpname));
+		$tsize = get_thumbnail_size($width, $height);
+
+		$thumb = imagecreatetruecolor($tsize[0], $tsize[1]);
+		imagecopyresampled(
+				$thumb, $image, 0, 0, 0, 0,
+				$tsize[0], $tsize[1], $width, $height
+				);
+		return $thumb;
+	}
+}
+
+function read_file($fname) {
+	$fp = fopen($fname, "r");
+	if(!$fp) return false;
+
+	$data = fread($fp, filesize($fname));
+	fclose($fp);
+
+	return $data;
+}
+/// }}}
+
+
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *\
 * Logging convenience                                                       *

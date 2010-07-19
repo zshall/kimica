@@ -199,6 +199,15 @@ class ImageIO extends SimpleExtension {
 		}
 	}
 	
+	public function onThumbnailGeneration($event) {
+		if(supported_ext($event->type)) {
+			$inname  = warehouse_path("images", $event->hash);
+			$outname = warehouse_path("thumbs", $event->hash);
+			
+			create_thumb($inname, $outname);
+		}
+	}
+	
 	public function onImageTagBan($event) {
 		global $database;
 		foreach ($event->image->get_tag_array() as $banned) {
