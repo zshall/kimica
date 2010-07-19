@@ -1,4 +1,5 @@
 <?php
+require_once "lib/S3.php";
 require_once "lib/recaptchalib.php";
 require_once "lib/securimage/securimage.php";
 
@@ -491,23 +492,45 @@ function format_text($string) {
 \* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 function warehouse_path($base, $hash, $create=true) {
+	global $config;
+	$backup_method = $config->get_string('warehouse_method','local_hierarchy');
+	
+	$methods = explode("_",$backup_method);
+	
 	$ab = substr($hash, 0, 2);
-	$pa = "$base/$ab/$hash";
-	if($create && !file_exists(dirname($pa))) mkdir(dirname($pa), 0755, true);
-	return $pa;
+		
+	if(in_array('flat', $methods)){
+		$target = "$base/$hash";
+	}
+	else{
+		$target = "$base/$ab/$hash";
+	}
+	
+	if($create && !file_exists(dirname($target))) mkdir(dirname($target), 0755, true);
+	return $target;
 }
 
 /**
- * Move a file from PHP's temporary area into shimmie's image storage
+ * Move a file from PHP's temporary area into kimica's image storage
  * heirachy, or throw an exception trying
  */
-function warehouse_file($event) {
-	$target = warehouse_path("images", $event->hash);
-	if(!file_exists(dirname($target))) mkdir(dirname($target), 0755, true);
-	if(!@copy($event->tmpname, $target)) {
-		throw new UploadException("Failed to copy file from uploads ({$event->tmpname}) to archive ($target)");
-		return false;
+function warehouse_file($event) {	
+	global $config;
+	$backup_method = $config->get_string('warehouse_method','local_hierarchy');
+	
+	$methods = explode("_",$backup_method);
+	
+	if(in_array('local', $methods)){
+		$target = warehouse_path("images", $event->hash);
+		if(!@copy($event->tmpname, $target)) {
+			throw new UploadException("Failed to copy file from uploads ({$event->tmpname}) to archive ($target)");
+			return false;
+		}
 	}
+	
+	if(in_array('amazon', $methods)){
+	}
+	
 	return true;
 }
 
