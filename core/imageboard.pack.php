@@ -941,7 +941,7 @@ class Tag {
 		assert(is_string($tag));
 
 		global $database;
-		$newtag = $database->db->GetOne("SELECT newtag FROM aliases WHERE oldtag=?", array($tag));
+		$newtag = $database->db->GetOne("SELECT newtag FROM tag_alias WHERE oldtag=?", array($tag));
 		if(!empty($newtag)) {
 			return $newtag;
 		} else {
@@ -984,20 +984,6 @@ class Tag {
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *\
 * Misc functions                                                            *
 \* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
-/**
- * Move a file from PHP's temporary area into shimmie's image storage
- * heirachy, or throw an exception trying
- */
-function move_upload_to_archive($event) {
-	$target = warehouse_path("images", $event->hash);
-	if(!file_exists(dirname($target))) mkdir(dirname($target), 0755, true);
-	if(!@copy($event->tmpname, $target)) {
-		throw new UploadException("Failed to copy file from uploads ({$event->tmpname}) to archive ($target)");
-		return false;
-	}
-	return true;
-}
 
 /**
  * Given a full size pair of dimentions, return a pair scaled down to fit

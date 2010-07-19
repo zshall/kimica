@@ -485,11 +485,30 @@ function format_text($string) {
 	return $tfe->formatted;
 }
 
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *\
+* Warehousing                                                               *
+\* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
 function warehouse_path($base, $hash, $create=true) {
 	$ab = substr($hash, 0, 2);
 	$pa = "$base/$ab/$hash";
 	if($create && !file_exists(dirname($pa))) mkdir(dirname($pa), 0755, true);
 	return $pa;
+}
+
+/**
+ * Move a file from PHP's temporary area into shimmie's image storage
+ * heirachy, or throw an exception trying
+ */
+function move_upload_to_archive($event) {
+	$target = warehouse_path("images", $event->hash);
+	if(!file_exists(dirname($target))) mkdir(dirname($target), 0755, true);
+	if(!@copy($event->tmpname, $target)) {
+		throw new UploadException("Failed to copy file from uploads ({$event->tmpname}) to archive ($target)");
+		return false;
+	}
+	return true;
 }
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *\
