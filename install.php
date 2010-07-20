@@ -325,15 +325,6 @@ function create_tables($dsn) { // {{{
 			INDEX(height),
 			FOREIGN KEY (owner_id) REFERENCES users(id) ON DELETE CASCADE
 		"));
-		$db->execute($engine->create_table_sql("image_tags", "
-			image_id INTEGER NOT NULL,
-			tag_id INTEGER NOT NULL,
-			INDEX(image_id),
-			INDEX(tag_id),
-			UNIQUE(image_id, tag_id),
-			FOREIGN KEY (image_id) REFERENCES images(id) ON DELETE CASCADE,
-			FOREIGN KEY (tag_id) REFERENCES tags(id) ON DELETE CASCADE
-		"));
 		$db->execute($engine->create_table_sql("image_views", "
 			image_id INTEGER NOT NULL,
 			user_id INTEGER NOT NULL,
@@ -345,6 +336,15 @@ function create_tables($dsn) { // {{{
 			id SCORE_AIPK,
 			tag VARCHAR(64) UNIQUE NOT NULL,
 			count INTEGER NOT NULL DEFAULT 0
+		"));
+		$db->execute($engine->create_table_sql("image_tags", "
+			image_id INTEGER NOT NULL,
+			tag_id INTEGER NOT NULL,
+			INDEX(image_id),
+			INDEX(tag_id),
+			UNIQUE(image_id, tag_id),
+			FOREIGN KEY (image_id) REFERENCES images(id) ON DELETE CASCADE,
+			FOREIGN KEY (tag_id) REFERENCES tags(id) ON DELETE CASCADE
 		"));
 		$db->execute($engine->create_table_sql("tag_alias", "
 			oldtag VARCHAR(64) NOT NULL PRIMARY KEY,
