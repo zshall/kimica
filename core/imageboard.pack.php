@@ -258,8 +258,15 @@ class Image {
 	public function get_image_link() {
 		global $config;
 		
-		if($this->is_warehoused()){
+		$backup_method = $config->get_string('warehouse_method','local_hierarchy');
+		$methods = explode("_",$backup_method);
+		
+		if(in_array('amazon', $methods) && $this->is_warehoused()){
 			return warehouse_path("images", $this->hash);
+		}
+		
+		if(in_array('local', $methods)){
+			return make_link(warehouse_path("images", $this->hash));
 		}
 		
 		if(strlen($config->get_string('image_ilink')) > 0) {
@@ -292,8 +299,15 @@ class Image {
 	public function get_thumb_link() {
 		global $config;
 		
-		if($this->is_warehoused()){
+		$backup_method = $config->get_string('warehouse_method','local_hierarchy');
+		$methods = explode("_",$backup_method);
+		
+		if(in_array('amazon', $methods) && $this->is_warehoused()){
 			return warehouse_path("thumbs", $this->hash);
+		}
+		
+		if(in_array('local', $methods)){
+			return make_link(warehouse_path("thumbs", $this->hash));
 		}
 				
 		if(strlen($config->get_string('image_tlink')) > 0) {
