@@ -491,6 +491,17 @@ function format_text($string) {
 * Warehousing                                                               *
 \* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
+/*
+*
+* local_flat: Store every image in one directory.
+* local_hierarchy: Store every image in a hierarchical directory, based on the post's MD5 hash. On some file systems this may be faster.
+* amazon_flat: Save files to an Amazon S3 account.
+* amazon_hierarchy: Store every image in a hierarchical directory, based on the post's MD5 hash. On some file systems this may be faster.
+* local_and_amazon_flat: Store every image in a flat directory, but also save to an Amazon S3 account for backup.
+* local_and_amazon_hierarchy: Store every image in a flat directory, but also save to an Amazon S3 account for backup.
+*
+*/
+
 function warehouse_path($base, $hash, $create=true) {
 	global $config;
 	$backup_method = $config->get_string('warehouse_method','local_hierarchy');
@@ -542,6 +553,8 @@ function warehouse_file($event) {
 		$amazon_secret = $config->get_string('warehouse_amazon_secret');
 		$amazon_bucket = $config->get_string('warehouse_amazon_bucket');
 		
+		$target = substr($target, 25 + strlen($amazon_bucket) + 1); // Remove "https://s3.amazonaws.com/$amazon_bucket"
+		
 		if(!empty($amazon_bucket)) {	
 			$s3 = new S3($amazon_access, $amazon_secret);
 			$s3->putBucket($amazon_bucket, S3::ACL_PUBLIC_READ);
@@ -584,7 +597,7 @@ function warehouse_thumb($event) {
 	
 	$target = warehouse_path("thumbs", $event->hash);
 	
-	if(in_array('local', $methods)){			
+	if(in_array('local', $methods)){		
 		if(!@copy($temp_thumb, $target)) {
 			throw new UploadException("Failed to copy file from uploads ({$event->tmpname}) to archive ($target)");
 			return false;
@@ -595,6 +608,8 @@ function warehouse_thumb($event) {
 		$amazon_access = $config->get_string('warehouse_amazon_access');
 		$amazon_secret = $config->get_string('warehouse_amazon_secret');
 		$amazon_bucket = $config->get_string('warehouse_amazon_bucket');
+		
+		$target = substr($target, 25 + strlen($amazon_bucket) + 1); // Remove "https://s3.amazonaws.com/$amazon_bucket"
 		
 		if(!empty($amazon_bucket)) {	
 			$s3 = new S3($amazon_access, $amazon_secret);
