@@ -257,6 +257,11 @@ class Image {
 	 */
 	public function get_image_link() {
 		global $config;
+		
+		if($this->is_warehoused()){
+			return warehouse_path("images", $this->hash);
+		}
+		
 		if(strlen($config->get_string('image_ilink')) > 0) {
 			return $this->parse_link_template($config->get_string('image_ilink'));
 		}
@@ -286,6 +291,11 @@ class Image {
 	 */
 	public function get_thumb_link() {
 		global $config;
+		
+		if($this->is_warehoused()){
+			return warehouse_path("thumbs", $this->hash);
+		}
+				
 		if(strlen($config->get_string('image_tlink')) > 0) {
 			return $this->parse_link_template($config->get_string('image_tlink'));
 		}
@@ -416,6 +426,16 @@ class Image {
 	 */
 	public function is_warehoused() {
 		return ($this->warehoused == "y");
+	}
+	
+	/*
+	 * Get if the image is warehoused
+	 *
+	 * @retval bool
+	 */
+	public function set_warehoused() {
+		global $database;
+		$database->Execute("UPDATE images SET warehoused = 'y' WHERE id = ?", array($this->id));
 	}
 	
 	/**
