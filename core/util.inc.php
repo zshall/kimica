@@ -502,7 +502,7 @@ function format_text($string) {
 *
 */
 
-function warehouse_path($base, $hash, $create=true) {
+function warehouse_path($base, $hash) {
 	global $config;
 	$backup_method = $config->get_string('warehouse_method','local_hierarchy');
 	
@@ -518,15 +518,23 @@ function warehouse_path($base, $hash, $create=true) {
 	}
 	
 	if(in_array('local', $methods)){
-		if($create && !file_exists(dirname($target))) mkdir(dirname($target), 0755, true);
+		if(!file_exists(dirname($target))){ 
+			mkdir(dirname($target), 0755, true);
+		}
+		if(file_exists($target)){
+			return $target;
+		}
 	}
 	
 	if(in_array('amazon', $methods)){
 		$amazon_bucket = $config->get_string('warehouse_amazon_bucket');
 		$target = 'https://s3.amazonaws.com/'.$amazon_bucket.'/'.$target;
+		
+		$headers = @get_headers($target);
+		if (preg_match("|200|", $headers[0])) {
+			return $target;
+		}
 	}
-	
-	return $target;
 }
 
 /**
