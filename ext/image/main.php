@@ -317,15 +317,24 @@ class ImageIO extends SimpleExtension {
 				$auto_aprove = $row["status"];
 			}
 		}
+		
+		//If it was uploaded sucessfully then set as warehoused.
+		$backup_method = $config->get_string('warehouse_method','local_hierarchy');
+		$methods = explode("_",$backup_method);
+		
+		$warehoused = "n";
+		if(in_array('amazon', $methods)){
+			$warehoused = "y";
+		}
 
 		// actually insert the info
 		$database->Execute(
 				"INSERT INTO images(
 					owner_id, owner_ip, filename, filesize,
-					hash, ext, width, height, posted, source, status)
-				VALUES (?, ?, ?, ?, ?, ?, ?, ?, now(), ?, ?)",
+					hash, ext, width, height, posted, source, status, warehoused)
+				VALUES (?, ?, ?, ?, ?, ?, ?, ?, now(), ?, ?, ?)",
 				array($user->id, $_SERVER['REMOTE_ADDR'], $image->filename, $image->filesize,
-						$image->hash, $image->ext, $image->width, $image->height, $image->source, $auto_aprove));
+						$image->hash, $image->ext, $image->width, $image->height, $image->source, $auto_aprove, $warehoused));
 		if($database->engine->name == "pgsql") {
 			$database->Execute("UPDATE users SET image_count = image_count+1 WHERE id = ? ", array($user->id));
 			$image->id = $database->db->GetOne("SELECT id FROM images WHERE hash=?", array($image->hash));
@@ -344,10 +353,6 @@ class ImageIO extends SimpleExtension {
 		$tags_to_set = $image->get_tag_array();
 		$image->tag_array = array();
 		send_event(new TagSetEvent($image, $tags_to_set));
-		
-		if(class_exists("Backups")){
-			send_event(new BackupAdditionEvent($image));
-		}
 	}
 // }}}
 // fetch image {{{
