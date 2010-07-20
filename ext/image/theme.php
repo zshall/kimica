@@ -28,6 +28,15 @@ class ImageIOTheme extends Themelet {
 		";
 	}
 	
+	public function get_warehouse_html($image_id) {
+		return "
+			<form action='".make_link("image_admin/warehouse")."' method='POST'>
+			<input type='hidden' name='image_id' value='$image_id'>
+			<input type='submit' value='Warehouse'>
+			</form>
+		";
+	}
+	
 	/*
 	 * Show a link to the new thumbnail
 	 */

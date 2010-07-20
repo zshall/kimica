@@ -262,13 +262,14 @@ class Image {
 		$methods = explode("_",$backup_method);
 		
 		if(in_array('amazon', $methods) && $this->is_warehoused()){
-			return warehouse_path("images", $this->hash);
+			return warehouse_path('images', $this->hash, 'amazon');
 		}
 		
 		if(in_array('local', $methods)){
-			return make_link(warehouse_path("images", $this->hash));
+			return make_link(warehouse_path('images', $this->hash, 'local'));
 		}
 		
+		/*	
 		if(strlen($config->get_string('image_ilink')) > 0) {
 			return $this->parse_link_template($config->get_string('image_ilink'));
 		}
@@ -278,6 +279,7 @@ class Image {
 		else {
 			return $this->parse_link_template(make_link('image/$id.$ext'));
 		}
+		*/
 	}
 
 	/**
@@ -303,13 +305,14 @@ class Image {
 		$methods = explode("_",$backup_method);
 		
 		if(in_array('amazon', $methods) && $this->is_warehoused()){
-			return warehouse_path("thumbs", $this->hash);
+			return warehouse_path('thumbs', $this->hash, 'amazon');
 		}
 		
 		if(in_array('local', $methods)){
-			return make_link(warehouse_path("thumbs", $this->hash));
+			return make_link(warehouse_path('thumbs', $this->hash, 'local'));
 		}
-				
+		
+		/*		
 		if(strlen($config->get_string('image_tlink')) > 0) {
 			return $this->parse_link_template($config->get_string('image_tlink'));
 		}
@@ -319,6 +322,7 @@ class Image {
 		else {
 			return $this->parse_link_template(make_link('thumb/$id.jpg'));
 		}
+		*/
 	}
 
 	/**

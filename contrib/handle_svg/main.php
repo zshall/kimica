@@ -14,7 +14,9 @@ class SVGFileHandler implements Extension {
 		if(($event instanceof DataUploadEvent) && $this->supported_ext($event->type) && $this->check_contents($event->tmpname)) {
 			$hash = $event->hash;
 			$ha = substr($hash, 0, 2);
-			if(!warehouse_file($event)) return;
+			
+			if(!warehouse_file($event->tmpname, $event->hash, $event->type)) return;
+			
 			send_event(new ThumbnailGenerationEvent($event->hash, $event->type));
 			$image = $this->create_image_from_data(warehouse_path("images", $hash), $event->metadata);
 			if(is_null($image)) {

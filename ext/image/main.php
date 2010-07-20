@@ -170,15 +170,39 @@ class ImageIO extends SimpleExtension {
 				}
 			}
 		}
+		if($event->page_matches("image_admin/warehouse")) {
+			if($user->is_admin() && isset($_POST['image_id'])) {
+				$image = Image::by_id(int_escape($_POST['image_id']));
+				if($image) {
+					if(!warehouse_file(warehouse_path('images', $image->hash, 'local'), $image->hash, $image->ext)){
+						 $this->theme->display_error($page, "Error", "Image could not be warehoused.");
+					};
+					if(!warehouse_thumb(warehouse_path('thumbs', $image->hash, 'local'), $image->hash, $image->ext)){
+						 $this->theme->display_error($page, "Error", "Thumb could not be warehoused.");
+					};
+					
+					$image->set_warehoused();
+					
+					$page->set_mode("redirect");
+					$page->set_redirect(make_link("post/view/".$image->id));
+				}
+			}
+		}
 	}
 
 	public function onImageAdminBlockBuilding($event) {
-		global $user;
+		global $config, $user;
+		$backup_method = $config->get_string('warehouse_method','local_hierarchy');
+		$methods = explode("_",$backup_method);
+		
 		if($user->is_admin()) {
 			$event->add_part($this->theme->get_deleter_html($event->image->id));
 		}
 		if($user->is_admin()) {
 			$event->add_part($this->theme->get_regen_html($event->image->id));
+		}
+		if($user->is_admin() && (!$event->image->is_warehoused()) && in_array('amazon', $methods)) {
+			$event->add_part($this->theme->get_warehouse_html($event->image->id));
 		}
 	}
 

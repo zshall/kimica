@@ -10,7 +10,7 @@ class MP3FileHandler extends DataHandlerExtension {
 	public function onDataUpload($event) {
 		if($this->supported_ext($event->type) && $this->check_contents($event->tmpname)) {
 		
-			if(!warehouse_file($event)) return;
+			if(!warehouse_file($event->tmpname, $event->hash, $event->type)) return;
 			
 			$this->create_thumb($event->hash);
 			$image = $this->create_image_from_data(warehouse_path("images", $event->hash), $event->metadata);
@@ -27,8 +27,7 @@ class MP3FileHandler extends DataHandlerExtension {
 	}
 	
 	protected function create_thumb($hash) {
-		$event = (object) array('tmpname'=>'contrib/handle_mp3/thumb.jpg', 'hash'=>$hash, 'type'=>'jpg');
-		if(!warehouse_thumb($event)) return;
+		if(!warehouse_thumb('contrib/handle_mp3/thumb.jpg', $hash, 'jpg')) return;
 	}
 
 	protected function supported_ext($ext) {

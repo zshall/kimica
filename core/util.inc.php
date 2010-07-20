@@ -502,7 +502,7 @@ function format_text($string) {
 *
 */
 
-function warehouse_path($base, $hash) {
+function warehouse_path($base, $hash, $force=NULL) {
 	global $config;
 	$backup_method = $config->get_string('warehouse_method','local_hierarchy');
 	
@@ -521,38 +521,41 @@ function warehouse_path($base, $hash) {
 		if(!file_exists(dirname($target))){ 
 			mkdir(dirname($target), 0755, true);
 		}
-		if(file_exists($target)){
+		
+		if($force == 'local'){
 			return $target;
 		}
 	}
 	
 	if(in_array('amazon', $methods)){
 		$amazon_bucket = $config->get_string('warehouse_amazon_bucket');
-		$target = 'https://s3.amazonaws.com/'.$amazon_bucket.'/'.$target;
+		$target = 'http://s3.amazonaws.com/'.$amazon_bucket.'/'.$target;
 		
-		$headers = @get_headers($target);
-		if (preg_match("|200|", $headers[0])) {
+		if($force == 'amazon'){
 			return $target;
 		}
 	}
+	return $target;
 }
 
 /**
  * Move a file from PHP's temporary area into kimica's image storage
  * heirachy, or throw an exception trying
  */
-function warehouse_file($event) {	
+function warehouse_file($file, $hash, $ext) {	
 	global $config;
 	$backup_method = $config->get_string('warehouse_method','local_hierarchy');
 	
 	$methods = explode("_",$backup_method);
 	
-	$target = warehouse_path("images", $event->hash);
-	
-	if(in_array('local', $methods)){		
-		if(!@copy($event->tmpname, $target)) {
-			throw new UploadException("Failed to copy file from uploads ({$event->tmpname}) to archive ($target)");
-			return false;
+	if(in_array('local', $methods)){
+		$target = warehouse_path('images', $hash, 'local');
+				
+		if($file != $target){ //Avoid to copy from the same target
+			if(!@copy($file, $target)) {
+				throw new UploadException("Failed to copy file from uploads ({$file}) to archive ($target)");
+				return false;
+			}
 		}
 	}
 	
@@ -561,21 +564,22 @@ function warehouse_file($event) {
 		$amazon_secret = $config->get_string('warehouse_amazon_secret');
 		$amazon_bucket = $config->get_string('warehouse_amazon_bucket');
 		
-		$target = substr($target, 25 + strlen($amazon_bucket) + 1); // Remove "https://s3.amazonaws.com/$amazon_bucket"
+		$target = warehouse_path('images', $hash, 'amazon');
+		$target = substr($target, 24 + strlen($amazon_bucket) + 1); // Remove "https://s3.amazonaws.com/$amazon_bucket"
 		
 		if(!empty($amazon_bucket)) {	
 			$s3 = new S3($amazon_access, $amazon_secret);
 			$s3->putBucket($amazon_bucket, S3::ACL_PUBLIC_READ);
 			
 			$s3->putObjectFile(
-				$event->tmpname,
+				$file,
 				$amazon_bucket,
 				$target,
 				S3::ACL_PUBLIC_READ,
 				array(),
 				array(
-					"Content-Type" => $event->type,
-					"Content-Disposition" => "inline; filename=Post-" . $event->hash . "." . $event->type,
+					"Content-Type" => $ext,
+					"Content-Disposition" => "inline; filename=Post-" . $hash . "." . $ext,
 				)
 			);
 		}
@@ -584,30 +588,30 @@ function warehouse_file($event) {
 		}
 	}
 	
-	warehouse_thumb($event);
+	warehouse_thumb($file, $hash, $ext);
 	
 	return true;
 }
 
-function warehouse_thumb($event) {
+function warehouse_thumb($file, $hash, $ext) {
 	global $config;
 	$backup_method = $config->get_string('warehouse_method','local_hierarchy');
 	
 	$methods = explode("_",$backup_method);
 	
-	if(supported_ext($event->type)) {
-		$temp_thumb = sys_get_temp_dir()."/$event->hash";
-		create_thumb($event->tmpname, $temp_thumb);
+	if(supported_ext($ext)) {
+		$temp_thumb = sys_get_temp_dir()."/$hash";
+		create_thumb($file, $temp_thumb);
 	}
 	else{
 		return false;
 	}
 	
-	$target = warehouse_path("thumbs", $event->hash);
-	
-	if(in_array('local', $methods)){		
+	if(in_array('local', $methods)){
+		$target = warehouse_path('thumbs', $hash, 'local');
+		
 		if(!@copy($temp_thumb, $target)) {
-			throw new UploadException("Failed to copy file from uploads ({$event->tmpname}) to archive ($target)");
+			throw new UploadException("Failed to copy thumb from uploads ({$file}) to archive ($target)");
 			return false;
 		}
 	}
@@ -617,7 +621,8 @@ function warehouse_thumb($event) {
 		$amazon_secret = $config->get_string('warehouse_amazon_secret');
 		$amazon_bucket = $config->get_string('warehouse_amazon_bucket');
 		
-		$target = substr($target, 25 + strlen($amazon_bucket) + 1); // Remove "https://s3.amazonaws.com/$amazon_bucket"
+		$target = warehouse_path('thumbs', $hash, 'amazon');
+		$target = substr($target, 24 + strlen($amazon_bucket) + 1); // Remove "https://s3.amazonaws.com/$amazon_bucket"
 		
 		if(!empty($amazon_bucket)) {	
 			$s3 = new S3($amazon_access, $amazon_secret);
@@ -630,8 +635,8 @@ function warehouse_thumb($event) {
 				S3::ACL_PUBLIC_READ,
 				array(),
 				array(
-					"Content-Type" => $event->type,
-					"Content-Disposition" => "inline; filename=Post-" . $event->hash . ".jpg",
+					"Content-Type" => $ext,
+					"Content-Disposition" => "inline; filename=Post-" . $hash . ".jpg",
 				)
 			);
 		}
