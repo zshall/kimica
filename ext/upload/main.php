@@ -33,10 +33,10 @@ class DataUploadEvent extends Event {
 }
 
 class DataWarehousedEvent extends Event {
-	var $hash;
+	var $id;
 
-	public function DataWarehousedEvent($hash) {
-		$this->hash = $hash;
+	public function DataWarehousedEvent($id) {
+		$this->id = $id;
 	}
 }
 
@@ -57,7 +57,7 @@ class Upload implements Extension {
 		}
 		
 		if($event instanceof DataWarehousedEvent) {
-			$image = Image::by_hash($event->hash);
+			$image = Image::by_id($event->id);
 			$image->set_warehoused();
 		}
 
@@ -372,19 +372,12 @@ class Upload implements Extension {
 		$metadata['extension'] = $pathinfo['extension'];
 		$metadata['tags'] = $tags;
 		$metadata['source'] = null;
+		
 		$event = new DataUploadEvent($user, $tmpname, $metadata);
 		send_event($event);
+
 		if($event->image_id == -1) {
 			throw new UploadException("File type not recognised");
-		}
-		else{
-			//If it was uploaded sucessfully then set as warehoused.
-			$backup_method = $config->get_string('warehouse_method','local_hierarchy');
-			$methods = explode("_",$backup_method);
-			
-			if(in_array('amazon', $methods)){
-				send_event(new DataWarehousedEvent($event->hash));
-			}
 		}
 	}
 	
