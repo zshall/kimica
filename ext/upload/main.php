@@ -54,6 +54,11 @@ class Upload implements Extension {
 			$config->set_default_int('upload_size', '1MB');
 			$config->set_default_bool('upload_anon', false);
 			$config->set_default_string('upload_autoapprove', 'oam');
+			
+			$config->set_default_string('warehouse_method', 'local_hierarchy');
+			$config->set_default_string('warehouse_amazon_access', 'access_key');
+			$config->set_default_string('warehouse_amazon_secret', 'secret_key');
+			$config->set_default_string('warehouse_amazon_bucket', 'bucket');
 		}
 		
 		if($event instanceof DataWarehousedEvent) {
