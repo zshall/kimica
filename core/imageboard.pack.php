@@ -258,8 +258,8 @@ class Image {
 	public function get_image_link() {
 		global $config;
 		
-		$backup_method = $config->get_string('warehouse_method','local_hierarchy');
-		$methods = explode("_",$backup_method);
+		$warehouse_method = $config->get_string('warehouse_method','local_hierarchy');
+		$methods = explode("_",$warehouse_method);
 		
 		if(in_array('amazon', $methods) && $this->is_warehoused()){
 			return warehouse_path('images', $this->hash, 'amazon');
@@ -283,17 +283,6 @@ class Image {
 	}
 
 	/**
-	 * Get a short link to the full size image
-	 *
-	 * @deprecated
-	 * @retval string
-	 */
-	public function get_short_link() {
-		global $config;
-		return $this->parse_link_template($config->get_string('image_slink'));
-	}
-
-	/**
 	 * Get the URL for the thumbnail
 	 *
 	 * @retval string
@@ -301,8 +290,8 @@ class Image {
 	public function get_thumb_link() {
 		global $config;
 		
-		$backup_method = $config->get_string('warehouse_method','local_hierarchy');
-		$methods = explode("_",$backup_method);
+		$warehouse_method = $config->get_string('warehouse_method','local_hierarchy');
+		$methods = explode("_",$warehouse_method);
 		
 		if(in_array('amazon', $methods) && $this->is_warehoused()){
 			return warehouse_path('thumbs', $this->hash, 'amazon');
@@ -371,7 +360,9 @@ class Image {
 	 * @retval string
 	 */
 	public function get_mime_type() {
-		return "image/".($this->ext);
+		$type = strtolower($this->ext);
+		if($type == "jpg") $type = "jpeg";
+		return "image/$type";
 	}
 
 	/**

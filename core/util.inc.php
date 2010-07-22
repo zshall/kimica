@@ -538,6 +538,7 @@ function warehouse_path($base, $hash, $force=NULL) {
 	return $target;
 }
 
+
 /**
  * Move a file from PHP's temporary area into kimica's image storage
  * heirachy, or throw an exception trying
