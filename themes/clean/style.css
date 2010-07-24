@@ -9,7 +9,9 @@ dl, dt, dd, ol, ul, li,
 fieldset, form, label, legend,
 table, caption{border: 0; margin: 0; padding: 0; vertical-align: baseline; font-weight: inherit; font-style: inherit; font-size: 100%; font-family: inherit;}
 
-body {background: #EBEADB; font: 75%/1.5 "myriad pro", helvetica, arial, sans-serif; color: #FFF;}
+input, textarea, select {min-width: 125px; max-width: 350px;}
+
+body {background: #EBEADB; font: 12px helvetica, arial, sans-serif; color: #464441;}
 
 table {border-collapse: separate; border-spacing: 0; width:700px; margin-bottom: 5px; margin-left:auto; margin-right:auto;}
 thead {background: #e9ae9e; color: #FFF;}
@@ -37,12 +39,12 @@ strong, b {font-weight: bold;}
 em, i {font-style: italic;}
 
 /* basic links properties */
-a {text-decoration: none; color: #333;}
+a {text-decoration: none; color: #325a83;}
 a.alt,
 .altbox .content a {border-color: #d0e4f5; color: #0f5290;}
 a:hover, a:active, a:focus,
 a.alt:hover, a.alt:active, a.alt:focus,
-.altbox .content a:hover, .altbox .content a:active, .altbox .content a:focus {border-color: #d0e4f5; color: #0a80cf;}
+.altbox .content a:hover, .altbox .content a:active, .altbox .content a:focus {border-color: #d0e4f5; color: #799a07;}
 a img {border: none;}
 
 /* Header Section */
@@ -72,30 +74,31 @@ a img {border: none;}
 
 /* Sidebar Section */
 /* =============== */
-#sidebar {color:#FFF; float:left; width:170px;}
+#sidebar {float:left; width:170px;}
 
-#block-header {background: #302f2f url("img/block-header.png") repeat-x; border: #59b7ad solid 1px; width:160px; height:30px;}
-#block-header span{font: 1.25em "myriad pro", helvetica, arial, sans-serif; position: relative; top: 6px; left: 6px;}
-#block-main {background: #FFFFFF; width:150px; border-left: #cfcfbd solid 1px; border-right: #cfcfbd solid 1px; border-bottom: #cfcfbd solid 1px; color:#838375; margin-bottom:10px;padding:5px;-moz-border-radius: 0 0 5px 5px;-webkit-border-radius: 0 0 5px 5px;border-radius: 0 0 5px 5px;}
+#block-header {background: #302f2f url("img/block-header.png") repeat-x; color: #FFFFFF; border: #59b7ad solid 1px; width:160px; height:30px;}
+#block-header span{font: 14px helvetica, arial, sans-serif; position: relative; top: 7px; left: 7px;}
+#block-main {background: #FFFFFF; width:150px; border-left: #cfcfbd solid 1px; border-right: #cfcfbd solid 1px; border-bottom: #cfcfbd solid 1px; margin-bottom:10px;padding:5px;-moz-border-radius: 0 0 5px 5px;-webkit-border-radius: 0 0 5px 5px;border-radius: 0 0 5px 5px;}
 
 #content {margin-left: 170px;}
+#content input[type="text"]{width: 350px; margin-bottom: 3px;}
 
 #content .thumbblock{height: auto; text-align:center; padding:0;}
 #content .thumb {list-style:none; padding:0; min-width:180px; width:25%; height:180px; vertical-align:top;display:inline-block;}
 
-#content .favorited {border: #848484 solid 2px; padding:1px;}
-#content .un-favorited {border: #848484 solid 2px; padding:1px;}
+#content .favorited {}
+#content .un-favorited {}
 
-#content .voted-up {border: #848484 solid 2px; padding:1px;}
-#content .voted-down {border: #848484 solid 2px; padding:1px;}
+#content .voted-up {}
+#content .voted-down {}
 
-#content .rated-safe {border: #59b7ad solid 2px; padding:1px;}
-#content .rated-questionable {border: #cfcfbd solid 2px; padding:1px;}
-#content .rated-explicit {border: #ca4e2d solid 2px; padding:1px;}
+#content .rated-safe {}
+#content .rated-questionable {}
+#content .rated-explicit {}
 
-#content-header {background: #302f2f url("img/sub-nav.png") repeat-x; border: #ca4e2d solid 1px; height:30px;}
-#content-header span{font: 1.25em "myriad pro", helvetica, arial, sans-serif; position: relative; top: 6px; left: 6px;}
-#content-main {background: #FFFFFF; border-left: #cfcfbd solid 1px; border-right: #cfcfbd solid 1px; border-bottom: #cfcfbd solid 1px; color:#838375;margin-bottom:10px;text-align: center;padding:5px;-moz-border-radius: 0 0 5px 5px;-webkit-border-radius: 0 0 5px 5px; border-radius: 0 0 5px 5px;}
+#content-header {background: #302f2f url("img/sub-nav.png") repeat-x; color: #FFFFFF; border: #ca4e2d solid 1px; height:30px;}
+#content-header span{font: 14px helvetica, arial, sans-serif; position: relative; top: 7px; left: 7px;}
+#content-main {background: #FFFFFF; border-left: #cfcfbd solid 1px; border-right: #cfcfbd solid 1px; border-bottom: #cfcfbd solid 1px;margin-bottom:10px;text-align: center;padding:5px;-moz-border-radius: 0 0 5px 5px;-webkit-border-radius: 0 0 5px 5px; border-radius: 0 0 5px 5px;}
 
 #paginator {display: block;	padding: 2em 0 1em 0; clear:both;}
 #paginator ul{list-style: none; padding: 0; margin: 0;} 

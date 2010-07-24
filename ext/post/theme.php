@@ -254,8 +254,8 @@ class PostTheme extends Themelet {
 			$html .= $part;
 		}
 		$html .= "
-						<tr><td colspan='2'><input type='submit' value='Set'></td></tr>
 					</table>
+					<input type='submit' value='Set'>
 				</form>
 				<br>
 			</div>
