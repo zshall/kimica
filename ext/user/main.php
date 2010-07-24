@@ -426,9 +426,6 @@ class UserPage extends SimpleExtension {
 		$event->add_stats(array("Join Date", "$h_join_date"), 10);
 		$event->add_stats(array("Role", ucfirst($event->display_user->role_to_human())), 20);
 
-		$av = $event->display_user->get_avatar_html();
-		if($av) $event->add_stats($av, 0);
-
 		ksort($event->stats);
 		$this->theme->display_user_page($event->display_user, $event->stats);
 		if($user->id == $event->display_user->id) {

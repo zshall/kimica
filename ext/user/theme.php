@@ -155,7 +155,7 @@ class UserPageTheme extends Themelet {
 
 		$html = "
 		<form action='".make_link("account/validate")."' method='POST'>
-			<table style='width: 300px;'>
+			<table>
 				<tr><td>User</td><td><input type='text' name='name'></td></tr>
 				<tr><td>Code</td><td><input type='text' name='code'></td></tr>
 				<tr><td colspan='2'><input type='Submit' value='Validate'></td></tr>
@@ -176,7 +176,7 @@ class UserPageTheme extends Themelet {
 
 		$html = "
 		<form action='".make_link("account/validate/resend")."' method='POST'>
-			<table style='width: 300px;'>
+			<table>
 				<tr><td>Name</td><td><input type='text' name='name'></td></tr>
 				<tr><td colspan='2'><input type='Submit' value='Resend Code'></td></tr>
 			</table>
@@ -194,7 +194,7 @@ class UserPageTheme extends Themelet {
 
 		$html = "
 		<form action='".make_link("account/recover")."' method='POST'>
-			<table style='width: 300px;'>
+			<table>
 				<tr><td>User</td><td><input type='text' name='name'></td></tr>
 				<tr><td>Email</td><td><input type='text' name='email'></td></tr>
 				<tr><td colspan='2'><input type='Submit' value='Recover'></td></tr>
@@ -225,8 +225,8 @@ class UserPageTheme extends Themelet {
 
 		$html .= "
 		<form action='".make_link("account/create")."' method='POST'>
-			<table style='width: 300px;'>
-				<tr><td>Name</td><td><input type='text' name='name'></td></tr>
+			<table>
+				<tr><td>Username</td><td><input type='text' name='name'></td></tr>
 				<tr><td>Password</td><td><input type='password' name='pass1'></td></tr>
 				<tr><td>Repeat Password</td><td><input type='password' name='pass2'></td></tr>
 				<tr><td>Email</td><td><input type='text' name='email'></td></tr>
@@ -270,11 +270,13 @@ class UserPageTheme extends Themelet {
 		$page->add_block(new Block("Login", $html, "left", 90));
 	}
 
-		public function display_user_page(User $duser, $stats) {
+	public function display_user_page(User $duser, $stats) {
 		global $page, $user;
 		assert(is_array($stats));
 		
-		$html = "<table id='stats' class='zebra'><tbody>";
+		$av = $duser->get_avatar_html();
+	
+		$html = "$av<table id='stats' class='zebra'><tbody>";
 						
 		$n = 0;
 		foreach($stats as $stat) {
@@ -305,7 +307,7 @@ class UserPageTheme extends Themelet {
 		$html .= "
 		<form action='".make_link("account/change_pass")."' method='POST'>
 			<input type='hidden' name='id' value='{$duser->id}'>
-			<table style='width: 300px;'>
+			<table>
 				<tr><th colspan='2'>Change Password</th></tr>
 				<tr><td>Password</td><td><input type='password' name='pass1'></td></tr>
 				<tr><td>Repeat Password</td><td><input type='password' name='pass2'></td></tr>
@@ -315,7 +317,7 @@ class UserPageTheme extends Themelet {
 
 		<p><form action='".make_link("account/change_email")."' method='POST'>
 			<input type='hidden' name='id' value='{$duser->id}'>
-			<table style='width: 300px;'>
+			<table>
 				<tr><th colspan='2'>Change Email</th></tr>
 				<tr><td>Address</td><td><input type='text' name='address' value='".html_escape($duser->email)."'></td></tr>
 				<tr><td colspan='2'><input type='Submit' value='Change Email'></td></tr>

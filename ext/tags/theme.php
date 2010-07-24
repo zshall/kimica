@@ -29,7 +29,7 @@ class TagListTheme extends Themelet {
 	}
 	
 	public function display_navigation(Page $page) {
-		$page->add_block(new Block("Navigation", $this->navigation, "left", 0));
+		$page->add_block(new Block("Tags", $this->navigation, "left", 0));
 	}
 
 	// =======================================================================
@@ -220,7 +220,7 @@ class TagListTheme extends Themelet {
 	public function display_aliases($aliases, $is_admin, $pageNumber, $totalPages) {
 		global $page;
 		if($is_admin) {
-			$action = "<th width='10%'>Action</th>";
+			$action = "<th>Action</th>";
 			$add = "
 				<tr>
 					<form action='".make_link("tags/alias/add")."' method='POST'>

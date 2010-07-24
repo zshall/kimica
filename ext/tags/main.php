@@ -296,7 +296,7 @@ class TagList extends SimpleExtension {
 		}
 		$h_all = "<a href='?mincount=1'>Show All</a>";
 		
-		return "$h_index<br>&nbsp;<br>$h_map<br>$h_alphabetic<br>$h_popularity<br>$h_cats<br>$h_bans&nbsp;$h_tools<br>$h_all";
+		return "$h_index<br>&nbsp;<br>$h_map<br>$h_alphabetic<br>$h_popularity<br>$h_cats<br>$h_bans$h_tools<br>$h_all";
 	}
 
 	private function build_tag_map() {

@@ -244,7 +244,6 @@ class PostTheme extends Themelet {
 		else {$h_query = "";}
 
 		$html = "
-			<div id='imgdata'>
 				<form action='".make_link("post/set")."' method='POST'>
 					<input type='hidden' name='image_id' value='{$image->id}'>
 					<input type='hidden' name='query' value='$h_query'>
@@ -257,8 +256,6 @@ class PostTheme extends Themelet {
 					</table>
 					<input type='submit' value='Set'>
 				</form>
-				<br>
-			</div>
 		";
 		return $html;
 	}

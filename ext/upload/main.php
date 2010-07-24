@@ -86,6 +86,15 @@ class Upload implements Extension {
 		}
 
 		if(($event instanceof PageRequestEvent) && $event->page_matches("upload")) {
+			
+			$free_num = @disk_free_space(realpath("./images/"));
+			if($free_num === FALSE) {
+				$is_full = false;
+			}
+			else {
+				$is_full = $free_num < 100*1024*1024;
+			}
+				
 			if(count($_FILES) + count($_POST) > 0) {
 				$tags = Tag::explode($_POST['tags']);
 				$source = isset($_POST['source']) ? $_POST['source'] : null;
