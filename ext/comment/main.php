@@ -86,6 +86,7 @@ class CommentList extends SimpleExtension {
 		$config->set_default_int('comment_list_count', 10);
 		$config->set_default_int('comment_count', 5);
 		$config->set_default_bool('comment_captcha', false);
+		$config->set_default_bool('comment_block', false);
 	}
 
 	public function onPageRequest($event) {
@@ -142,11 +143,13 @@ class CommentList extends SimpleExtension {
 
 	public function onPostListBuilding($event) {
 		global $config;
-		$cc = $config->get_int("comment_count");
-		if($cc > 0) {
-			$recent = $this->get_recent_comments($cc);
-			if(count($recent) > 0) {
-				$this->theme->display_recent_comments($recent);
+		if($config->get_bool("comment_block", false)){
+			$cc = $config->get_int("comment_count");
+			if($cc > 0) {
+				$recent = $this->get_recent_comments($cc);
+				if(count($recent) > 0) {
+					$this->theme->display_recent_comments($recent);
+				}
 			}
 		}
 	}

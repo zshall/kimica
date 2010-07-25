@@ -53,6 +53,7 @@ class Upload implements Extension {
 			$config->set_default_int('upload_count', 3);
 			$config->set_default_int('upload_size', '1MB');
 			$config->set_default_bool('upload_anon', false);
+			$config->set_default_bool('upload_block', false);
 			$config->set_default_string('upload_autoapprove', 'oam');
 			
 			$config->set_default_string('warehouse_method', 'local_hierarchy');
@@ -75,12 +76,14 @@ class Upload implements Extension {
 				else {
 					$is_full = $free_num < 100*1024*1024;
 				}
-		
-				if($is_full) {
-					$this->theme->display_full($page);
-				}
-				else {
-					$this->theme->display_block($page);
+				
+				if($config->get_bool("upload_block")){
+					if($is_full) {
+						$this->theme->display_full($page);
+					}
+					else {
+						$this->theme->display_block($page);
+					}
 				}
 			}
 		}
