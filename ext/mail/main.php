@@ -13,7 +13,7 @@ class Mail extends SimpleExtension {
 		$sb->add_text_option("mail_sub", "<br>Subject prefix: ");
 		$sb->add_text_option("mail_img", "<br>Banner Image URL: ");
 		$sb->add_longtext_option("mail_fot", "<br>Footer (Use HTML)");
-		$sb->add_label("<br><i>Should measure 550x110px. Use an absolute URL");
+		$sb->add_label("<br><i>Should measure 550x110px. Use an absolute URL</i>");
 		$event->panel->add_block($sb);
 	}
 	
