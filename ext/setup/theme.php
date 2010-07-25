@@ -22,7 +22,7 @@ class SetupTheme extends Themelet {
 		 * Try and keep the two columns even; count the line breaks in
 		 * each an calculate where a block would work best
 		 */
-		$len1 = 0;
+ 		$len1 = 0;
 		$len2 = 0;
 		foreach($panel->blocks as $block) {
 			if($block instanceof SetupBlock) {
@@ -40,10 +40,11 @@ class SetupTheme extends Themelet {
 		}
 
 		$table = "
-			<form action='".make_link("setup/save")."' method='POST'><table>
-			<tr><td>$setupblock_html1</td><td>$setupblock_html2</td></tr>
-			<tr><td colspan='2'><input type='submit' value='Save Settings'></td></tr>
-			</table></form>
+			<form action='".make_link("setup/save")."' method='POST'><div id='setup'>
+			<div class='col'>$setupblock_html1</div>
+			<div class='col'>$setupblock_html2</div>
+			<div class='save'><input type='submit' value='Save Settings'></div>
+			</div></form>
 			";
 
 		$page->set_title("Board Setup");

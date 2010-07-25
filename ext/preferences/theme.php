@@ -40,12 +40,13 @@ class UserPrefsSetupTheme extends Themelet {
 				}
 			}
 		}
-
+			
 		$table = "
-			<form action='".make_link("account/preferences/$username/save")."' method='POST'><table>
-			<tr><td>$prefblock_html1</td><td>$prefblock_html2</td></tr>
-			<tr><td colspan='2'><input type='submit' value='Save Settings'></td></tr>
-			</table></form>
+			<form action='".make_link("account/preferences/$username/save")."' method='POST'><div id='setup'>
+			<div class='col'>$prefblock_html1</div>
+			<div class='col'>$prefblock_html2</div>
+			<div class='save'><input type='submit' value='Save Settings'></div>
+			</div></form>
 			";
 
 		$page->set_title("User Preferences");

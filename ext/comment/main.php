@@ -197,7 +197,8 @@ class CommentList extends SimpleExtension {
 		$sb->add_bool_option("comment_captcha", "<br>Require CAPTCHA for anonymous comments: ");
 		$sb->add_label("<br>Limit to ");
 		$sb->add_int_option("comment_limit");
-		$sb->add_label(" comments per ");
+		$sb->add_label(" comments");
+		$sb->add_label("<br>Every ");
 		$sb->add_int_option("comment_window");
 		$sb->add_label(" minutes");
 		$sb->add_label("<br>Show ");

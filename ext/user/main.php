@@ -444,7 +444,7 @@ class UserPage extends SimpleExtension {
 			"Gravatar" => "gravatar"
 		);
 
-		$sb = new SetupBlock("User Options");
+		$sb = new SetupBlock("Account Options");
 		$sb->add_bool_option("login_signup_enabled", "Allow new signups: ");
 		$sb->add_bool_option("signup_validation_enabled", "<br>Validate accounts: ");
 		$sb->add_text_option("signup_validation_email", "<br>Validation Email: ");
@@ -452,7 +452,7 @@ class UserPage extends SimpleExtension {
 		$sb->add_choice_option("avatar_host", $hosts, "<br>Avatars: ");
 
 		if($config->get_string("avatar_host") == "gravatar") {
-			$sb->add_label("<br>&nbsp;<br><b>Gravatar Options</b>");
+			$sb->add_label("<br><br><b>Gravatar Options</b>");
 			$sb->add_choice_option("avatar_gravatar_type",
 				array(
 					'Default'=>'default',
