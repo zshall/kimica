@@ -406,7 +406,7 @@ class TagList extends SimpleExtension {
 		global $user, $database;
 
 		$tags_min = $this->get_tags_min();
-		$result = $database->execute("SELECT name, status FROM tag_bans ORDER BY name ASC");
+		$result = $database->execute("SELECT tag, status FROM tag_bans ORDER BY tag ASC");
 		$tag_data = $result->GetArray();
 
 		$h_bans = "";
@@ -414,7 +414,7 @@ class TagList extends SimpleExtension {
 		foreach($tag_data as $row) {
 			$oe = ($n++ % 2 == 0) ? "even" : "odd";
 			
-			$h_tag = "<a href='".make_link("post/list/".url_escape($row["name"])."/1")."'>".html_escape($row["name"])."</a>";
+			$h_tag = "<a href='".make_link("post/list/".url_escape($row["tag"])."/1")."'>".html_escape($row["tag"])."</a>";
 			$h_status = "";
 			
 			switch($row["status"]) {
@@ -427,7 +427,7 @@ class TagList extends SimpleExtension {
 				$h_bans .= "
 					<td>
 						<form action='".make_link("tags/banned/remove")."' method='POST'>
-							<input type='hidden' name='tag' value='".$row["name"]."'>
+							<input type='hidden' name='tag' value='".$row["tag"]."'>
 							<input type='submit' value='Remove'>
 						</form>
 					</td>
@@ -475,7 +475,7 @@ class TagList extends SimpleExtension {
 		if($user->is_admin()){
 			$database->Execute(
 				"INSERT INTO tag_bans(
-					name, status)
+					tag, status)
 				VALUES (?, ?)",
 				array($tag, $status));
 				
