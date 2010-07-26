@@ -61,10 +61,16 @@ class PostTheme extends Themelet {
 	
 	public function display_populars($images, $date) {
 		global $page;
+		
+		$html = $this->build_table($images, null);
+		
+		if(!$images){
+			$html = "There is no images to show.";
+		}
 
 		$page->set_title("Popular Images");
 		$page->set_heading("Popular Images");
-		$page->add_block(new Block("Popular Images: ".$date, $this->build_table($images, null), "main", 10));
+		$page->add_block(new Block("Popular Images: ".$date, $html, "main", 10));
 	}
 	
 	public function display_recent_posts($posts){
