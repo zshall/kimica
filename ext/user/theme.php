@@ -451,7 +451,7 @@ class UserPageTheme extends Themelet {
 			</script>
 			<form action='".make_link("account/messages/action")."' method='POST'>
 			<table id='pms' class='zebra'>
-				<thead><tr><th>Subject</th><th>From</th><th>Date</th><th>Select</th></tr></thead>
+				<thead><tr><th>Subject</th><th>From</th><th>Date</th><th>Priority</th><th>Select</th></tr></thead>
 				<tbody>";
 		$n = 0;
 		foreach($pms as $pm) {
@@ -464,8 +464,21 @@ class UserPageTheme extends Themelet {
 			$from_url = make_link("account/profile/".url_escape($from_name));
 			$pm_url = make_link("account/messages/view/".$pm["id"]);
 			$h_date = html_escape($pm["sent_date"]);
+			
+			switch($pm["priority"]){
+				case "l":
+					$h_priority = "Low";
+				break;
+				case "n":
+					$h_priority = "Normal";
+				break;
+				case "h":
+					$h_priority = "High";
+				break;
+			}
+			
 			$html .= "<tr class='$oe'><td><a href='$pm_url'>$h_subject</a></td>
-			<td><a href='$from_url'>$h_from</a></td><td>$h_date</td>
+			<td><a href='$from_url'>$h_from</a></td><td>$h_date</td><td>$h_priority</td>
 			<td>
 				<input name='id[]' type='checkbox' value='".$pm["id"]."' />
 			</td></tr>";
@@ -489,13 +502,13 @@ class UserPageTheme extends Themelet {
 			</form>
 		";
 
-		if(empty($pms)){
-			$html = "You have no messages.";
+		if(!$pms){
+			$html = "There is no messages to show.";
 		}
 		
 		$page->set_title("Messages");
 		$page->set_heading(ucfirst($inbox));
-		$page->add_block(new Block("Private Messages", $html, "main", 10));
+		$page->add_block(new Block(ucfirst($inbox), $html, "main", 10));
 	}
 	
 	public function display_outbox(Page $page, $pms) {
@@ -533,7 +546,7 @@ class UserPageTheme extends Themelet {
 		
 		$page->set_title("Messages");
 		$page->set_heading("Outbox");
-		$page->add_block(new Block("Private Messages", $html, "main", 10));
+		$page->add_block(new Block("Outbox", $html, "main", 10));
 	}
 // }}}
 }
