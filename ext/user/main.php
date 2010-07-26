@@ -788,7 +788,6 @@ class UserPage extends SimpleExtension {
 
 		$page->set_title("Error");
 		$page->set_heading("Error");
-		$page->add_block(new NavBlock());
 		
 	    if(!isset($_POST['id']) || !is_numeric($_POST['id'])) {
 			$page->add_block(new Block("No ID Specified",

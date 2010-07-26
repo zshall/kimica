@@ -289,7 +289,6 @@ class UserPageTheme extends Themelet {
 
 		$page->set_title("{$duser->name}'s Page");
 		$page->set_heading("{$duser->name}'s Page");
-		$page->add_block(new NavBlock());
 		$page->add_block(new Block("Stats", $html, "main", 0));
 
 		if(!$user->is_anon()) {
