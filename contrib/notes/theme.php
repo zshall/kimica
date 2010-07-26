@@ -242,11 +242,16 @@ class NotesTheme extends Themelet {
 
 			
 		}
-		$this->display_paginator($page, "note/list", null, $pageNumber, $totalPages);
+		
+		if(!$images){
+			$pool_images = "There is no images to shown.";
+		}
+		
+		$pagination = $this->build_paginator("note/list", null, $pageNumber, $totalPages);
 		
 		$page->set_title("Notes");
 		$page->set_heading("Notes");
-		$page->add_block(new Block("Notes", $pool_images, "main", 20));
+		$page->add_block(new Block("Notes", $pool_images.$pagination, "main", 20));
 	}
 	
 	public function display_note_requests($images, $pageNumber, $totalPages) {
@@ -263,11 +268,16 @@ class NotesTheme extends Themelet {
 
 			
 		}
-		$this->display_paginator($page, "requests/list", null, $pageNumber, $totalPages);
+		
+		if(!$images){
+			$pool_images = "There is no request to shown.";
+		}
+		
+		$pagination = $this->build_paginator("requests/list", null, $pageNumber, $totalPages);
 		
 		$page->set_title("Note Requests");
 		$page->set_heading("Note Requests");
-		$page->add_block(new Block("Note Requests", $pool_images, "main", 20));
+		$page->add_block(new Block("Note Requests", $pool_images.$pagination, "main", 20));
 	}
 	
 	public function display_histories($histories, $pageNumber, $totalPages) {
@@ -312,12 +322,16 @@ class NotesTheme extends Themelet {
 		}
 		
 		$html .= "</tr></tbody></table>";
-					
+		
+		if(!$histories){
+			$html = "There is no histories to shown.";
+		}
+		
+		$pagination = $this->build_paginator("note/updated", null, $pageNumber, $totalPages);
+		
 		$page->set_title("Note Updates");
 		$page->set_heading("Note Updates");
-		$page->add_block(new Block("Note Updates", $html, "main", 10));
-		
-		$this->display_paginator($page, "note/updated", null, $pageNumber, $totalPages);
+		$page->add_block(new Block("Note Updates", $html.$pagination, "main", 10));
 	}
 	
 	public function display_history($histories, $pageNumber, $totalPages) {
@@ -362,12 +376,12 @@ class NotesTheme extends Themelet {
 		}
 		
 		$html .= "</tr></tbody></table>";
-					
+		
+		$pagination = $this->build_paginator("note/updated", null, $pageNumber, $totalPages);
+		
 		$page->set_title("Note History");
 		$page->set_heading("Note History");
-		$page->add_block(new Block("Note History", $html, "main", 10));
-		
-		$this->display_paginator($page, "note/updated", null, $pageNumber, $totalPages);
+		$page->add_block(new Block("Note History", $html.$pagination, "main", 10));
 	}
 
  }        

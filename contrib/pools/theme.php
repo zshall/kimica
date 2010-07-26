@@ -398,12 +398,12 @@ class PoolsTheme extends Themelet {
 		}
 
 		$html .= "</tbody></table>";
+		
+		$pagination = $this->build_paginator("pool/updated", null, $pageNumber, $totalPages);
 
 		$page->set_title("Recent Changes");
 		$page->set_heading("Recent Changes");
-		$page->add_block(new Block("Recent Changes", $html, "main", 10));
-
-		$this->display_paginator($page, "pool/updated", null, $pageNumber, $totalPages);
+		$page->add_block(new Block("Recent Changes", $html.$pagination, "main", 10));
 	}
 
 
