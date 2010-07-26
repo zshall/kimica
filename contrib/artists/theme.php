@@ -212,11 +212,11 @@ class ArtistsTheme extends Themelet {
 
             $html .= "</tbody></table>";
 
+			$pagination = $this->build_paginator("artist/list", null, $pageNumber, $totalPages);
+			
             $page->set_title("Artists");
             $page->set_heading("Artists");
-            $page->add_block(new Block("Artists", $html, "main", 10));
-
-            $this->display_paginator($page, "artist/list", null, $pageNumber, $totalPages);
+            $page->add_block(new Block("Artists", $html.$pagination, "main", 10));
 	}
 
         public function show_new_alias_composer($artistID)
