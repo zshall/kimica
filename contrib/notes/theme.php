@@ -244,7 +244,7 @@ class NotesTheme extends Themelet {
 		}
 		
 		if(!$images){
-			$pool_images = "There is no images to shown.";
+			$pool_images = "There is no images to show.";
 		}
 		
 		$pagination = $this->build_paginator("note/list", null, $pageNumber, $totalPages);
@@ -270,7 +270,7 @@ class NotesTheme extends Themelet {
 		}
 		
 		if(!$images){
-			$pool_images = "There is no request to shown.";
+			$pool_images = "There is no request to show.";
 		}
 		
 		$pagination = $this->build_paginator("requests/list", null, $pageNumber, $totalPages);
@@ -324,7 +324,7 @@ class NotesTheme extends Themelet {
 		$html .= "</tr></tbody></table>";
 		
 		if(!$histories){
-			$html = "There is no histories to shown.";
+			$html = "There is no histories to show.";
 		}
 		
 		$pagination = $this->build_paginator("note/updated", null, $pageNumber, $totalPages);

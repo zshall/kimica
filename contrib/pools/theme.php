@@ -69,7 +69,10 @@ class PoolsTheme extends Themelet {
 		}
 
 		$html .= "</tbody></table>";
-
+		
+		if(!$pools){
+			$html = "There is no pools to show.";
+		}
 
 		$nav_html = "
 			<a href=".make_link().">Index</a>
@@ -169,6 +172,10 @@ class PoolsTheme extends Themelet {
 							'</li>';
 		}
 		$pool_images .= "</ul>";
+		
+		if(!$images){
+			$pool_images = "There is no images to show.";
+		}
 		
 		$pagination = $this->build_paginator("pool/view/".$pools[0]['id'], null, $pageNumber, $totalPages);
 		$page->add_block(new Block("Viewing Posts", $pool_images.$pagination, "main", 30));				
@@ -270,6 +277,10 @@ class PoolsTheme extends Themelet {
 			"<input type='submit' name='edit' id='edit' value='Add Selected' onclick='return confirm_action()'/>".
 			"<input type='hidden' name='pool_id' value='".$pool_id."'>".
 			"</ul></form>";
+			
+		if(!$images){
+			$pool_images = "There is no images to show.";
+		}
 
 		$page->add_block(new Block("Import", $pool_images, "main", 10));
 
@@ -399,23 +410,15 @@ class PoolsTheme extends Themelet {
 
 		$html .= "</tbody></table>";
 		
+		if(!$histories){
+			$html = "There is no histories to show.";
+		}
+		
 		$pagination = $this->build_paginator("pool/updated", null, $pageNumber, $totalPages);
 
 		$page->set_title("Recent Changes");
 		$page->set_heading("Recent Changes");
 		$page->add_block(new Block("Recent Changes", $html.$pagination, "main", 10));
-	}
-
-
-	/*
-	 * HERE WE DISPLAY THE ERROR
-	 */
-	public function display_error($errMessage) {
-		global $page;
-
-		$page->set_title("Error");
-		$page->set_heading("Error");
-		$page->add_block(new Block("Error", $errMessage, "main", 10));
 	}
 }
 ?>
