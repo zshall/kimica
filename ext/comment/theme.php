@@ -76,6 +76,10 @@ class CommentListTheme extends Themelet {
 				$page->add_block(new Block("{$image->id}: ".($image->get_tag_list()), $html.$pagination, "main", $position++));
 			}
 		}
+		
+		if(!$images){
+			$page->add_block(new Block("Comments", "There is no comments to show.", "main", $position++));
+		}
 	}
 
 
