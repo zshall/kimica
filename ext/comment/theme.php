@@ -26,11 +26,8 @@ class CommentListTheme extends Themelet {
 		$h_next = ($page_number >= $total_pages) ? "Next" :
 			"<a href='".make_link("comment/list/$next")."'>Next</a>";
 
-		$nav = "$h_prev | $h_index | $h_next";
-
 		$page->set_title("Comments");
 		$page->set_heading("Comments");
-		$page->add_block(new Block("Navigation", $nav, "left"));
 		$pagination = $this->build_paginator("comment/list", null, $page_number, $total_pages);
 
 		// parts for each image
