@@ -853,7 +853,7 @@ class UserPage extends SimpleExtension {
 			$view_link = '<a href="'.$link.'">Answer</a>';
 		
 			$email = new Email($duser->email, "New Message", "New Message", "You got a new message from $user->name.<br><br>Subject: $subject<br>Message: $message<br><br>".$view_link);
-			$sent = $email->send();
+			$email->send();
 		}
 	}
 	
