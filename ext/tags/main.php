@@ -31,7 +31,7 @@ class TagList extends SimpleExtension {
 		global $config, $page, $user;
 		
 		if($event->page_matches("tags")) {
-			$this->theme->set_navigation($this->build_navigation());
+
 			switch($event->get_arg(0)) {
 				default:
 				case 'map':
@@ -154,7 +154,7 @@ class TagList extends SimpleExtension {
 					}
 					break;
 			}
-			$this->theme->display_navigation($page);
+			$this->theme->display_navigation();
 		}
 		
 		if($event->page_matches("api/internal/tag_list/complete")) {
@@ -222,9 +222,13 @@ class TagList extends SimpleExtension {
 	}
 	
 	public function onTagSet($event) {
-		global $config;
+		global $config, $user;
 		if($config->get_bool('tag_history_enabled')) {
+			log_info("historie","tag set");
 			$this->add_tag_history($event->image, $event->tags);
+		}
+		if($user->is_admin() || !$event->image->is_locked()) {
+			$event->image->set_tags($event->tags);
 		}
 	}
 	
@@ -278,27 +282,6 @@ class TagList extends SimpleExtension {
 	}
 // }}}
 // maps {{{
-	private function build_navigation() {
-		global $user;
-		
-		$h_index = "<a href='".make_link()."'>Index</a>";
-		$h_map = "<a href='".make_link("tags/map")."'>Map</a>";
-		$h_alphabetic = "<a href='".make_link("tags/alphabetic")."'>Alphabetic</a>";
-		$h_popularity = "<a href='".make_link("tags/popularity")."'>Popularity</a>";
-		$h_cats = "<a href='".make_link("tags/categories")."'>Categories</a>";
-		$h_bans = "";
-		$h_tools = "";
-		if($user->is_mod()){
-			$h_bans = "<a href='".make_link("tags/banned")."'>Banned</a><br>";
-		}
-		if($user->is_admin()){
-			$h_tools = "<a href='".make_link("tags/tools")."'>Tools</a><br>";
-		}
-		$h_all = "<a href='?mincount=1'>Show All</a>";
-		
-		return "$h_index<br>&nbsp;<br>$h_map<br>$h_alphabetic<br>$h_popularity<br>$h_cats<br>$h_bans$h_tools<br>$h_all";
-	}
-
 	private function build_tag_map() {
 		global $database;
 
@@ -823,7 +806,7 @@ class TagList extends SimpleExtension {
 	/*
 	 * this function is called just before an images tag are changed
 	 */
-	private function add_tag_history($image, $tags)
+	public function add_tag_history($image, $tags)
 	{
 		global $database;
 		global $config;
@@ -831,13 +814,14 @@ class TagList extends SimpleExtension {
 
 		$new_tags = Tag::implode($tags);
 		$old_tags = Tag::implode($image->get_tag_array());
-		log_debug("tag_history", "adding tag history: [$old_tags] -> [$new_tags]");
 		
 		if($new_tags == $old_tags) return;
-
+		
 		// add a history entry		
 		$allowed = $config->get_int("history_limit");
 		if($allowed == 0) return;
+		
+		log_debug("tag_history", "adding tag history: [$old_tags] -> [$new_tags]");
 
 		$row = $database->execute("
 				INSERT INTO tag_histories(image_id, tags, user_id, user_ip, date_set)

@@ -441,13 +441,6 @@ class Post extends SimpleExtension {
 		}
 	}
 	
-	public function onTagSet($event) {
-		global $user;
-		if($user->is_admin() || !$event->image->is_locked()) {
-			$event->image->set_tags($event->tags);
-		}
-	}
-	
 	public function onSourceSet($event) {
 		global $user;
 		if($user->is_admin() || !$event->image->is_locked()) {
