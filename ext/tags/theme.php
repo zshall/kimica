@@ -18,18 +18,34 @@ class TagListTheme extends Themelet {
 		$page->add_block(new Block("Banned Tags", $banned, "main", 0));
 	}
 
-	public function set_navigation($nav) {
-		$this->navigation = $nav;
-	}
-
 	public function display_page(Page $page) {
 		$page->set_title("Tag List");
 		$page->set_heading($this->heading);
 		$page->add_block(new Block("Tags", $this->list));
 	}
 	
-	public function display_navigation(Page $page) {
-		$page->add_block(new Block("Tags", $this->navigation, "left", 0));
+	public function display_navigation() {
+		global $page, $user;
+		
+		$h_index = "<a href='".make_link()."'>Index</a>";
+		$h_map = "<a href='".make_link("tags/map")."'>Map</a>";
+		$h_alphabetic = "<a href='".make_link("tags/alphabetic")."'>Alphabetic</a>";
+		$h_popularity = "<a href='".make_link("tags/popularity")."'>Popularity</a>";
+		$h_cats = "<a href='".make_link("tags/categories")."'>Categories</a>";
+		$h_aliases = "<a href='".make_link("tags/alias")."'>Alias</a>";
+		$h_bans = "";
+		$h_tools = "";
+		if($user->is_mod()){
+			$h_bans = "<a href='".make_link("tags/banned")."'>Banned</a><br>";
+		}
+		if($user->is_admin()){
+			$h_tools = "<a href='".make_link("tags/tools")."'>Tools</a><br>";
+		}
+		$h_all = "<a href='?mincount=1'>Show All</a>";
+		
+		$html = "$h_index<br>&nbsp;<br>$h_map<br>$h_alphabetic<br>$h_popularity<br>$h_cats<br>$h_aliases<br>$h_bans$h_tools<br>$h_all";
+		
+		$page->add_block(new Block("Tags", $html, "left", 0));
 	}
 
 	// =======================================================================
@@ -286,7 +302,6 @@ class TagListTheme extends Themelet {
 
 		$page->set_title("Alias List");
 		$page->set_heading("Alias List");
-		$page->add_block(new NavBlock());
 		$page->add_block(new Block("Aliases", $html.$pagination));
 		if($is_admin) {
 			$page->add_block(new Block("Bulk Upload", $bulk_html, "main", 51));
@@ -337,7 +352,6 @@ class TagListTheme extends Themelet {
 		
 		$page->set_title($heading);
 		$page->set_heading($heading);
-		$page->add_block(new NavBlock());
 		$page->add_block(new Block("Tag History", $history_html, "main", 10));
 	}
 }
