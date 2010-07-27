@@ -50,12 +50,13 @@ class ForumTheme extends Themelet {
 					<tr><td>Message:</td><td><textarea id='message' name='message' rows='10' onkeyup=\"textCounter(this,'count_display',$max_characters);\" onkeydown=\"textCounter(this,'count_display',$max_characters);\"></textarea>
 					<tr><td></td><td><small><span id='count_display'>$max_characters</span> characters remaining.</small></td></tr>";
 		if($user->is_admin()){
-			$html .= "<tr><td colspan='2'><label for='sticky'>Sticky:</label><input name='sticky' type='checkbox' value='Y' /></td></tr>";
+			$html .= "<tr><td>Sticky:</td><td><input name='sticky' type='checkbox' value='Y' /></td></tr>";
 		}
-			$html .= "<tr><td colspan='2'><input type='submit' value='Submit' /></td></tr>
-				</table>
-				</form>
-				";
+			$html .= "<tr><td>Subscribe:</td><td><input name='subscribe' type='checkbox' value='Y' /></td></tr>";
+			$html .= "</table>
+					  <input type='submit' value='Submit' />
+					  </form>
+					  ";
 
         $blockTitle = "Write a new thread";
 		$page->set_title(html_escape($blockTitle));
@@ -93,12 +94,12 @@ class ForumTheme extends Themelet {
 					<tr><td></td><td><small><span id='count_display'>$max_characters</span> characters remaining.</small></td></tr>
 					</td></tr>";
 							
-		$html .= "<tr><td colspan='2'><input type='submit' value='Submit' /></td></tr>
-				</table>
-				</form>
-				";
+		$html .= "</table>
+				 <input type='submit' value='Submit' />
+				 </form>
+				 ";
 
-        $blockTitle = "Answer to this thread";
+        $blockTitle = "Answer";
         $page->add_block(new Block($blockTitle, $html, "main", 30));
     }
 
@@ -166,26 +167,11 @@ class ForumTheme extends Themelet {
 
             $oe = ($n++ % 2 == 0) ? "even" : "odd";
 			
-			if ($post["user_role"] == "o") {
-			$rank = "<sup>owner</sup>";
-			}
-			else if ($post["user_role"] == "a") {
-			$rank = "<sup>admin</sup>";
-			}
-			else if ($post["user_role"] == "m") {
-			$rank = "<sup>moderator</sup>";
-			}
-			else {
-			$rank = "<sup>user</sup>";
-			}
-			
+			$rank = $poster->role_to_human();
+						
 			$postID = $post['id'];
-			
-			//if($user->is_admin()){
-			//$delete_link = "<a href=".make_link("forum/delete/".$threadID."/".$postID).">Delete</a>";
-			//} else {
-			//$delete_link = "";
-			//}
+					
+			$unformated = str_replace("'", "\'", $unformated);
 			
 			$quote_link = "";
 			if(!$is_logged){
@@ -219,11 +205,42 @@ class ForumTheme extends Themelet {
 	
 	
 
-    public function add_actions_block(Page $page, $threadID)
-    {
-        $html = '<a href="'.make_link("forum/nuke/".$threadID).'">Delete this thread and its posts.</a>';
-
-        $page->add_block(new Block("Admin Actions", $html, "main", 40));
+    public function add_actions_block(Page $page, $threadID, $sticky, $locked, $subscribed){
+		global $user;
+		
+		if($subscribed){
+			$html = '<a href="'.make_link("forum/subscription/delete/".$threadID).'">Un-Subscribe</a>';
+		}
+		else{
+			$html = '<a href="'.make_link("forum/subscription/create/".$threadID).'">Subscribe</a>';
+		}
+		
+		if($user->is_admin()){
+			if($sticky){
+				$html .= '<br>';
+				$html .= '<a href="'.make_link("forum/sticky/unset/".$threadID).'">Un-Sticky</a>';
+			}
+			else{
+				$html .= '<br>';
+				$html .= '<a href="'.make_link("forum/sticky/set/".$threadID).'">Sticky</a>';
+			}
+			
+			if($locked){
+				$html .= '<br>';
+				$html .= '<a href="'.make_link("forum/lock/unset/".$threadID).'">Un-Lock</a>';
+			}
+			else{
+				$html .= '<br>';
+				$html .= '<a href="'.make_link("forum/lock/set/".$threadID).'">Lock</a>';
+			}
+			
+			$html .= '<br>';
+			$html .= '<a href="'.make_link("forum/nuke/".$threadID).'">Delete</a>';
+		}
+        
+		if(!$user->is_anon()){
+        	$page->add_block(new Block("Manage Thread", $html, "left", 10));
+		}
     }
 
 
@@ -260,14 +277,18 @@ class ForumTheme extends Themelet {
 				$title = $thread["title"];
 			}
 			
+			
+			$prefix = "";
 			if($thread["sticky"] == "Y"){
-				$sticky = "Sticky: ";
-			} else {
-				$sticky = "";
-				}
+				$prefix = "Sticky: ";
+			}
+			
+			if($thread["locked"] == "Y"){
+				$prefix = "Locked: ";
+			}
             
             $html .= "<tr class='$oe'>".
-                '<td class="left">'.$sticky.'<a href="'.make_link("forum/view/".$thread["id"]).'">'.$title."</a></td>".
+                '<td class="textleft">'.$prefix.'<a href="'.make_link("forum/view/".$thread["id"]).'">'.$title."</a></td>".
 				'<td><a href="'.make_link("account/profile/".$thread["user_name"]).'">'.$thread["user_name"]."</a></td>".
 				"<td>".autodate($thread["uptodate"])."</td>".
                 "<td>".$thread["response_count"]."</td>";

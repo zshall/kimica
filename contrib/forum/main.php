@@ -45,6 +45,20 @@ class Forum extends SimpleExtension {
 					
                     log_info("forum", "extension installed");
                 }
+				
+				if ($config->get_int("forum_version") < 2){
+					$database->create_table("forum_subscription", "
+							thread_id INTEGER NOT NULL,
+                            user_id INTEGER NOT NULL,
+                            INDEX (thread_id)
+                    ");
+					
+					$database->execute("ALTER TABLE forum_threads ADD COLUMN locked SCORE_BOOL NOT NULL DEFAULT SCORE_BOOL_N", array());
+					
+					$config->set_int("forum_version", 2);
+					
+					log_info("forum", "database updated");
+				}
 	}
 	
 	public function onSetupBuilding(SetupBuildingEvent $event) {
@@ -70,7 +84,7 @@ class Forum extends SimpleExtension {
             
             if($event->page_matches("forum")) {
                 switch($event->get_arg(0)) {
-                    case "index":
+                    case "list":
                     {
                         $this->show_last_threads($page, $event, $user->is_admin());
                         if(!$user->is_anon()) $this->theme->display_new_thread_composer($page);
@@ -82,8 +96,13 @@ class Forum extends SimpleExtension {
                         $pageNumber = int_escape($event->get_arg(2));
 
                         $this->show_posts($event);
-                        if($user->is_admin()) $this->theme->add_actions_block($page, $threadID);
-                        if(!$user->is_anon()) $this->theme->display_new_post_composer($page, $threadID);
+						
+						$sticky = $this->check_sticky_thread($threadID);
+						$locked = $this->check_lock_thread($threadID);
+						$subscribed = $this->check_user_subscription($threadID);
+						
+                        $this->theme->add_actions_block($page, $threadID, $sticky, $locked, $subscribed);
+                        if(!$user->is_anon() && !$locked) $this->theme->display_new_post_composer($page, $threadID);
                         break;
                     }
                     case "new":
@@ -134,6 +153,42 @@ class Forum extends SimpleExtension {
                         $page->set_mode("redirect");
                         $page->set_redirect(make_link("forum/index"));
                         break;
+					case "sticky":
+                        $action = $event->get_arg(1);
+						$threadID = int_escape($event->get_arg(2));
+
+                        if ($user->is_admin()){
+                        	switch($action) {
+								case "set":
+									$this->sticky_thread($threadID);
+								break;
+								case "unset":
+									$this->unsticky_thread($threadID);
+								break;
+							}
+						}
+
+                        $page->set_mode("redirect");
+                        $page->set_redirect(make_link("forum/view/".$threadID));
+					break;
+					case "lock":
+						$action = $event->get_arg(1);
+						$threadID = int_escape($event->get_arg(2));
+						
+						if ($user->is_admin()){
+							switch($action) {
+								case "set":
+									$this->lock_thread($threadID);
+								break;
+								case "unset":
+									$this->unlock_thread($threadID);
+								break;
+							}
+						}
+						
+						$page->set_mode("redirect");
+                   		$page->set_redirect(make_link("forum/view/".$threadID."/1"));
+					break;
                     case "answer":
                         if (!$user->is_anon())
                         {
@@ -153,17 +208,35 @@ class Forum extends SimpleExtension {
 
                         $page->set_mode("redirect");
                         $page->set_redirect(make_link("forum/view/".$threadID."/1"));
-                        break;
+					break;
+					case "subscription":
+						$action = $event->get_arg(1);
+						$threadID = int_escape($event->get_arg(2));
+						
+						switch($action) {
+                    		case "create":
+								$this->save_new_subscription($threadID);
+							break;
+							case "delete":
+								$this->delete_subscription($threadID);
+							break;
+							default:
+								$page->set_mode("redirect");
+                        		$page->set_redirect(make_link("forum/view/".$threadID."/1"));
+							break;
+						}
+						
+						$page->set_mode("redirect");
+                        $page->set_redirect(make_link("forum/view/".$threadID."/1"));						
+					break;
                     default:
-                    {
-                        $page->set_mode("redirect");
-                        $page->set_redirect(make_link("forum/index"));
+						$page->set_mode("redirect");
+                        $page->set_redirect(make_link("forum/list"));
                         //$this->theme->display_error($page, "Invalid action", "You should check forum/index.");
                         break;
-                    }
                 }
             }
-	}
+		}
 
         private function get_total_pages_for_thread($threadID)
         {
@@ -259,7 +332,7 @@ class Forum extends SimpleExtension {
             $threadsPerPage = $config->get_int('forumThreadsPerPage', 15);
 
             $threads = $database->get_all(
-                "SELECT f.id, f.sticky, f.title, f.date, f.uptodate, u.name AS user_name, u.email AS user_email, u.role AS user_role, sum(1) - 1 AS response_count ".
+                "SELECT f.id, f.sticky, f.locked, f.title, f.date, f.uptodate, u.name AS user_name, u.email AS user_email, u.role AS user_role, sum(1) - 1 AS response_count ".
                 "FROM forum_threads AS f ".
                 "INNER JOIN users AS u ".
                 "ON f.user_id = u.id ".
@@ -311,12 +384,14 @@ class Forum extends SimpleExtension {
         private function save_new_thread($user)
         {
             $title = $_POST["title"];
+			$message = $_POST["message"];
 			$sticky = $_POST["sticky"];
+			$subscribe = $_POST["subscribe"];
 			
 			if($sticky == ""){
-			$sticky = "N";
+				$sticky = "N";
 			}
-
+			
             global $database;
             $database->execute("
                 INSERT INTO forum_threads
@@ -329,8 +404,34 @@ class Forum extends SimpleExtension {
 			
 			log_info("forum", "Thread {$result["threadID"]} created by {$user->name}");
 			
+			if($subscribe == "Y"){
+				$this->save_new_subscription($result["threadID"]);
+			}
+									
             return $result["threadID"];
         }
+		
+		private function save_new_subscription($threadID){
+			global $user, $database;
+			$database->execute("DELETE FROM forum_subscription WHERE thread_id = ? AND user_id = ?", array($threadID, $user->id));
+            $database->execute("INSERT INTO forum_subscription (thread_id, user_id) VALUES (?, ?)", array($threadID, $user->id));
+		}
+		
+		private function check_user_subscription($threadID){
+			global $user, $database;
+			$subscribed = $database->db->GetOne("SELECT COUNT(*) FROM forum_subscription WHERE thread_id = ? AND user_id = ?", array($threadID, $user->id));
+			if($subscribed > 0){
+				return true;
+			}
+			else{
+				return false;
+			}
+		}
+		
+		private function delete_subscription($threadID){
+			global $user, $database;
+			$database->execute("DELETE FROM forum_subscription WHERE thread_id = ? AND user_id = ?", array($threadID, $user->id));
+		}
 
         private function save_new_post($threadID, $user)
         {
@@ -347,6 +448,8 @@ class Forum extends SimpleExtension {
                 VALUES
                     (?, ?, now(), ?)"
                 , array($threadID, $userID, $message));
+				
+			$this->check_thread_subscriptions($threadID, $message);
 			
 			$result = $database->get_row("SELECT LAST_INSERT_ID() AS postID", array());
 			
@@ -354,9 +457,22 @@ class Forum extends SimpleExtension {
 			
 			$database->execute("UPDATE forum_threads SET uptodate=now() WHERE id=?", array ($threadID));
         }
+		
+		
+		private function check_thread_subscriptions($threadID, $message){
+			global $user, $database;
+			$subscriptions = $database->get_all("SELECT * FROM forum_subscription WHERE thread_id = ?", array($threadID));
+			
+			foreach($subscriptions as $subscription){
+				$duser = User::by_id($subscription["user_id"]);
+				
+				$email = new Email($duser->email, "New Forum Post", "New Forum Post", $user->name." has updated the thread ".$this->get_thread_title($threadID).".<br><br><b>".$user->name." has posted:</b><br>".$message);
+				$email->send();
+				log_info("forum", "Subscription mail sent to {$user->name} for the thread {$threadID}");
+			}
+		}
 
-        private function retrieve_posts($threadID, $pageNumber)
-        {
+        private function retrieve_posts($threadID, $pageNumber){
             global $database, $config;
             $postsPerPage = $config->get_int('forumPostsPerPage', 15);
 
@@ -371,15 +487,56 @@ class Forum extends SimpleExtension {
                 , array($threadID, ($pageNumber - 1) * $postsPerPage, $postsPerPage));
         }
 
-        private function delete_thread($threadID)
-        {
-            global $database;
+        private function delete_thread($threadID){
+            global $database, $user;
             $database->execute("DELETE FROM forum_threads WHERE id = ?", array($threadID));
 			$database->execute("DELETE FROM forum_posts WHERE thread_id = ?", array($threadID));
+			$database->execute("DELETE FROM forum_subscription WHERE thread_id = ? AND user_id = ?", array($threadID, $user->id));
         }
 		
-		private function delete_post($postID)
-        {
+		private function check_sticky_thread($threadID){
+			global $database;
+			$sticky = $database->db->GetOne("SELECT COUNT(*) FROM forum_threads WHERE id = ? AND sticky = 'Y'", array($threadID));
+			if($sticky > 0){
+				return true;
+			}
+			else{
+				return false;
+			}
+		}
+		
+		private function sticky_thread($threadID){
+			global $database;
+            $database->execute("UPDATE forum_threads SET sticky = 'Y' WHERE id = ?", array($threadID));
+		}
+		
+		private function unsticky_thread($threadID){
+			global $database;
+            $database->execute("UPDATE forum_threads SET sticky = 'N' WHERE id = ?", array($threadID));
+		}
+		
+		private function check_lock_thread($threadID){
+			global $database;
+			$sticky = $database->db->GetOne("SELECT COUNT(*) FROM forum_threads WHERE id = ? AND locked = 'Y'", array($threadID));
+			if($sticky > 0){
+				return true;
+			}
+			else{
+				return false;
+			}
+		}
+		
+		private function lock_thread($threadID){
+			global $database;
+            $database->execute("UPDATE forum_threads SET locked = 'Y' WHERE id = ?", array($threadID));
+		}
+		
+		private function unlock_thread($threadID){
+			global $database;
+            $database->execute("UPDATE forum_threads SET locked = 'N' WHERE id = ?", array($threadID));
+		}
+		
+		private function delete_post($postID){
             global $database;
             $database->execute("DELETE FROM forum_posts WHERE id = ?", array($postID));
         }
