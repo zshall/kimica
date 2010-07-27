@@ -1,5 +1,16 @@
 <?php
 class PoolsTheme extends Themelet {
+	
+	public function pool_navigation(){
+		$nav_html = "
+					<a href=".make_link().">Index</a>
+					<br><a href=".make_link("pool/new").">Create Pool</a>
+					<br><a href=".make_link("pool/updated").">Pool Changes</a>
+					";
+					
+		return $nav_html;
+	}
+	
 	/*
 	 * HERE WE ADD THE POOL INFO ON IMAGE
 	 */
@@ -74,19 +85,12 @@ class PoolsTheme extends Themelet {
 			$html = "There is no pools to show.";
 		}
 
-		$nav_html = "
-			<a href=".make_link().">Index</a>
-			<br><a href=".make_link("pool/new").">Create Pool</a>
-			<br><a href=".make_link("pool/updated").">Pool Changes</a>
-		";
-
 		$pagination = $this->build_paginator("pool/list", null, $pageNumber, $totalPages);
 		
 		$page->set_title("Pools");
 		$page->set_heading("Pools");
 		$page->add_block(new Block("Pools", $html.$pagination, "main", 10));
-		$page->add_block(new Block("Navigation", $nav_html, "left", 10));
-
+		$page->add_block(new Block("Manage Pools", $this->pool_navigation(), "left", 10));
 	}
 
 
@@ -106,7 +110,8 @@ class PoolsTheme extends Themelet {
 		$blockTitle = "Create Pool";
 		$page->set_title(html_escape($blockTitle));
 		$page->set_heading(html_escape($blockTitle));
-		$page->add_block(new Block("Create Pool", $create_html, "main", 20));
+		$page->add_block(new Block("Create Pool", $create_html, "main", 10));
+		$page->add_block(new Block("Manage Pools", $this->pool_navigation(), "left", 10));
 	}
 
 
