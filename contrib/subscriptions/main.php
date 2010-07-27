@@ -26,7 +26,7 @@ public function onInitExt($event) {
 			$database->create_table("subscription_digest", "
 						user_id INTEGER NOT NULL,
 						image_id INTEGER NOT NULL,
-						image_tag VARCHAR(1024) NOT NULL,
+						image_tag VARCHAR(64) NOT NULL,
 						digest CHAR(1) NOT NULL,
 						send INT(1) NOT NULL,
 						INDEX (user_id)
@@ -59,7 +59,7 @@ public function onPageRequest($event) {
 			{			
 				$this->addSubscription();
 				$page->set_mode("redirect");
-				$page->set_redirect(make_link("profile"));
+				$page->set_redirect(make_link("account/profile"));
 				break;
 			}
 			case "delete":
@@ -67,7 +67,7 @@ public function onPageRequest($event) {
 				$tagID = $event->get_arg(1);
 				$this->deleteSubscription($tagID);
 				$page->set_mode("redirect");
-				$page->set_redirect(make_link("profile"));
+				$page->set_redirect(make_link("account/profile"));
 				break;
 			}
 			case "private":
@@ -75,7 +75,7 @@ public function onPageRequest($event) {
 				$subscription_id = $event->get_arg(1);
 				$this->changeSubscription($subscription_id);
 				$page->set_mode("redirect");
-				$page->set_redirect(make_link("profile"));
+				$page->set_redirect(make_link("account/profile"));
 				break;
 			}
 			case "cron":
@@ -97,7 +97,7 @@ public function onPageRequest($event) {
 			default:
 			{
 			$page->set_mode("redirect");
-            $page->set_redirect(make_link("profile"));
+            $page->set_redirect(make_link("account/profile"));
             break;
             }
 		}
@@ -389,9 +389,10 @@ private function runAdvancedDigest($digest){
 private function makeDigest($user_id, $imageArray){
 	global $config, $database;
 	
-	$user = User::by_id($user_id);
+	$duser = User::by_id($user_id);
 	
 	$imagelink = "";
+	$imagethumb = "";
 	$taglink = "";
 			
 	foreach ($imageArray as $data) {
@@ -400,6 +401,12 @@ private function makeDigest($user_id, $imageArray){
 		$image = Image::by_id($image_id);
 		if(!is_null($image)) {
 			$imagelink .= '<a href="'.make_http(make_link("post/view/".$image_id)).'" title="'.$image->get_tooltip().'">'.$image_id.'</a>, ';
+			
+			$thumb_html = Themelet::build_thumb_html($image);
+			$imagethumb .= '<li class="thumb" style="width: 50%;">'.
+						   '<a href="$imagelink">'.$thumb_html.'</a>'.
+						   '</li>';
+			
 			$taglink .= '<a href="'.make_http(make_link("post/list/".$image_tag."/1")).'">'.$image_tag.'</a>, ';
 		}else{
 			$imagelink .= ', ';
@@ -409,74 +416,28 @@ private function makeDigest($user_id, $imageArray){
 	
 	//remove the last comma
 	$imagelink = substr($imagelink, 0, -2);
+	$imagethumb = "<ul class='thumbblock'>".$imagethumb."</ul>";
 	$taglink = substr($taglink, 0, -2);
 	
-	if($this->sendDigest($user, $imagelink, $taglink) == TRUE){
-		return TRUE;
-	}
-}
-
-
-
-/*
-*	WE FINALLY SEND THE EMAIL
-*/
-private function sendDigest($user, $imagelink, $taglink){
-	global $config;
-	
-	$username = $user->name;
-	$useremail = $user->email;
-	
 	$site = $config->get_string("title");
-	
 	$email = $config->get_string("ext_subsctiption_email");
+	$username = $duser->name;
+	$message = $config->get_string("ext_subsctiption_message");
 	
-	$subject = $config->get_string("ext_subsctiption_subject");
+	$message = str_replace("{site}", $site, $message);
+	$message = str_replace("{user}", $username, $message);
+	$message = str_replace("{imagelink}", $imagelink, $message);
+	$message = str_replace("{imagethumb}", $imagethumb, $message);
+	$message = str_replace("{taglink}", $taglink, $message);
 	
-	$headers  = "From: $site <$email>\r\n";
-	$headers .= "Reply-To: $email\r\n";
-	$headers .= "X-Mailer: PHP/" . phpversion(). "\r\n";
-	$headers .= "errors-to: $email\r\n";
-	$headers .= "Message-ID: <" . date("Ymd") . "135118.304200@furpiled.com>\r\n";
-	$headers .= "Date: " . date(DATE_RFC2822);
-	$headers .= 'MIME-Version: 1.0' . "\r\n";
-	$headers .= 'Content-type: text/html; charset=iso-8859-1' . "\r\n";
-	
-	$theme = $config->get_string('theme');
-	$data = get_base_href();
-	
-	$csslink = make_http("$data/themes/$theme/style.css");
-	
-	$body = '	<html>
-				<head>
-				<link href="'.$csslink.'" rel="stylesheet" type="text/css" />
-				</head>
-				<body>
-				'.$config->get_string("ext_subsctiption_message").'
-				</body>
-				</html>
-				';
-				
-	if ($useremail != '') {
-		$pos = strpos($useremail, '@');
-		if ($pos !== false) {
-			$recipient = $useremail;
-			
-			$body = str_replace("{site}", $site, $body);
-			$body = str_replace("{user}", $username, $body);
-			$body = str_replace("{imagelink}", $imagelink, $body);
-			$body = str_replace("{taglink}", $taglink, $body);
-			
-			return mail($recipient, $subject, $body, $headers);
-		}else{
-			$this->deleteUserDigests($user->id);
-		}
-	}else{
-		$this->deleteUserDigests($user->id);
+	$email = new Email($duser->email, "Tag Subscription", "Tag Subscription", $message);
+	if($email->send()){
+		$this->deleteUserDigests($duser->id);
+	}
+	else{
+		$this->deleteUserDigests($duser->id);
 	}
 }
-
-
 
 /*
 *	ONCE THE DIGGEST HAS BEEN DELIVERED TO USER DELETE FROM DATABASE
