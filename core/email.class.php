@@ -7,6 +7,7 @@ class Email {
 	var $to;
 	var $subject;
 	var $header;
+	var $style;
 	var $header_img;
 	var $sitename;
 	var $sitedomain;
@@ -28,6 +29,8 @@ class Email {
 			$this->subject = $sub_prefix." ".$subject;
 		}
 		
+		$this->style = $config->get_string("mail_style");
+		
 		$this->header = html_escape($header);
 		$this->header_img = $config->get_string("mail_img");
 		$this->sitename = $config->get_string("title");
@@ -48,24 +51,12 @@ class Email {
 		$headers .= 'Content-type: text/html; charset=iso-8859-1' . "\r\n";
 		$message = '
 		
-<html> 
-<body leftmargin="0" marginwidth="0" topmargin="0" marginheight="0" offset="0" bgcolor="#EEEEEE" > 
- 
- 
-<STYLE> 
- .headerTop { background-color:#FFCC66; border-top:0px solid #000000; border-bottom:1px solid #FFFFFF; text-align:center; }
- .adminText { font-size:10px; color:#996600; line-height:200%; font-family:verdana; text-decoration:none; }
- .headerBar { background-color:#FFFFFF; border-top:0px solid #333333; border-bottom:10px solid #FFFFFF; }
- .title { font-size:20px; font-weight:bold; color:#CC6600; font-family:arial; line-height:110%; }
- .subTitle { font-size:11px; font-weight:normal; color:#666666; font-style:italic; font-family:arial; }
- .defaultText { font-size:12px; color:#000000; line-height:150%; font-family:trebuchet ms; }
- .footerRow { background-color:#FFFFCC; border-top:10px solid #FFFFFF; }
- .footerText { font-size:10px; color:#996600; line-height:100%; font-family:verdana; }
- a { color:#FF6600; color:#FF6600; color:#FF6600; }
-</STYLE> 
- 
- 
- 
+<html>
+<head>
+	<link rel="stylesheet" href="'.$this->style.'" type="text/css">
+</head>
+
+<body leftmargin="0" marginwidth="0" topmargin="0" marginheight="0" offset="0" bgcolor="#EEEEEE" >  
 <table width="100%" cellpadding="10" cellspacing="0" class="backgroundTable" bgcolor="#EEEEEE" > 
 <tr> 
 <td valign="top" align="center"> 
