@@ -190,8 +190,10 @@ class Forum extends SimpleExtension {
                    		$page->set_redirect(make_link("forum/view/".$threadID."/1"));
 					break;
                     case "answer":
-                        if (!$user->is_anon())
-                        {
+						$threadID = int_escape($_POST["threadID"]);
+						$locked = $this->check_lock_thread($threadID);
+						
+                        if(!$user->is_anon() && !$locked){
                             list($hasErrors, $errors) = $this->valid_values_for_new_post();
 
                             if ($hasErrors)
@@ -200,14 +202,16 @@ class Forum extends SimpleExtension {
                                 $this->theme->display_new_post_composer($page, $_POST["threadID"], $_POST["message"], $_POST["title"], false);
                                 break;
                             }
-
-                            $threadID = int_escape($_POST["threadID"]);
                             
                             $this->save_new_post($threadID, $user);
+							
+							$page->set_mode("redirect");
+                        	$page->set_redirect(make_link("forum/view/".$threadID."/1"));
                         }
-
-                        $page->set_mode("redirect");
-                        $page->set_redirect(make_link("forum/view/".$threadID."/1"));
+						
+						if($locked){
+							$this->theme->display_error($page, "Thread", "This thread is locked.");
+						}
 					break;
 					case "subscription":
 						$action = $event->get_arg(1);
@@ -463,12 +467,16 @@ class Forum extends SimpleExtension {
 			global $user, $database;
 			$subscriptions = $database->get_all("SELECT * FROM forum_subscription WHERE thread_id = ?", array($threadID));
 			
+			$threadLink = "<a href='".make_http(make_link("forum/view/".$threadID))."'>".$this->get_thread_title($threadID)."</a>";
+			
 			foreach($subscriptions as $subscription){
 				$duser = User::by_id($subscription["user_id"]);
 				
-				$email = new Email($duser->email, "New Forum Post", "New Forum Post", $user->name." has updated the thread ".$this->get_thread_title($threadID).".<br><br><b>".$user->name." has posted:</b><br>".$message);
-				$email->send();
-				log_info("forum", "Subscription mail sent to {$user->name} for the thread {$threadID}");
+				$email = new Email($duser->email, "New Forum Post", "New Forum Post", $user->name." has updated the thread ".$threadLink.".<br><br><b>".$user->name." has posted:</b><br>".$message);
+				if($duser->id != $user->id){
+					$email->send();
+					log_info("forum", "Subscription mail sent to {$user->name} for the thread {$threadID}");
+				}
 			}
 		}
 
