@@ -75,7 +75,7 @@ class Forum extends SimpleExtension {
 		global $page, $user, $database;
         $posts_count = $database->db->GetOne("SELECT COUNT(*) FROM forum_posts WHERE user_id=?", array($event->display_user->id));
 				
-        $event->add_stats(array("Forum Posts:", "$posts_count"),60);
+        $event->add_stats(array("Forum Posts", "$posts_count"),70);
 	}
 
 

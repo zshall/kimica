@@ -156,7 +156,7 @@ class CommentList extends SimpleExtension {
 
 	public function onUserPageBuilding(Event $event) {
 		$i_comment_count = Comment::count_comments_by_user($event->display_user);
-		$event->add_stats(array("Comments", "$i_comment_count"));
+		$event->add_stats(array("Comments", "$i_comment_count"), 50);
 	}
 
 	public function onDisplayingImage($event) {
