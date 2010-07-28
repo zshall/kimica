@@ -70,7 +70,7 @@ class Favorites extends SimpleExtension {
 	public function onUserPageBuilding($event) {
 		$i_favorites_count = Image::count_images(array("favorited_by={$event->display_user->name}"));
 		$favorites_link = make_link("post/list/favorited_by={$event->display_user->name}/1");
-		$event->add_stats(array("<a href='$favorites_link'>Favorites</a>", "$i_favorites_count"),50);
+		$event->add_stats(array("<a href='$favorites_link'>Favorites</a>", "$i_favorites_count"),60);
 		
 		$this->theme->display_recent_favorites($this->latest_favorites($event->display_user));
 	}
