@@ -167,6 +167,9 @@ function calendar($date=NULL, $link){
  
 	$this_month = getDate(mktime(0, 0, 0, $month, 1, $year));
 	$next_month = getDate(mktime(0, 0, 0, $month + 1, 1, $year));
+	
+	$prev = date("Y-m",strtotime("-1 months",strtotime($year."-".$month)));
+	$next = date("Y-m",strtotime("+1 months",strtotime($year."-".$month)));
 
 	//Find out when this month starts and ends.
 	$first_week_day = $this_month["wday"];
@@ -174,8 +177,11 @@ function calendar($date=NULL, $link){
 
 	$calendar_html = "<table>";
 	
+	$prev_month_link = "<a href='".make_link($link."/".$prev)."'>&lt;&lt;</a>";
+	$next_month_link = "<a href='".make_link($link."/".$next)."'>&gt;&gt;</a>";
+	
 	$calendar_html .= "<thead>
-						<tr><th></th><th colspan=\"5\" align=\"center\">".$month . " " . $year."</th><th></th></tr>
+						<tr><th>".$prev_month_link."</th><th colspan=\"5\" align=\"center\">".$month . " " . $year."</th><th>".$next_month_link."</th></tr>
 						<tr><th>S</th><th>M</th><th>T</th><th>W</th><th>T</th><th>F</th><th>S</th></tr>
 					  </thead>";
 	
