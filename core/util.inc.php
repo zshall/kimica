@@ -151,6 +151,65 @@ function plural($num, $single_form="", $plural_form="s") {
 	return ($num == 1) ? $single_form : $plural_form;
 }
 
+/**
+ * Simple Calendar
+ *
+ ** @retval html
+ */
+function calendar($date=NULL, $link){
+	//If no parameter is passed use the current date.
+	if($date == null)
+		$date = getDate();
+
+	$day = $date["mday"];
+	$month = $date["mon"];
+	$year = $date["year"];
+ 
+	$this_month = getDate(mktime(0, 0, 0, $month, 1, $year));
+	$next_month = getDate(mktime(0, 0, 0, $month + 1, 1, $year));
+
+	//Find out when this month starts and ends.
+	$first_week_day = $this_month["wday"];
+	$days_in_this_month = round(($next_month[0] - $this_month[0]) / (60 * 60 * 24));
+
+	$calendar_html = "<table>";
+	
+	$calendar_html .= "<thead>
+						<tr><th></th><th colspan=\"5\" align=\"center\">".$month . " " . $year."</th><th></th></tr>
+						<tr><th>S</th><th>M</th><th>T</th><th>W</th><th>T</th><th>F</th><th>S</th></tr>
+					  </thead>";
+	
+	$calendar_html .= "<tbody><tr>";
+
+	//Fill the first week of the month with the appropriate number of blanks.
+	for($week_day = 0; $week_day < $first_week_day; $week_day++){
+		$calendar_html .= "<td></td>";
+	}
+
+	$week_day = $first_week_day;
+	
+	for($day_counter = 1; $day_counter <= $days_in_this_month; $day_counter++){
+		$week_day %= 7;
+
+		if($week_day == 0)
+	   		$calendar_html .= "</tr><tr>";
+
+		//Do something different for the current day.
+		if($day == $day_counter)
+	   		$calendar_html .= "<td><b><a href='".make_link($link."/".$year."-".$month."-".$day_counter)."'>" . $day_counter . "</a></b></td>";
+		else
+	   		$calendar_html .= "<td><a href='".make_link($link."/".$year."-".$month."-".$day_counter)."'>" . $day_counter . "</a></td>";
+
+		$week_day++;
+	}
+
+	$calendar_html .= "</tr>";
+	$calendar_html .= "</tbody>";
+	$calendar_html .= "</table>";
+
+	return($calendar_html);
+}
+
 
 /**
  * Different databases have different ways to represent booleans; this
