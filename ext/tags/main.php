@@ -16,8 +16,7 @@ class AddAliasEvent extends Event {
 
 class AddAliasException extends SCoreException {}
 
-class TagList extends SimpleExtension {
-
+class Tags extends SimpleExtension {
 // event handling {{{
 	public function onInitExt($event) {
 		global $config;
@@ -26,6 +25,8 @@ class TagList extends SimpleExtension {
 		$config->set_default_string("info_link", 'http://en.wikipedia.org/wiki/$tag');
 		$config->set_default_string("tag_list_image_type", 'related');
 	}
+	
+	public function get_priority() {return 40;}
 	
 	public function onPageRequest($event) {
 		global $config, $page, $user;
@@ -719,6 +720,7 @@ class TagList extends SimpleExtension {
 				
 				$this->mass_tag_edit($_POST['newtag'], $_POST['oldtag']); // GET BACK TO THE OLD TAGS
 				
+
 				log_info("alias_editor", "Deleted alias for ".$_POST['oldtag']);
 
 				$page->set_mode("redirect");

@@ -1,6 +1,6 @@
 <?php
 
-class TagListTheme extends Themelet {
+class TagsTheme extends Themelet {
 	var $heading = "";
 	var $list = "";
 
