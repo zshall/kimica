@@ -305,6 +305,24 @@ class Post extends SimpleExtension {
 			}
 		}
 		
+		if($event->page_matches("post/random")) {
+			$search = $event->get_arg(0);
+			
+			$search_terms = array();
+			if($search){
+				$search_terms = explode(' ', $event->get_arg(0));
+			}
+			
+			$image = Image::by_random($search_terms);
+			if(!is_null($image)) {
+				send_event(new DisplayingImageEvent($image));
+				$iabbe = new ImageAdminBlockBuildingEvent($image, $user);
+				send_event($iabbe);
+				ksort($iabbe->parts);
+				$this->theme->display_admin_block($iabbe->parts);
+			}
+		}
+		
 		if($event->page_matches("post/prev") ||	$event->page_matches("post/next")) {
 
 			$image_id = int_escape($event->get_arg(0));
