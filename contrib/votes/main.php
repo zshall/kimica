@@ -48,7 +48,7 @@ class Votes implements Extension {
 				if($char == "up") $score = 1;
 				else if($char == "null") $score = 0;
 				else if($char == "down") $score = -1;
-				if(!is_null($score)) send_event(new VoteSetEvent($image_id, $user, $score));
+				if(!is_null($score) && $image_id > 0) send_event(new VoteSetEvent($image_id, $user, $score));
 				$page->set_mode("redirect");
 				$page->set_redirect(make_link("post/view/$image_id"));
 			}
