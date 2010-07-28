@@ -299,6 +299,11 @@ class Post extends SimpleExtension {
 				}
 				
 				$this->theme->display_populars($images, $date);
+				
+				$cal["mday"] = date("d", strtotime($date));
+				$cal["year"] = date("Y", strtotime($date));
+				$cal["mon"] = date("m", strtotime($date));
+				$this->theme->display_popular_calendar(calendar($cal, "post/popular"));
 			}
 			else{
 				$this->theme->display_error($page, "Error", "Malformed date.");

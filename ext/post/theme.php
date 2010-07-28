@@ -73,6 +73,11 @@ class PostTheme extends Themelet {
 		$page->add_block(new Block("Popular Images: ".$date, $html, "main", 10));
 	}
 	
+	public function display_popular_calendar($html){
+		global $page;
+		$page->add_block(new Block("Calendar", $html, "left", 10));
+	}
+	
 	public function display_recent_posts($posts){
 		global $page;
 		
