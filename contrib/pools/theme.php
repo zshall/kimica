@@ -166,7 +166,7 @@ class PoolsTheme extends Themelet {
 		global $config, $user, $page;
 		$columns = floor(100 / $config->get_int('index_width'));
 
-		$this->display_top($pools, "Pool: ".$pools[0]['title']);
+		$this->display_top($pools, "Pool: ".html_escape($pools[0]['title']));
 	
 		$pool_images = "<ul class='thumbblock'>";
 		foreach($images as $image) {
