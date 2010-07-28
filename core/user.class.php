@@ -15,6 +15,7 @@ class User {
 	var $name;
 	var $email;
 	var $join_date;
+	var $login_date;
 	var $validate;
 	var $role;
 	var $owner;
@@ -46,6 +47,7 @@ class User {
 		$this->name = $row['name'];
 		$this->email = $row['email'];
 		$this->join_date = $row['joindate'];
+		$this->login_date = $row['logindate'];
 		$this->validate = $row['validate'];
 		$this->role = $row['role'];
 		$this->owner = ($row['role'] == 'o');
