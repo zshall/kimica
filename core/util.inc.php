@@ -116,7 +116,7 @@ function autodate($date, $html=true) {
 	$format = $config->get_string('autodate_format', "F j, Y");
 	$seconds = time() - strtotime($date);
 	$ago = seconds_to_time($seconds) . " ago";
-	$on = "on " . date($format, strtotime($date));
+	$on = date($format, strtotime($date));
 
 	if($config->get_bool('use_autodate', true)) {
 		return ($html ? "<span title='$on'>$ago</span>" : $ago);
