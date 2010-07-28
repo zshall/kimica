@@ -163,21 +163,24 @@ class Upload implements Extension {
 		}
 
 		if($event instanceof SetupBuildingEvent) {
+			if($event instanceof SetupBuildingEvent) {
+			$tes = array();
+			$tes["Disabled"] = "none";
+			if(function_exists("curl_init")) {
+				$tes["cURL"] = "curl";
+			}
+			$tes["fopen"] = "fopen";
+			$tes["WGet"] = "wget";
+
 			$sb = new SetupBlock("Upload");
 			$sb->position = 10;
 			$sb->add_int_option("upload_count", "Max uploads: ");
 			$sb->add_shorthand_int_option("upload_size", "<br>Max size per file: ");
 			$sb->add_bool_option("upload_anon", "<br>Allow anonymous uploads: ");
-			$sb->add_choice_option("transload_engine", array(
-				"Disabled" => "none",
-				"cURL" => "curl",
-				"fopen" => "fopen",
-				"WGet" => "wget"
-			), "<br>Transload: ");
-			
-			$arr_autoaprove = array('Owner'=>'o', 'Owner, Admin'=>'oa', 'Owner, Admin, Mod'=>'oam', 'Owner, Admin, Mod, Contributor'=>'oamc', 'Owner, Admin, Mod, Contributor, User'=>'oamcu', 'Owner, Admin, Mod, Contributor, User, Guest'=>'oamcug');
-			$sb->add_choice_option("upload_autoapprove", $arr_autoaprove, "<br>Auto approve for: ");
+			$sb->add_choice_option("transload_engine", $tes, "<br>Transload: ");
 			$event->panel->add_block($sb);
+		}
+
 		}
 				
 		if($event instanceof AdminBuildingEvent) {
@@ -268,7 +271,7 @@ class Upload implements Extension {
 			fclose($fp);
 		}
 
-		if($config->get_string("transload_engine") == "curl") {
+		if($config->get_string("transload_engine") == "curl" && function_exists("curl_init")) {
 			$ch = curl_init($url);
 			$fp = fopen($tmp_filename, "w");
 
