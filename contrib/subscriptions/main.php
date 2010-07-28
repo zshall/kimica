@@ -51,15 +51,15 @@ class Subscription extends SimpleExtension {
 	}
 	
 	public function onPageRequest($event) {
-		global $page, $user;
-				
-		if($event->page_matches("subscription")) {
+		global $page, $config, $user, $database;
+			
+		if($event->page_matches("account/subscriptions")) {
 			switch($event->get_arg(0)) {
 				case "add":
 				{			
 					$this->addSubscription();
 					$page->set_mode("redirect");
-					$page->set_redirect(make_link("account/profile"));
+					$page->set_redirect(make_link("account/subscriptions"));
 					break;
 				}
 				case "delete":
@@ -67,7 +67,7 @@ class Subscription extends SimpleExtension {
 					$tagID = $event->get_arg(1);
 					$this->deleteSubscription($tagID);
 					$page->set_mode("redirect");
-					$page->set_redirect(make_link("account/profile"));
+					$page->set_redirect(make_link("account/subscriptions"));
 					break;
 				}
 				case "private":
@@ -75,7 +75,7 @@ class Subscription extends SimpleExtension {
 					$subscription_id = $event->get_arg(1);
 					$this->changeSubscription($subscription_id);
 					$page->set_mode("redirect");
-					$page->set_redirect(make_link("account/profile"));
+					$page->set_redirect(make_link("account/subscriptions"));
 					break;
 				}
 				case "cron":
@@ -95,36 +95,16 @@ class Subscription extends SimpleExtension {
 					break;
 				}
 				default:
-				{
-				$page->set_mode("redirect");
-				$page->set_redirect(make_link("account/profile"));
+				{								
+					$tags = $database->get_all("SELECT * FROM subscriptions WHERE user_id = ? ORDER BY id DESC", array($user->id));
+											
+					$this->theme->subscriptions($tags, $this->canAddSubscription($user->id), $config->get_bool("ext_subsctiption_instant", false));
 				break;
 				}
 			}
 		}
 	}
-	
-	public function onUserPageBuilding($event) {
-		global $config, $page, $user, $database;
-				
-		$userID = $event->display_user->id;	
 		
-		if ($event->display_user->id == $user->id || $user->is_admin()){
-			$tags = $database->get_all("SELECT * FROM subscriptions WHERE user_id = ? ORDER BY id DESC", array($userID));
-		} else {
-			$tags = $database->get_all("SELECT * FROM subscriptions WHERE user_id = ? AND private = ? ORDER BY id DESC", array($userID, "N"));
-		}
-		
-		//first security check
-		if ($userID == $user->id || $user->is_admin()){
-			$is_owner = TRUE;
-		} else {
-			$is_owner = FALSE;
-		}
-			
-		$this->theme->subscriptions($tags, $is_owner, $this->canAddSubscription($event->display_user->id), $config->get_bool("ext_subsctiption_instant", false));
-	}
-	
 	public function onTagSet($event) {
 		$this->checkSubscription($event->image->id);
 	}
@@ -228,13 +208,10 @@ class Subscription extends SimpleExtension {
 		global $config, $user, $database;
 		$entries = $database->db->GetOne("SELECT COUNT(*) FROM subscriptions WHERE user_id = ?", array($userID));
 		
-		//second security check
-		if ($userID == $user->id || $user->is_admin()){
-			if($entries == $config->get_int("ext_subsctiption_max")){
-				return FALSE;
-			} else {
-				return TRUE;
-			}
+		if($entries < $config->get_int("ext_subsctiption_max") || $user->is_admin()){
+			return TRUE;
+		} else {
+			return FALSE;
 		}
 	}
 	
