@@ -422,9 +422,11 @@ class UserPage extends SimpleExtension {
 	public function onUserPageBuilding(Event $event) {
 		global $page, $user, $config;
 
-		$h_join_date = html_escape($event->display_user->join_date);
+		$h_join_date = html_escape(autodate($event->display_user->join_date));
+		$h_login_date = html_escape(autodate($event->display_user->login_date));
 		$event->add_stats(array("Join Date", "$h_join_date"), 10);
-		$event->add_stats(array("Role", ucfirst($event->display_user->role_to_human())), 20);
+		$event->add_stats(array("Last Login", "$h_login_date"), 20);
+		$event->add_stats(array("Role", ucfirst($event->display_user->role_to_human())), 30);
 
 		ksort($event->stats);
 		$this->theme->display_user_page($event->display_user, $event->stats);
