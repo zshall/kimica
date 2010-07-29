@@ -107,12 +107,23 @@ class CommentListTheme extends Themelet {
 		global $page;
 		$this->anon_id = 1;
 		$html = "";
-		foreach($comments as $comment) {
-			$html .= $this->comment_to_html($comment);
+		
+		if(!$comments){
+			$html .= "There is no comments to show.";
+			if($postbox){
+				$html .= " Be the first!";
+			}
 		}
+		else{
+			foreach($comments as $comment) {
+				$html .= $this->comment_to_html($comment);
+			}
+		}
+		
 		if($postbox) {
 			$html .= $this->build_postbox($image->id);
 		}
+		
 		$page->add_block(new Block("Comments", $html, "main", 30));
 	}
 
