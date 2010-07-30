@@ -116,31 +116,8 @@ class ForumTheme extends Themelet {
 		$title = $threadTitle;
 		
 		$n = 0;
-		
-		$html ="
-				<script language='javascript'>
-				function quote(fieldId, user, message)
-				{
-					field=document.getElementById(fieldId);
-				
-					if (document.selection) 
-					{
-						field.focus();
-						sel = document.selection.createRange();
-						sel.text = '[quote=' + user + ']' + message + '[/quote]';
-					}
-					else if (field.selectionStart || field.selectionStart == 0) 
-					{
-						var startPos = field.selectionStart;
-						var endPos = field.selectionEnd;
-						field.focus();
-						field.value = field.value.substring(0, startPos) + '[quote=' + user + ']' + message + '[/quote]' + field.value.substring(endPos, field.value.length);
-					} 
-				}
-			</script>
-		";
-		
-        $html .= "<table id='postList' class='zebra'>".
+			
+        $html = "<table id='postList' class='zebra'>".
 			"<thead><tr>".
             "<th>User</th>".
             "<th>Message</th>".
@@ -175,7 +152,7 @@ class ForumTheme extends Themelet {
 			
 			$quote_link = "";
 			if(!$is_logged){
-				$quote_link = " <a href=\"javascript:quote('message', '".$post["user_name"]."', '".$unformated."')\">Quote</a>";
+				$quote_link = " <a href='#' OnClick=\"BBcode.Quote('message', '".$post["user_name"]."', '".$unformated."'); return false;\">Quote</a>";
 			}
 			
 			$delete_link = "";
