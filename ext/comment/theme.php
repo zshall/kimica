@@ -193,7 +193,7 @@ class CommentListTheme extends Themelet {
 			"href='".make_link("comment/delete/$i_comment_id")."'>Delete</a> |" : "";
 		
 		$h_toolslinks = !$user->is_anon() ?
-			"$h_dellink <a href=".make_link("comment/vote/up/".$i_comment_id).">Vote Up</a> | <a href=".make_link("comment/vote/down/".$i_comment_id).">Vote Down</a> | <a href=\"#$i_comment_id\">Link</a>" : "";
+			"$h_dellink <a href=".make_link("comment/vote/up/".$i_comment_id).">Vote Up</a> | <a href=".make_link("comment/vote/down/".$i_comment_id).">Vote Down</a> | <a href='#' OnClick=\"BBcode.Quote('comment-box-".$i_image_id."', '".$h_name."', '".$comment->comment."'); return false;\">Quote</a> | <a href=\"#$i_comment_id\">Link</a>" : "";
 
 		if($trim) {
 			return "
@@ -237,7 +237,7 @@ class CommentListTheme extends Themelet {
 					<form name='comment_form' action='".make_link("comment/add")."' method='POST'>
 						<input type='hidden' name='image_id' value='$i_image_id' />
 						<input type='hidden' name='hash' value='$hash' />
-						<textarea id = 'comment_box' name='comment' rows='5' cols='50'></textarea>
+						<textarea id = 'comment-box-".$i_image_id."' name='comment' rows='5' cols='50'></textarea>
 						$captcha
 						<br><input type='submit' value='Post Comment' />
 					</form>
