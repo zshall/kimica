@@ -151,7 +151,8 @@ class Favorites extends SimpleExtension {
 					user_id INTEGER NOT NULL,
 					created_at DATETIME NOT NULL,
 					UNIQUE(image_id, user_id),
-					INDEX(image_id)
+					INDEX(image_id),
+					INDEX(user_id)
 				)
 			");
 			$config->set_int("ext_favorites_version", 1);
