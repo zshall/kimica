@@ -194,7 +194,7 @@ class Subscription extends SimpleExtension {
 								(user_id, tag_name, digest, private)
 							VALUES
 								(?, ?, ?, ?)",
-							array($userID, $tagNAME, $digest, $private));
+							array($userID, strtolower($tagNAME), $digest, $private));
 			}
 		}
 	}
