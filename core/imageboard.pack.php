@@ -266,6 +266,10 @@ class Image {
 		}
 		
 		if(in_array('local', $methods)){
+			$ilink = $config->get_string('image_ilink');
+			if($ilink){
+				return $this->parse_link_template($ilink);
+			}
 			return make_link(warehouse_path('images', $this->hash, 'local'));
 		}
 		
@@ -298,6 +302,10 @@ class Image {
 		}
 		
 		if(in_array('local', $methods)){
+			$tlink = $config->get_string('image_tlink');
+			if($tlink){
+				return $this->parse_link_template($tlink);
+			}
 			return make_link(warehouse_path('thumbs', $this->hash, 'local'));
 		}
 		
