@@ -140,10 +140,8 @@ class ImageIO extends SimpleExtension {
 	public function onPageRequest($event) {
 		global $page, $user;
 		$num = $event->get_arg(0);
-		$matches = array();
-		if(!is_null($num) && preg_match("/(\d+)/", $num, $matches)) {
-			$num = $matches[1];
-
+		
+		if(!is_null($num)) {
 			if($event->page_matches("image")) {
 				$this->send_file($num, "image");
 			}
@@ -384,11 +382,19 @@ class ImageIO extends SimpleExtension {
 	}
 // }}}
 // fetch image {{{
-	private function send_file($image_id, $type) {
+	private function send_file($image_arg, $type) {
 		global $config;
 		global $user;
 		global $database;
-		$image = Image::by_id($image_id);
+				
+		$matches = array();
+		if(preg_match("/(\d+)/", $image_arg, $matches)){
+			$image = Image::by_id($matches[1]);
+		}
+		
+		if(preg_match("/([0-9a-fA-F]{32})/", $image_arg, $matches)){
+			$image = Image::by_hash($matches[1]);
+		}
 
 		global $page;
 		if(!is_null($image) && ($image->is_approved() || $image->is_locked() || $user->is_admin() || $user->is_mod())) {
