@@ -55,52 +55,32 @@ class RSS_Images extends SimpleExtension {
 			$thumb_url = $image->get_thumb_link();
 			$image_url = $image->get_image_link();
 			$posted = date(DATE_RSS, $image->posted_timestamp);
-			$content = html_escape(
-				"<p>" . Themelet::build_thumb_html($image) . "</p>" .
-				"<p>Uploaded by " . html_escape($owner->name) . "</p>"
-			);
+			$content = "<p>" . Themelet::build_thumb_html($image) . "</p>" .
+				"<p>Uploaded by " . html_escape($owner->name) . "</p>";
 
 			$data .= "
-		<item>
-			<title>{$image->id} - $tags</title>
-			<link>$link</link>
-			<guid isPermaLink=\"true\">$link</guid>
-			<pubDate>$posted</pubDate>
-			<description>$content</description>
-			<media:thumbnail url=\"$thumb_url\"/>
-			<media:content url=\"$image_url\"/>
-		</item>
+					<item>
+						<title>{$image->id} - $tags</title>
+						<link>$link</link>
+						<guid isPermaLink=\"true\">$link</guid>
+						<pubDate>$posted</pubDate>
+						<description>$content</description>
+					</item>
 			";
 		}
 
 		$title = $config->get_string('title');
 		$base_href = make_http($config->get_string('base_href'));
-		$search = "";
-		if(count($search_terms) > 0) {
-			$search = url_escape(implode(" ", $search_terms)) . "/";
-		}
-
-		if($page_number > 1) {
-			$prev_url = make_link("rss/images/$search".($page_number-1));
-			$prev_link = "<atom:link rel=\"previous\" href=\"$prev_url\" />";
-		}
-		else {
-			$prev_link = "";
-		}
-		$next_url = make_link("rss/images/$search".($page_number+1));
-		$next_link = "<atom:link rel=\"next\" href=\"$next_url\" />"; // no end...
 
 		$version = VERSION;
-		$xml = "<"."?xml version=\"1.0\" encoding=\"utf-8\" ?".">
-				<rss version=\"2.0\" xmlns:media=\"http://search.yahoo.com/mrss\" xmlns:atom=\"http://www.w3.org/2005/Atom\">
+		$xml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>
+				<rss version=\"2.0\">
 					<channel>
 						<title>$title</title>
 						<description>The latest uploads to the image board</description>
 						<link>$base_href</link>
 						<generator>$version</generator>
 						<copyright>(c) 2007 Shish</copyright>
-						$prev_link
-						$next_link
 						$data
 					</channel>
 				</rss>";
