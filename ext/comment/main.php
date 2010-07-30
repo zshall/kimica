@@ -107,27 +107,22 @@ class CommentList extends SimpleExtension {
 			}
 			else if($event->get_arg(0) == "delete") {
 				if($user->is_admin()) {
-					// FIXME: post, not args
-					if($event->count_args() == 3) {
-						send_event(new CommentDeletionEvent($event->get_arg(1)));
+					$comment_id = int_escape($event->get_arg(1));
+					
+					if($event->count_args() == 2) {
+						send_event(new CommentDeletionEvent($comment_id));
+						
 						$page->set_mode("redirect");
-						if(!empty($_SERVER['HTTP_REFERER'])) {
-							$page->set_redirect($_SERVER['HTTP_REFERER']);
-						}
-						else {
-							$page->set_redirect(make_link("post/view/".$event->get_arg(2)));
-						}
+						$page->set_redirect($_SERVER['HTTP_REFERER']);
 					}
 				}
-				else {
-					$this->theme->display_permission_denied($page);
-				}
 			}
-			else if($event->get_arg(0) == "vote") {
-				$vote = $event->get_arg(1);
-				$comment_id = $event->get_arg(2);
-				if(isset($vote) && isset($comment_id)) {
-					if(!$user->is_anon()) {
+			else if($event->get_arg(0) == "vote") {				
+				if(!$user->is_anon()) {
+					$vote = $event->get_arg(1);
+					$comment_id = int_escape($event->get_arg(2));
+				
+					if($event->count_args() == 2) {
 						send_event(new CommentVoteEvent($comment_id, $user, $vote));
 						
 						$page->set_mode("redirect");
