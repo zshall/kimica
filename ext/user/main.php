@@ -55,7 +55,7 @@ class UserBanEvent extends Event {
 class UserCreationException extends SCoreException {}
 
 class UserPage extends SimpleExtension {
-	public function onInitExt(Event $event) {
+	public function onInitExt($event) {
 		global $config;
 		$config->set_default_bool("login_signup_enabled", true);
 		$config->set_default_int("login_memory", 365);
@@ -68,7 +68,7 @@ class UserPage extends SimpleExtension {
 		$config->set_default_bool("signup_validation_enabled", false);
 	}
 
-	public function onPageRequest(Event $event) {
+	public function onPageRequest($event) {
 		global $config, $database, $page, $user;
 
 		// user info is shown on all pages
@@ -419,7 +419,7 @@ class UserPage extends SimpleExtension {
 		}		
 	}
 
-	public function onUserPageBuilding(Event $event) {
+	public function onUserPageBuilding($event) {
 		global $page, $user, $config;
 
 		$h_join_date = html_escape(autodate($event->display_user->join_date));
@@ -438,7 +438,7 @@ class UserPage extends SimpleExtension {
 		}
 	}
 
-	public function onSetupBuilding(Event $event) {
+	public function onSetupBuilding($event) {
 		global $config;
 
 		$hosts = array(
@@ -471,29 +471,29 @@ class UserPage extends SimpleExtension {
 		$event->panel->add_block($sb);
 	}
 	
-	public function onPrefBuilding(Event $event) {
+	public function onPrefBuilding($event) {
 			$pb = new PrefBlock("Email Options");
 			$pb->add_bool_option("send_mail_messages", "Notify Me On New Message: ");
 			$event->panel->add_block($pb);
 		}
 
-	public function onUserBlockBuilding(Event $event) {
+	public function onUserBlockBuilding($event) {
 		global $user;
 		$event->add_link("Messages", make_link("account/messages/inbox"));
 		$event->add_link("My Profile", make_link("account/profile/$user->name"));
 		$event->add_link("Log Out", make_link("account/logout"), 99);
 	}
 
-	public function onUserCreation(Event $event) {
+	public function onUserCreation($event) {
 		$this->check_user_creation($event);
 		$this->create_user($event);
 	}
 	
-	public function onUserBan(Event $event) {
+	public function onUserBan($event) {
 		$this->add_user_ban($event->duser, $event->end_date, $event->reason);
 	}
 
-	public function onSearchTermParse(Event $event) {
+	public function onSearchTermParse($event) {
 		$matches = array();
 		if(preg_match("/^(poster|user)=(.*)$/i", $event->term, $matches)) {
 			$user = User::by_name($matches[2]);
