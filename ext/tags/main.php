@@ -26,7 +26,6 @@ class Tags extends SimpleExtension {
 		$config->set_default_string("tag_list_image_type", 'related');
 	}
 	
-	public function get_priority() {return 40;}
 	
 	public function onPageRequest($event) {
 		global $config, $page, $user;
@@ -209,7 +208,7 @@ class Tags extends SimpleExtension {
 			}
 		}
 	}
-
+	
 	public function onDisplayingImage($event) {
 		global $config, $page;
 		if($config->get_int('tag_list_length') > 0) {
@@ -844,8 +843,7 @@ class Tags extends SimpleExtension {
 	/*
 	 * this function is called when a revert request is received
 	 */
-	private function process_revert_request($revert_id)
-	{
+	private function process_revert_request($revert_id) {
 		global $page;
 		// check for the nothing case
 		if($revert_id=="nothing")
@@ -885,4 +883,5 @@ class Tags extends SimpleExtension {
 	}
 // }}}
 }
+add_event_listener(new Tags(), 40);
 ?>
