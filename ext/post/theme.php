@@ -10,7 +10,7 @@ class PostTheme extends Themelet {
 	public function display_intro(Page $page) {
 		$text = "<div style='text-align: left;'>
 				 <p>Once logged in you can play with the settings, install extra features,
-				 and of course start organising your images :-)</p>
+				 and of course start organising your files.</p>
 				
 				 <p>This message will go away once your first image is uploaded~</p>
 				 </div>";
@@ -47,15 +47,15 @@ class PostTheme extends Themelet {
 			if($query) {
 				//if($total_pages == 0) $total_pages = 1;
 				$pagination = $this->build_paginator("post/list/$query", null, $this->page_number, $this->total_pages);
-				$page->add_block(new Block("Images", $this->build_table($images, "#search=$query").$pagination, "main", 10));
+				$page->add_block(new Block("Posts", $this->build_table($images, "#search=$query").$pagination, "main", 10));
 			}
 			else {
 				$pagination = $this->build_paginator("post/list", null, $this->page_number, $this->total_pages);
-				$page->add_block(new Block("Images", $this->build_table($images, null).$pagination, "main", 10));
+				$page->add_block(new Block("Posts", $this->build_table($images, null).$pagination, "main", 10));
 			}
 		}
 		else {
-			$page->add_block(new Block("No Images Found", "No images were found to match the search criteria"));
+			$page->add_block(new Block("No Posts Found", "No posts were found to match the search criteria."));
 		}
 	}
 	
@@ -65,12 +65,12 @@ class PostTheme extends Themelet {
 		$html = $this->build_table($images, null);
 		
 		if(!$images){
-			$html = "There is no images to show.";
+			$html = "There is no posts to show.";
 		}
 
-		$page->set_title("Popular Images");
-		$page->set_heading("Popular Images");
-		$page->add_block(new Block("Popular Images: ".$date, $html, "main", 10));
+		$page->set_title("Popular Posts");
+		$page->set_heading("Popular Posts");
+		$page->add_block(new Block("Popular Posts: ".$date, $html, "main", 10));
 	}
 	
 	public function display_popular_calendar($html){
@@ -154,7 +154,7 @@ class PostTheme extends Themelet {
 	public function display_admin_block($parts) {
 		global $page;
 		if(count($parts) > 0) {
-			$page->add_block(new Block("Image Controls", join("<br>", $parts), "left", 50));
+			$page->add_block(new Block("Post Controls", join("<br>", $parts), "left", 50));
 		}
 	}
 
