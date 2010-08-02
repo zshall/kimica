@@ -475,7 +475,7 @@ class UserPage extends SimpleExtension {
 			$pb = new PrefBlock("Email Options");
 			$pb->add_bool_option("send_mail_messages", "Notify Me On New Message: ");
 			$event->panel->add_block($pb);
-		}
+	}
 
 	public function onUserBlockBuilding($event) {
 		global $user;
