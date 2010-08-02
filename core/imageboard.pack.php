@@ -111,7 +111,10 @@ class Image {
 
 		if($start < 0) $start = 0;
 		if($limit < 1) $limit = 1;
-
+		
+		//FIXME: system could search images only for negative tags, it needs at least one possitive.
+		//$tags = Tag::resolve_blacklist($tags);
+			
 		$querylet = Image::build_search_querylet($tags);
 		$querylet->append(new Querylet("ORDER BY images.id DESC LIMIT ? OFFSET ?", array($limit, $start)));
 		$result = $database->execute($querylet->sql, $querylet->variables);
@@ -1014,6 +1017,21 @@ class Tag {
 		$new = array_map(array('Tag', 'sanitise'), $new);
 		$new = array_iunique($new); // remove any duplicate tags
 		return $new;
+	}
+	
+	public static function resolve_blacklist($tags) {
+		global $user, $database;
+		
+		$black_tags = array();
+		foreach($tags as $tag) {
+			array_push($black_tags, $tag);
+		}
+		$blacklist = $database->get_all("SELECT tag FROM tag_blacklist WHERE user_id = ? ORDER BY tag ASC", array($user->id));
+		foreach($blacklist as $tag) {
+			array_push($black_tags, "-".trim($tag["tag"]));
+		}
+		
+		return array_unique($black_tags);
 	}
 }
 
