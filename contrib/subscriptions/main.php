@@ -38,6 +38,7 @@ class Subscription extends SimpleExtension {
 						   "{site} Team.</p>";
 				
 				$config->set_bool("ext_subsctiption_instant", false);
+				$config->set_bool('ext_subsctiption_profile', true);
 				$config->set_int("ext_subsctiption_max", 5);
 				$config->set_string("ext_subsctiption_email", "mail@domain.com");
 				$config->set_string("ext_subsctiption_subject", "Tag Subscription");
@@ -122,7 +123,24 @@ class Subscription extends SimpleExtension {
 		$sb->add_text_option("ext_subsctiption_subject", "<br>Subjet: ");
 		$sb->add_int_option("ext_subsctiption_batch", "<br>Mails per batch: ");
 		$sb->add_longtext_option("ext_subsctiption_message", "<br><br>Message(html): <br>{$replaces}");
+		$sb->add_bool_option("ext_subsctiption_profile", "<br>Display subscriptions on profile?: ");
 		$event->panel->add_block($sb);
+	}
+	
+	public function onUserPageBuilding($event) {
+		global $config, $database;
+		$display_user = $event->display_user->name;
+		$display_subscriptions = $config->get_bool('ext_subsctiption_profile');
+		if($display_user && $display_subscriptions){
+			$max_images = $config->get_int('index_width');
+			$subscriptions = $database->get_all("SELECT tag_name FROM subscriptions WHERE user_id = ? AND private = 'N' ORDER BY id ASC", array($event->display_user->id));
+			$pos = 40;
+			foreach($subscriptions as $subscription){
+				$posts = Image::find_images(0, $max_images, array($subscription['tag_name']));
+				$this->theme->display_subscriptions($subscription['tag_name'], $posts, $pos);
+				$pos += 10;
+			}
+		}	
 	}
 	
 	

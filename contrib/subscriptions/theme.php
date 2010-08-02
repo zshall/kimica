@@ -66,5 +66,13 @@ class SubscriptionTheme extends Themelet {
 		$page->set_heading("Tag Subscriptions");
 		$page->add_block(new Block("Tag Subscriptions", $html, "main", 10));
 	}
+	
+	public function display_subscriptions($tag, $posts, $pos){
+		global $page;
+				
+		if(!empty($posts)){
+			$page->add_block(new Block("Subscription: ".$tag, $this->build_table($posts, null), "main", $pos));
+		}
+	}
 }
 ?>
