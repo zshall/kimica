@@ -280,7 +280,7 @@ class UserPrefsSetup extends SimpleExtension {
 	public function onUserBlockBuilding($event) {
 		global $user;
 		$userid = $user->name;
-			$event->add_link("My Preferences", make_link("account/preferences/$user->name"), 40);
+			$event->add_link("My Preferences", make_link("account/preferences/$user->name"), 90);
 	}
 }
 ?>

@@ -183,13 +183,6 @@ class Tags extends SimpleExtension {
 			log_info("alias_editor", "Added alias for {$event->oldtag} -> {$event->newtag}");
 		}
 	}
-
-	public function onUserBlockBuilding(UserBlockBuildingEvent $event) {
-		global $user;
-		if($user->is_admin()) {
-			$event->add_link("Aliases", make_link("tags/alias"));
-		}
-	}
 	
 	public function onAdminBuilding($event) {
 		global $page;
