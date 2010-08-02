@@ -450,10 +450,15 @@ class Post extends SimpleExtension {
 		}
 	}
 	
+	public function onUserPageBuilding($event) {
+		$display_user = $event->display_user->name;
+		if($display_user){
+			$this->theme->display_recent_posts($this->recent_posts($event->display_user));
+		}	
+	}
+	
 	public function onUserBlockBuilding($event) {
 		global $user;
-		
-		$this->theme->display_recent_posts($this->recent_posts($event->display_user));
 		
 		$username = url_escape($user->name);		
 		$event->add_link("My Posts", make_link("post/list/user=$username/1"), 10);
