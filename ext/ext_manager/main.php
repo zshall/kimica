@@ -132,9 +132,6 @@ class ExtManager extends SimpleExtension {
 		if($user->is_admin()) {
 			$event->add_link("Extension Manager", make_link("ext_manager"));
 		}
-		else {
-			$event->add_link("Help", make_link("ext_doc"));
-		}
 	}
 
 
