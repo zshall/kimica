@@ -155,6 +155,11 @@ class ForumTheme extends Themelet {
 				$quote_link = " <a href='#' OnClick=\"BBcode.Quote('message', '".$post["user_name"]."', '".$unformated."'); return false;\">Quote</a>";
 			}
 			
+			$message_link = "";
+			if(!$is_logged){
+				$message_link = " <a href=".make_link("account/messages/new/".$poster->id).">Message</a>";
+			}
+			
 			$delete_link = "";
 			if($is_admin){
 				$delete_link = " <a href=".make_link("forum/delete/".$threadID."/".$postID).">Delete</a>";
@@ -165,7 +170,7 @@ class ForumTheme extends Themelet {
                 "<td class='forum_message'>".$message."</td>"."</tr>
 				<tr class='$oe'>
 					<td class='forum_subuser'><small>".autodate($post["date"])."</small></td>
-					<td class='forum_submessage'>".$quote_link.$delete_link."</td>
+					<td class='forum_submessage'>".$message_link.$quote_link.$delete_link."</td>
 				</tr>";
 
         }
