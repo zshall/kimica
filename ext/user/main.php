@@ -246,6 +246,21 @@ class UserPage extends SimpleExtension {
 				
 			}
 			
+			else if($event->get_arg(0) == "options") {
+				global $user;
+				
+				$user_name = $event->get_arg(1);
+				if($user_name){
+					$duser = User::by_name($user_name);
+					$user_name = $duser->name;
+				}
+				else{
+					$duser = $user;
+				}
+				
+				$this->theme->build_options($duser);
+			}
+			
 			// account/validate  - Validate Account
 			else if($event->get_arg(0) == "validate") {
 				
@@ -479,9 +494,10 @@ class UserPage extends SimpleExtension {
 
 	public function onUserBlockBuilding($event) {
 		global $user;
-		$event->add_link("Messages", make_link("account/messages/inbox"));
-		$event->add_link("My Profile", make_link("account/profile/$user->name"));
-		$event->add_link("Log Out", make_link("account/logout"), 99);
+		$event->add_link("Messages", make_link("account/messages/inbox"), 70);
+		$event->add_link("My Profile", make_link("account/profile/$user->name"), 80);
+		$event->add_link("My Options", make_link("account/options/$user->name"), 90);
+		$event->add_link("Log Out", make_link("account/logout"), 100);
 	}
 
 	public function onUserCreation($event) {

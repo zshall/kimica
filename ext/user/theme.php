@@ -290,16 +290,10 @@ class UserPageTheme extends Themelet {
 		$page->set_title("{$duser->name}'s Page");
 		$page->set_heading("{$duser->name}'s Page");
 		$page->add_block(new Block("Stats", $html, "main", 0));
-
-		if(!$user->is_anon()) {
-			if($user->id == $duser->id || $user->is_admin()) {
-				$page->add_block(new Block("Options", $this->build_options($duser), "main", 20));
-			}
-		}
 	}
 
-	protected function build_options(User $duser) {
-		global $config, $database, $user;
+	public function build_options(User $duser) {
+		global $config, $database, $user, $page;
 
 		$html = "";
 
@@ -373,7 +367,15 @@ class UserPageTheme extends Themelet {
 				</form>
 			";
 		}
-	return $html;
+		
+		if(!$user->is_anon()) {
+			if($user->id == $duser->id || $user->is_admin()) {
+				$page->set_title("Account Options");
+				$page->set_heading("Account Options");
+				$page->add_block(new Block("Options", $html, "main", 10));
+			}
+		}
+		
 	}
 	
 	
