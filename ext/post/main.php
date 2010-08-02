@@ -226,6 +226,8 @@ class Post extends SimpleExtension {
 		$config->set_default_string("index_mode_favorites", "oamsu");
 		$config->set_default_string("index_mode_score", "oamsu");
 		$config->set_default_string("index_mode_rating", "oamsu");
+		
+		$config->set_default_string("populars_mode", "views");
 	}
 	
 	public function onPageRequest($event) {
@@ -276,6 +278,8 @@ class Post extends SimpleExtension {
 		}
 		
 		if($event->page_matches("post/popular")) {
+			global $config;
+			
 			$date = $event->get_arg(0);
 			$images = $event->get_page_size();
 			
@@ -291,7 +295,9 @@ class Post extends SimpleExtension {
 					$rating = "(images.rating IN ($rating)) AND";
 				}
 				
-				$results = $database->get_all("SELECT images.id FROM images WHERE $rating (images.posted LIKE ?) ORDER BY images.views DESC LIMIT ? OFFSET 0", array($search_date, $images));
+				$search_mode = $config->get_string('populars_mode', 'views');
+							
+				$results = $database->get_all("SELECT images.id FROM images WHERE $rating (images.posted LIKE ?) ORDER BY images.$search_mode DESC, images.id DESC LIMIT ? OFFSET 0", array($search_date, $images));
 				
 				$images = array();
 				foreach($results as $result) {
@@ -410,12 +416,23 @@ class Post extends SimpleExtension {
 	}
 
 	public function onSetupBuilding($event) {
-		$sb = new SetupBlock("Index Options");
+		$sb = new SetupBlock("Posts Options");
 		$sb->position = 20;
 
-		$sb->add_label("Index table size ");
+		$sb->add_label("Index table size:");
 		$sb->add_int_option("index_width", "<br>Columns: ");
 		$sb->add_int_option("index_height", "<br>Rows: ");
+		
+		$sb->add_label("Populars");
+		$options = array();
+		$options['Views'] = 'views';
+		if(class_exists("Votes")){
+			$options['Votes'] = 'votes';
+		}
+		if(class_exists("Favorites")){
+			$options['Favorites'] ='favorites';
+		}
+		$sb->add_choice_option("populars_mode", $options, "<br>Display by: ");
 
 		$event->panel->add_block($sb);
 		

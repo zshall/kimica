@@ -231,6 +231,7 @@ class PostTheme extends Themelet {
 		Id: {$image->id}
 		<br>Posted: $h_date
 		<br>Poster: $h_ownerlink
+		<br>Views: $image->views
 		$votes
 		$rating
 		<br>Size: {$image->width}x{$image->height}
