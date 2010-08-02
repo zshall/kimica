@@ -204,6 +204,12 @@ class CommentList extends SimpleExtension {
 		$sb->add_label(" comments per image on the list");
 		$event->panel->add_block($sb);
 	}
+	
+	public function onPrefBuilding($event) {
+		$pb = new PrefBlock("Comments Options");
+		$pb->add_int_option("comments_threshold", "Comments Threshold: ");
+		$event->panel->add_block($pb);
+	}
 
 	public function onSearchTermParse($event) {
 		$matches = array();
@@ -278,8 +284,13 @@ class CommentList extends SimpleExtension {
 // }}}
 // get comments {{{
 	private function get_recent_comments() {
-		global $config;
-		global $database;
+		global $config, $database, $user;
+		
+		$prefs = Prefs::by_id($user->id);
+		$threshold = $prefs->get_int('comments_threshold', 0);
+		
+		$max_comments = $config->get_int('comment_count');
+		
 		$rows = $database->get_all("
 				SELECT
 				users.id as user_id, users.name as user_name, users.email as user_email,
@@ -288,10 +299,11 @@ class CommentList extends SimpleExtension {
 				comments.posted as posted,
 				comments.votes as votes
 				FROM comments
+				WHERE comments.votes >= ?
 				LEFT JOIN users ON comments.owner_id=users.id
 				ORDER BY comments.id DESC
 				LIMIT ?
-				", array($config->get_int('comment_count')));
+				", array($threshold, $max_comments));
 		$comments = array();
 		foreach($rows as $row) {
 			$comments[] = new Comment($row);
@@ -300,8 +312,11 @@ class CommentList extends SimpleExtension {
 	}
 
 	private function get_comments($image_id) {
-		global $config;
-		global $database;
+		global $config, $database, $user;
+		
+		$prefs = Prefs::by_id($user->id);
+		$threshold = $prefs->get_int('comments_threshold', 0);
+		
 		$i_image_id = int_escape($image_id);
 		$rows = $database->get_all("
 				SELECT
@@ -313,8 +328,9 @@ class CommentList extends SimpleExtension {
 				FROM comments
 				LEFT JOIN users ON comments.owner_id=users.id
 				WHERE comments.image_id=?
+				AND comments.votes >= ?
 				ORDER BY comments.id ASC
-				", array($i_image_id));
+				", array($i_image_id, $threshold));
 		$comments = array();
 		foreach($rows as $row) {
 			$comments[] = new Comment($row);
