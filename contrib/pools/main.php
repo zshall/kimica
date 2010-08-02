@@ -216,11 +216,6 @@ class Pools extends SimpleExtension {
 		}
 	}
 
-	public function onUserBlockBuilding($event) {
-		$event->add_link("Pools", make_link("pool/list"));
-	}
-
-
 	/*
 	 * HERE WE GET THE POOLS WHERE THE IMAGE APPEARS WHEN THE IMAGE IS DISPLAYED
 	 */
