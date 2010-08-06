@@ -144,8 +144,10 @@ class PostTheme extends Themelet {
 		$page->set_title("Image {$image->id}: ".html_escape($image->get_tag_list()));
 		$page->add_header("<meta name=\"keywords\" content=\"$metatags\">");
 		$page->set_heading(html_escape($image->get_tag_list()));
+		
 		$page->add_block(new Block("Navigation", $this->build_post_navigation($image), "left", 0));
 		$page->add_block(new Block("Statistics", $this->build_stats($image), "left", 10));
+				
 		if($editor_parts){
 			$page->add_block(new Block("Editor", $this->build_image_editor($image, $editor_parts), "main", 10));
 		}
@@ -154,7 +156,7 @@ class PostTheme extends Themelet {
 	public function display_admin_block($parts) {
 		global $page;
 		if(count($parts) > 0) {
-			$page->add_block(new Block("Post Controls", join("<br>", $parts), "left", 50));
+			$page->add_block(new Block("Post Controls", implode("<br>", $parts), "left", 50));
 		}
 	}
 
