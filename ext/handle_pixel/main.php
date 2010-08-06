@@ -31,6 +31,12 @@ class PixelFileHandler extends SimpleExtension {
 		}
 	}
 	
+	public function onSetupBuilding($event) {
+		$sb = new SetupBlock("Image Zoom");
+		$sb->add_bool_option("image_zoom", "Zoom by default: ");
+		$event->panel->add_block($sb);
+	}
+	
 	protected function supported_ext($ext) {
 		$exts = array("jpg", "jpeg", "gif", "png");
 		return in_array(strtolower($ext), $exts);
