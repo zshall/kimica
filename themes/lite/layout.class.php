@@ -32,17 +32,17 @@ class Layout {
 		// Custom links: These appear on the menu.
 		$custom_links = "";
 		if($user->is_anon()) {
-			$custom_links .= $this->navlinks(make_link('account/login'), "Account", array("user", "account", "setup", "admin", "profile"));
+			$custom_links .= $this->navlinks('account/login', "Account");
 		} else {
-			$custom_links .= $this->navlinks(make_link('user'), "Account", array("user", "setup", "account", "admin", "profile"));
+			$custom_links .= $this->navlinks('user', "Account");
 		}
-		$custom_links .= $this->navlinks(make_link('post/list'), "Posts", array("post", "view"));
-		$custom_links .= $this->navlinks(make_link('comment/list'), "Comments", array("comment"));
-		$custom_links .= $this->navlinks(make_link('tags'), "Tags", array("tags"));
-		$custom_links .= $this->navlinks(make_link('upload'), "Upload", array("upload"));
+		$custom_links .= $this->navlinks('post/list', "Posts");
+		$custom_links .= $this->navlinks('comment/list', "Comments");
+		$custom_links .= $this->navlinks('tags', "Tags");
+		$custom_links .= $this->navlinks('upload', "Upload");
 		if(class_exists("Wiki")) {
-			$custom_links .= $this->navlinks(make_link('wiki/rules'), "Rules", array("wiki/rules"));
-			$custom_links .= $this->navlinks(make_link('wiki'), "Wiki", array("wiki"));
+			$custom_links .= $this->navlinks('wiki/rules', "Rules"));
+			$custom_links .= $this->navlinks('wiki', "Wiki");
 		}
 		$menu .= "$custom_links</div>";
 		
@@ -235,28 +235,16 @@ EOD;
 
 		return $html;
 	}
-	
-	private function navlinks($link, $desc, $pages_matched) {
-	/**
-	 * Woo! We can actually SEE THE CURRENT PAGE!! (well... see it highlighted in the menu.)
-	 */
-		$html = null;
-		$url = $_GET['q'];
-
-		$re1='.*?';
-		$re2='((?:[a-z][a-z]+))';
-
-		if ($c=preg_match_all ("/".$re1.$re2."/is", $url, $matches)) {
-			$url=$matches[1][0];
-		}
 		
-		for($i=0;$i<count($pages_matched);$i++) {
-			if($url == $pages_matched[$i]) {
-				$html = "<a class='tab-selected' href='$link'>$desc</a>";
-			}
+	private function navlinks($link, $title){
+		$url = _get_query_parts();
+		$section = explode("/", $link);
+		if($url['0'] == $section['0']){
+			return "<a class='tab-selected' href='".make_link($link)."'>".$title."</a>";
 		}
-		if(is_null($html)) {$html = "<a class='tab' href='$link'>$desc</a>";}
-		return $html;
+		else{
+			return "<a class='tab' href='".make_link($link)."'>".$title."</a>";
+		}
 	}
 }
 ?>
