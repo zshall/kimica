@@ -33,6 +33,7 @@ class TagsTheme extends Themelet {
 		$h_popularity = "<a href='".make_link("tags/popularity")."'>Popularity</a>";
 		$h_cats = "<a href='".make_link("tags/categories")."'>Categories</a>";
 		$h_aliases = "<a href='".make_link("tags/alias")."'>Alias</a>";
+		$h_histories = "<a href='".make_link("tags/histories")."'>Histories</a>";
 		$h_bans = "";
 		$h_tools = "";
 		if($user->is_mod()){
@@ -43,7 +44,7 @@ class TagsTheme extends Themelet {
 		}
 		$h_all = "<a href='?mincount=1'>Show All</a>";
 		
-		$html = "$h_index<br>&nbsp;<br>$h_map<br>$h_alphabetic<br>$h_popularity<br>$h_cats<br>$h_aliases<br>$h_bans$h_tools<br>$h_all";
+		$html = "$h_index<br>&nbsp;<br>$h_map<br>$h_alphabetic<br>$h_popularity<br>$h_cats<br>$h_aliases<br>$h_histories<br>$h_bans$h_tools<br>$h_all";
 		
 		$page->add_block(new Block("Tags", $html, "left", 0));
 	}
