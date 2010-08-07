@@ -8,7 +8,7 @@ class ImageIOTheme extends Themelet {
 	public function get_deleter_html($image_id) {
 		$i_image_id = int_escape($image_id);
 		$html = "
-			<form action='".make_link("image_admin/delete")."' method='POST'>
+			<form action='".make_link("post/delete")."' method='POST'>
 				<input type='hidden' name='image_id' value='$i_image_id'>
 				<input type='submit' value='Delete'>
 			</form>
@@ -21,7 +21,7 @@ class ImageIOTheme extends Themelet {
 	 */
 	public function get_regen_html($image_id) {
 		return "
-			<form action='".make_link("image_admin/regen")."' method='POST'>
+			<form action='".make_link("post/regen")."' method='POST'>
 			<input type='hidden' name='image_id' value='$image_id'>
 			<input type='submit' value='Regenerate'>
 			</form>
@@ -30,7 +30,7 @@ class ImageIOTheme extends Themelet {
 	
 	public function get_warehouse_html($image_id) {
 		return "
-			<form action='".make_link("image_admin/warehouse")."' method='POST'>
+			<form action='".make_link("post/warehouse")."' method='POST'>
 			<input type='hidden' name='image_id' value='$image_id'>
 			<input type='submit' value='Warehouse'>
 			</form>

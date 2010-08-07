@@ -149,7 +149,7 @@ class ImageIO extends SimpleExtension {
 				$this->send_file($num, "thumb");
 			}
 		}
-		if($event->page_matches("image_admin/delete")) {
+		if($event->page_matches("post/delete")) {
 			if($user->is_admin() && isset($_POST['image_id'])) {
 				$image = Image::by_id($_POST['image_id']);
 				if($image) {
@@ -159,7 +159,7 @@ class ImageIO extends SimpleExtension {
 				}
 			}
 		}
-		if($event->page_matches("image_admin/regen")) {
+		if($event->page_matches("post/regen")) {
 			if($user->is_admin() && isset($_POST['image_id'])) {
 				$image = Image::by_id(int_escape($_POST['image_id']));
 				if($image) {
@@ -168,7 +168,7 @@ class ImageIO extends SimpleExtension {
 				}
 			}
 		}
-		if($event->page_matches("image_admin/warehouse")) {
+		if($event->page_matches("post/warehouse")) {
 			if($user->is_admin() && isset($_POST['image_id'])) {
 				$image = Image::by_id(int_escape($_POST['image_id']));
 				if($image) {
