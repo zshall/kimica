@@ -4,8 +4,33 @@
  * Author: Shish <webmaster@shishnet.org>
  * Description: Handle Flash files
  */
-
 class FlashFileHandler extends SimpleExtension {
+
+	public function onPageRequest($event) {
+		global $page, $user;
+		if($event->page_matches("post/regen")) {
+			if($user->is_admin() && isset($_POST['image_id'])) {
+				$image = Image::by_id($_POST['image_id']);
+				
+				if($image){
+					if($this->supported_ext($image->ext)){
+						$this->create_thumb($image->hash);
+						$page->set_mode("redirect");
+						$page->set_redirect(make_link("post/view/".$image->id));
+					}
+				}
+			}
+		}
+	}
+	
+	public function onImageAdminBlockBuilding($event) {
+		global $user;
+		if($user->is_admin()) {
+			if($this->supported_ext($event->image->ext)) {
+				$event->add_part($this->theme->get_regen_html($event->image->id));
+			}
+		}
+	}
 
 	public function onDataUpload($event) {
 		if($this->supported_ext($event->type) && $this->check_contents($event->tmpname)) {
@@ -26,6 +51,7 @@ class FlashFileHandler extends SimpleExtension {
 		}
 	}
 	
+
 	public function onDisplayingImage($event) {
 		if($this->supported_ext($event->image->ext)) {
 			$this->theme->display_image($event->image);

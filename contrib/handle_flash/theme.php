@@ -21,5 +21,17 @@ class FlashFileHandlerTheme extends Themelet {
 			</object>";
 		$page->add_block(new Block("Flash Animation", $html, "main", 0));
 	}
+	
+	/*
+	 * Show a form which offers to regenerate the thumb of an image with ID #$image_id
+	 */
+	public function get_regen_html($image_id) {
+		return "
+			<form action='".make_link("post/regen")."' method='POST'>
+			<input type='hidden' name='image_id' value='$image_id'>
+			<input type='submit' value='Regenerate'>
+			</form>
+		";
+	}
 }
 ?>
