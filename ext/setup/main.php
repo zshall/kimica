@@ -180,7 +180,7 @@ class SetupBlock extends Block {
 class Setup extends SimpleExtension {
 	public function onInitExt($event) {
 		global $config;
-		$config->set_default_string("title", "Kimica");
+		$config->set_default_string("site_title", "Kimica");
 		$config->set_default_string("front_page", "post/list");
 		$config->set_default_string("main_page", "post/list");
 		$config->set_default_string("base_href", "./index.php?q=");
@@ -193,6 +193,16 @@ class Setup extends SimpleExtension {
 
 	public function onPageRequest($event) {
 		global $config, $page, $user;
+		
+		if(strlen($config->get_string("site_description")) > 0) {
+			$description = $config->get_string("site_description");
+			$page->add_header("<meta name=\"description\" content=\"$description\">");
+		}
+		
+		if(strlen($config->get_string("site_keywords")) > 0) {
+			$keywords = $config->get_string("site_keywords");
+			$page->add_header("<meta name=\"keywords\" content=\"$keywords\">");
+		}
 
 		if($event->page_matches("nicetest")) {
 			$page->set_mode("data");
@@ -277,7 +287,9 @@ class Setup extends SimpleExtension {
 		</script>";
 		$sb = new SetupBlock("General");
 		$sb->position = 0;
-		$sb->add_text_option("title", "Site title: ");
+		$sb->add_text_option("site_title", "Site title: ");
+		$sb->add_longtext_option("site_description", "<br>Site description: ");
+		$sb->add_text_option("site_keywords", "<br>Site keywords: ");
 		$sb->add_text_option("front_page", "<br>Front page: ");
 		$sb->add_text_option("main_page", "<br>Main page: ");
 		$sb->add_text_option("contact_link", "<br>Contact URL: ");
@@ -344,7 +356,7 @@ class Setup extends SimpleExtension {
 		</script>";
 		$sb = new SetupBlock("General");
 		$sb->position = 0;
-		$sb->add_text_option("title", "Site title: ");
+		$sb->add_text_option("site_title", "Site title: ");
 		$sb->add_text_option("contact_link", "<br>Contact URL: ");
 		$sb->add_choice_option("theme", $themes, "<br>Theme: ");
 		//$sb->add_multichoice_option("testarray", array("a" => "b", "c" => "d"), "<br>Test Array: ");
