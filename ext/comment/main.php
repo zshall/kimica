@@ -87,6 +87,34 @@ class CommentList extends SimpleExtension {
 		$config->set_default_int('comment_count', 5);
 		$config->set_default_bool('comment_captcha', false);
 		$config->set_default_bool('comment_block', false);
+		$config->set_default_string('comment_words', "
+a href=
+anal
+blowjob
+/buy-.*-online/
+casino
+cialis
+doors.txt
+fuck
+hot video
+kaboodle.com
+lesbian
+nexium
+penis
+/pokerst.*/
+pornhub
+porno
+purchase
+sex
+sex tape
+spinnenwerk.de
+thx for all
+TRAMADOL
+ultram
+very nice site
+viagra
+xanax
+");
 	}
 
 	public function onPageRequest($event) {
@@ -202,6 +230,7 @@ class CommentList extends SimpleExtension {
 		$sb->add_label("<br>Show ");
 		$sb->add_int_option("comment_list_count");
 		$sb->add_label(" comments per image on the list");
+		$sb->add_longtext_option("comment_words", "<br>Banned Words:<br>One per line, lines that start with slashes are treated as regex");
 		$event->panel->add_block($sb);
 	}
 	
@@ -410,6 +439,33 @@ class CommentList extends SimpleExtension {
 		global $database;
 		return ($database->db->GetRow("SELECT * FROM comments WHERE image_id=? AND comment=?", array($image_id, $comment)));
 	}
+	
+	private function banned_words($comment){
+		global $config;
+		$banned = $config->get_string("comment_words");
+
+		foreach(explode("\n", $banned) as $word) {
+			$word = trim(strtolower($word));
+			if(strlen($word) == 0) {
+				// line is blank
+				continue;
+			}
+			else if($word[0] == '/') {
+				// lines that start with slash are regex
+				if(preg_match($word, $comment)) {
+					return true;
+				}
+			}
+			else {
+				// other words are literal
+				if(strpos($comment, $word) !== false) {
+					return true;
+				}
+			}
+		}
+		
+		return false;
+	}
 
 	private function add_comment_wrapper($image_id, $user, $comment, $event) {
 		global $database;
@@ -443,6 +499,7 @@ class CommentList extends SimpleExtension {
 		else if($this->is_comment_limit_hit()) {
 			throw new CommentPostingException("You've posted several comments recently; wait a minute and try again...");
 		}
+		
 		else if($this->is_dupe($image_id, $comment)) {
 			throw new CommentPostingException("Someone already made that comment on that image -- try and be more original?");
 		}
@@ -451,8 +508,13 @@ class CommentList extends SimpleExtension {
 		else if($config->get_bool('comment_captcha') && !captcha_check()) {
 			throw new CommentPostingException("Error in captcha");
 		}
+		
 		else if($user->is_anon() && $this->is_spam_akismet($comment)) {
 			throw new CommentPostingException("Akismet thinks that your comment is spam. Try rewriting the comment, or logging in.");
+		}
+		
+		else if($this->banned_words($comment)) {
+			throw new CommentPostingException("Comment contains banned terms.");
 		}
 
 		// all checks passed
