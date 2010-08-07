@@ -197,7 +197,9 @@ class ImageIO extends SimpleExtension {
 			$event->add_part($this->theme->get_deleter_html($event->image->id));
 		}
 		if($user->is_admin()) {
-			$event->add_part($this->theme->get_regen_html($event->image->id));
+			if(supported_ext($event->image->ext)) {
+				$event->add_part($this->theme->get_regen_html($event->image->id));
+			}
 		}
 		if($user->is_admin() && (!$event->image->is_warehoused()) && in_array('amazon', $methods)) {
 			$event->add_part($this->theme->get_warehouse_html($event->image->id));
