@@ -9,7 +9,7 @@
 
 class XMLSitemap extends SimpleExtension {
 	public function onPageRequest($event) {
-		if($event->page_matches("sitemap.xml")) {
+		if($event->page_matches("sitemap.xml") || $event->page_matches("sitemap")) {
 			$images = Image::find_images(0, 50, array());
 			$this->do_xml($images);
 		}

@@ -25,7 +25,7 @@ class PostTheme extends Themelet {
 
 		if(count($this->search_terms) == 0) {
 			$query = null;
-			$page_title = $config->get_string('title');
+			$page_title = $config->get_string('site_title');
 		}
 		else {
 			$search_string = implode(' ', $this->search_terms);

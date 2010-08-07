@@ -37,7 +37,7 @@ class ET implements Extension {
 		global $_event_listeners; // yay for using secret globals \o/
 
 		$info = array();
-		$info['site_title'] = $config->get_string("title");
+		$info['site_title'] = $config->get_string("site_title");
 		$info['site_theme'] = $config->get_string("theme");
 		$info['site_url']   = "http://" . $_SERVER["HTTP_HOST"] . get_base_href();
 

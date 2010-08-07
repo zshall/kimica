@@ -16,7 +16,7 @@ class CustomIndexTheme extends IndexTheme {
 		}
 		else {
 			$query = null;
-			$page_title = $config->get_string('title');	
+			$page_title = $config->get_string('site_title');	
 		}
 		$nav = $this->build_navigation($this->page_number, $this->total_pages, $this->search_terms);
 		$page->set_title($page_title);

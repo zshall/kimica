@@ -414,7 +414,7 @@ class Subscription extends SimpleExtension {
 		$imagethumb = "<ul class='thumbblock'>".$imagethumb."</ul>";
 		$taglink = substr($taglink, 0, -2);
 		
-		$site = $config->get_string("title");
+		$site = $config->get_string("site_title");
 		$email = $config->get_string("ext_subsctiption_email");
 		$username = $duser->name;
 		$message = $config->get_string("ext_subsctiption_message");

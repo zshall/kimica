@@ -51,7 +51,7 @@ class Layout {
 			}
 		}
 		
-		$site_name = $config->get_string('title'); // bzchan: change from normal default to get title for top of page
+		$site_name = $config->get_string('site_title'); // bzchan: change from normal default to get title for top of page
 		$main_page = $config->get_string('main_page'); // bzchan: change from normal default to get main page for top of page
 		
 		// hack

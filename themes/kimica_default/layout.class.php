@@ -99,7 +99,7 @@ class Layout {
 			$subheading = "<div id='subtitle'>{$this->subheading}</div>";
 		}
 
-		$site_name = $config->get_string('title'); // bzchan: change from normal default to get title for top of page
+		$site_name = $config->get_string('site_title'); // bzchan: change from normal default to get title for top of page
 		$main_page = $config->get_string('main_page'); // bzchan: change from normal default to get main page for top of page
 
 		// bzchan: CUSTOM LINKS are prepared here, change these to whatever you like

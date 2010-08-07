@@ -33,7 +33,7 @@ class Email {
 		
 		$this->header = html_escape($header);
 		$this->header_img = $config->get_string("mail_img");
-		$this->sitename = $config->get_string("title");
+		$this->sitename = $config->get_string("site_title");
 		$this->sitedomain = make_http(make_link(""));
 		$this->siteemail = $config->get_string("contact_link");
 		$this->date = date("F j, Y");

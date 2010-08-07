@@ -30,7 +30,7 @@ class Home extends SimpleExtension {
 		if($event->page_matches("home")) {
 			$base_href = $config->get_string('base_href');
 			$data_href = get_base_href();
-			$sitename = $config->get_string('title');
+			$sitename = $config->get_string('site_title');
 			$theme_name = $config->get_string('theme');
 
 			$body = $this->get_body();
@@ -60,7 +60,7 @@ class Home extends SimpleExtension {
 		global $config;
 		$base_href = $config->get_string('base_href');
 		$data_href = get_base_href();
-		$sitename = $config->get_string('title');
+		$sitename = $config->get_string('site_title');
 	    $contact_link = $config->get_string('contact_link');
 		$counter_dir = $config->get_string('home_counter', 'default');
 

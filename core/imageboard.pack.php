@@ -570,7 +570,7 @@ class Image {
 		$tmpl = str_replace('$size', "{$this->width}x{$this->height}", $tmpl);
 		$tmpl = str_replace('$filesize', to_shorthand_int($this->filesize), $tmpl);
 		$tmpl = str_replace('$filename', $_escape($base_fname), $tmpl);
-		$tmpl = str_replace('$title', $_escape($config->get_string("title")), $tmpl);
+		$tmpl = str_replace('$title', $_escape($config->get_string("site_title")), $tmpl);
 		$tmpl = str_replace('$status', $this->status_to_human(), $tmpl);
 
 		$plte = new ParseLinkTemplateEvent($tmpl, $this);

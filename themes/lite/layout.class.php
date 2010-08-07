@@ -15,7 +15,7 @@ class Layout {
 		global $config, $user;
 
 		$theme_name = $config->get_string('theme', 'lite');
-		$site_name = $config->get_string('title');
+		$site_name = $config->get_string('site_title');
 		$data_href = get_base_href();
 		$contact_link = $config->get_string('contact_link');
 

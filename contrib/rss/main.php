@@ -10,7 +10,7 @@ class RSS_Images extends SimpleExtension {
 
 	public function onPostListBuilding($event) {
 		global $config, $page;
-		$title = $config->get_string('title');
+		$title = $config->get_string('site_title');
 
 		if(count($event->search_terms) > 0) {
 			$search = html_escape(implode(' ', $event->search_terms));
@@ -69,7 +69,7 @@ class RSS_Images extends SimpleExtension {
 			";
 		}
 
-		$title = $config->get_string('title');
+		$title = $config->get_string('site_title');
 		$base_href = make_http($config->get_string('base_href'));
 
 		$version = VERSION;
@@ -126,7 +126,7 @@ class RSS_Images extends SimpleExtension {
 			";
 		}
 
-		$title = $config->get_string('title');
+		$title = $config->get_string('site_title');
 		$base_href = make_http($config->get_string('base_href'));
 		$version = $config->get_string('version');
 		$xml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>

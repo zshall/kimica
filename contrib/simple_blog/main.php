@@ -28,7 +28,7 @@ class SimpleBlogConfig extends SimpleExtension {
     }
     public function onInitExt(Event $event) {
         global $config;
-        $sitename = $config->get_string("title");
+        $sitename = $config->get_string("site_title");
         $config->set_default_string("blog_title", "$sitename Blog");
         $config->set_default_string("blog_sidebar", "[/post/list|Posts]<br>[/comment/list|Comments]");
         $config->set_default_string("blog_header", "Featuring the latest updates and news from $sitename!");
@@ -308,7 +308,7 @@ class SimpleBlogRSS extends SimpleExtension {
                     ";
             }
 
-            $title = $config->get_string('title');
+            $title = $config->get_string('site_title');
             $base_href = make_http($config->get_string('base_href'));
 
             if($page_number > 1) {

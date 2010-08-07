@@ -190,7 +190,7 @@ class iui_interface extends SimpleExtension {
 		$stat['users']    = $database->db->GetOne("SELECT COUNT(*) FROM users");
 		$stat['tags']     = $database->db->GetOne("SELECT COUNT(*) FROM tags");
 		$stat['image_tags'] = $database->db->GetOne("SELECT COUNT(*) FROM image_tags");
-		$sitename = $config->get_string("title");
+		$sitename = $config->get_string("site_title");
 		$html = "";
 		$html .= "
 			<ul id='home' title='$sitename' selected='true'>
