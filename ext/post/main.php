@@ -214,6 +214,26 @@ class ImageAdminBlockBuildingEvent extends Event {
 	}
 }
 
+class RemoveReportedImageEvent extends Event {
+	var $id;
+
+	public function RemoveReportedImageEvent($id) {
+		$this->id = $id;
+	}
+}
+
+class AddReportedImageEvent extends Event {
+	var $reporter_id;
+	var $image_id;
+	var $reason;
+
+	public function AddReportedImageEvent($image_id, $reporter_id, $reason) {
+		$this->reporter_id = $reporter_id;
+		$this->image_id = $image_id;
+		$this->reason = $reason;
+	}
+}
+
 class Post extends SimpleExtension {
 	public function onInitExt($event) {
 		global $config;
@@ -413,6 +433,40 @@ class Post extends SimpleExtension {
 			$page->set_mode("redirect");
 			$page->set_redirect(make_link("post/view/$image_id", $query));
 		}
+		
+		if($event->page_matches("post/reports")) {
+			if(!$config->get_bool('report_post_enable')){
+				$this->theme->display_error($page, "Reported Posts", "Post reports are disabled.");
+			}
+			else{
+				$action = $event->get_arg(0);
+				switch ($action){
+					case "add":
+						if(isset($_POST['image_id']) && isset($_POST['reason'])) {
+							$image_id = int_escape($_POST['image_id']);
+							send_event(new AddReportedImageEvent($image_id, $user->id, $_POST['reason']));
+							$page->set_mode("redirect");
+							$page->set_redirect(make_link("post/view/$image_id"));
+						}
+					break;
+					case "remove":
+						if(isset($_POST['id'])) {
+							if($user->is_admin()) {
+								send_event(new RemoveReportedImageEvent($_POST['id']));
+								$page->set_mode("redirect");
+								$page->set_redirect(make_link("post/reports"));
+							}
+						}
+					break;
+					case "list":
+					default:
+						if($user->is_admin()) {
+							$this->theme->display_reported_images($this->get_reported_images());
+						}
+					break;
+				}
+			}
+		}
 	}
 
 	public function onSetupBuilding($event) {
@@ -441,12 +495,21 @@ class Post extends SimpleExtension {
 		$sb->add_bool_option("source_edit_anon", "<br>Allow anonymous source editing: ");
 		
 		$event->panel->add_block($sb);
+		
+		$sb = new SetupBlock("Report Post Options");
+		$sb->add_bool_option("report_post_enable", "Allow post reports: ");
+		$sb->add_bool_option("report_post_anon", "<br>Allow anonymous image reporting: ");
+		$sb->add_bool_option("report_post_show_thumbs", "<br>Show thumbnails in admin panel: ");
+		$event->panel->add_block($sb);
 	}
 	
 	public function onImageAdminBlockBuilding(ImageAdminBlockBuildingEvent $event) {
-		global $user;
+		global $user, $config;
 		if($user->is_admin()|| $user->is_mod()){
 			$event->add_part($this->theme->get_status_html($event->image, $event->image->status));
+		}
+		if(($config->get_bool('report_post_anon') || !$user->is_anon()) && ($config->get_bool('report_post_enable'))) {
+			$event->add_part($this->theme->get_banner_html($event->image));
 		}
 	}
 	
@@ -458,10 +521,14 @@ class Post extends SimpleExtension {
 	}
 	
 	public function onUserBlockBuilding($event) {
-		global $user;
+		global $user, $config;
 		
 		$username = url_escape($user->name);		
 		$event->add_link("My Posts", make_link("post/list/user=$username/1"), 10);
+		
+		if($user->is_admin() && $config->get_bool('report_post_enable')){
+			$event->add_link("Reported Posts", make_link("post/reports"), 30);
+		}
 	}
 		
 	public function onPortalBuilding($event) {
@@ -499,6 +566,7 @@ class Post extends SimpleExtension {
 	
 	public function onImageDeletion($event) {
 		$event->image->delete_tags_from_image();
+		send_event(new RemoveReportedImageEvent($event->image->id));
 	}
 	
 	public function onImageInfoBoxBuilding($event) {
@@ -508,6 +576,16 @@ class Post extends SimpleExtension {
 		if($this->can_source($event->image)) {
 			$event->add_part($this->theme->get_source_editor_html($event->image), 41);
 		}
+	}
+	
+	public function onAddReportedImage($event) {
+		global $database;
+		$database->Execute("INSERT INTO image_reports(image_id, reporter_id, reason) VALUES (?, ?, ?)", array($event->image_id, $event->reporter_id, $event->reason));
+	}
+	
+	public function onRemoveReportedImage($event) {
+		global $database;
+		$database->Execute("DELETE FROM image_reports WHERE id = ?", array($event->id));
 	}
 	
 	public function onSearchTermParse($event) {
@@ -616,6 +694,29 @@ class Post extends SimpleExtension {
 	private function can_source($image) {
 		global $config, $user;
 		return (($config->get_bool("source_edit_anon") || !$user->is_anon()) &&	($user->is_admin() || !$image->is_locked()));
+	}
+	
+	public function get_reported_images() {
+		global $config, $database;
+		$all_reports = $database->get_all("
+			SELECT image_reports.*, users.name AS reporter_name
+			FROM image_reports
+			JOIN users ON reporter_id = users.id");
+		if(is_null($all_reports)) $all_reports = array();
+
+		$reports = array();
+		foreach($all_reports as $report) {
+			$image_id = int_escape($report['image_id']);
+			$image = Image::by_id($image_id);
+			if(is_null($image)) {
+				send_event(new RemoveReportedImageEvent($report['id']));
+				continue;
+			}
+			$report['image'] = $image;
+			$reports[] = $report;
+		}
+
+		return $reports;
 	}
 }
 ?>
