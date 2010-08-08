@@ -93,6 +93,11 @@ class PostTheme extends Themelet {
 			$page->add_block(new Block("Random Posts", $this->build_table($posts, null), "main", 30));
 		}
 	}
+	
+	public function display_random_post(Image $image) {
+		global $page;
+		$page->add_block(new Block("Random Post", $this->build_thumb_html($image), "left", 8));
+	}
 
 	protected function build_navigation($page_number, $total_pages, $search_terms) {
 		$prev = $page_number - 1;
@@ -146,7 +151,7 @@ class PostTheme extends Themelet {
 		$page->set_heading(html_escape($image->get_tag_list()));
 		
 		$page->add_block(new Block("Navigation", $this->build_post_navigation($image), "left", 0));
-		$page->add_block(new Block("Statistics", $this->build_stats($image), "left", 10));
+		$page->add_block(new Block("Post Statistics", $this->build_stats($image), "left", 10));
 				
 		if($editor_parts){
 			$page->add_block(new Block("Editor", $this->build_image_editor($image, $editor_parts), "main", 10));

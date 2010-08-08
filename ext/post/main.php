@@ -487,6 +487,8 @@ class Post extends SimpleExtension {
 			$options['Favorites'] ='favorites';
 		}
 		$sb->add_choice_option("populars_mode", $options, "<br>Display by: ");
+		
+		$sb->add_bool_option("show_random_block", "<br>Show Random Image Block: ");
 
 		$event->panel->add_block($sb);
 		
@@ -534,6 +536,16 @@ class Post extends SimpleExtension {
 	public function onPortalBuilding($event) {
 		$this->theme->display_recent_posts($this->recent_posts());
 		$this->theme->display_random_posts($this->random_posts());
+	}
+	
+	public function onPostListBuilding($event) {
+		global $config;
+		if($config->get_bool("show_random_block")) {
+			$image = Image::by_random($event->search_terms);
+			if(!is_null($image)) {
+				$this->theme->display_random_post($image);
+			}
+		}
 	}
 	
 	public function onDisplayingImage(DisplayingImageEvent $event) {
