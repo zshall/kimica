@@ -73,7 +73,7 @@ class Tags extends SimpleExtension {
 							break;
 					}
 					break;
-				case 'histories':
+				case 'history':
 					if(!$config->get_bool('tag_history_enabled')) {
 						$page->set_mode("redirect");
 						$page->set_redirect(make_link("post/list"));

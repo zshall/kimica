@@ -421,9 +421,9 @@ class PoolsTheme extends Themelet {
 		
 		$pagination = $this->build_paginator("pool/updated", null, $pageNumber, $totalPages);
 
-		$page->set_title("Recent Changes");
-		$page->set_heading("Recent Changes");
-		$page->add_block(new Block("Recent Changes", $html.$pagination, "main", 10));
+		$page->set_title("Pool History");
+		$page->set_heading("Pool History");
+		$page->add_block(new Block("Pool History", $html.$pagination, "main", 10));
 	}
 }
 ?>

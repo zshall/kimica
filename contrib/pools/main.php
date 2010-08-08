@@ -99,7 +99,7 @@ class Pools extends SimpleExtension {
 					$this->get_posts($event, $poolID);
 					break;
 
-				case "updated":
+				case "history":
 					$this->get_history(int_escape($event->get_arg(1)));
 					break;
 
