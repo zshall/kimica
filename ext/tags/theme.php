@@ -79,7 +79,7 @@ class TagsTheme extends Themelet {
 			}
 		}
 
-		$page->add_block(new Block("Related", $html, "left"));
+		$page->add_block(new Block("Related Tags", $html, "left"));
 	}
 
 
