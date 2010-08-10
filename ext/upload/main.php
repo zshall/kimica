@@ -361,6 +361,7 @@ class Upload implements Extension {
 
 	
 	private function add_image($tmpname, $filename, $tags) {
+		global $config;
 		assert(file_exists($tmpname));
 
 		global $user;
