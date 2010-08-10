@@ -384,7 +384,7 @@ class Upload implements Extension {
 		}
 				
 		if(filesize($tmpname) > $config->get_int('upload_size')) {
-			$size = to_shorthand_int(filesize($event->tmpname));
+			$size = to_shorthand_int(filesize($tmpname));
 			$limit = to_shorthand_int($config->get_int('upload_size'));
 			throw new UploadException("File too large ($size &gt; $limit)");
 		}
