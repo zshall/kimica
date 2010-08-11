@@ -8,7 +8,7 @@ class ImageIOTheme extends Themelet {
 	public function get_deleter_html($image_id) {
 		$i_image_id = int_escape($image_id);
 		$html = "
-			<form action='".make_link("post/delete")."' method='POST'>
+			<form action='".make_link("post/delete")."' method='POST' onClick='return confirm(\"Are you sure that you want to delete this post?\");'>
 				<input type='hidden' name='image_id' value='$i_image_id'>
 				<input type='submit' value='Delete'>
 			</form>
