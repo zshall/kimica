@@ -11,7 +11,6 @@ class AdsTheme extends Themelet {
 		else{
 			$banner = '<a href="'.make_http(make_link("ads/redirect/".$ad['id'])).'"><img src="'.$ad['image'].'" /></a>';
 		}
-		
 
 		$page->add_block(new Block("Ads", $banner, $ad['location'], $ad['position']));
 	}
