@@ -26,7 +26,7 @@ class BrowserSearch implements Extension {
 		if($event instanceof PageRequestEvent) {
 			// We need to build the data for the header
 			global $config;
-			$search_title = $config->get_string('site_title');
+			$search_title = $config->get_string('title');
 			$search_file_url = make_link('browser_search/please_dont_use_this_tag_as_it_would_break_stuff__search.xml');
 			$page->add_header("<link rel='search' type='application/opensearchdescription+xml' title='$search_title' href='$search_file_url'>");
 		}
@@ -35,7 +35,7 @@ class BrowserSearch implements Extension {
 		if(($event instanceof PageRequestEvent) && $event->page_matches("browser_search/please_dont_use_this_tag_as_it_would_break_stuff__search.xml")) {
 			// First, we need to build all the variables we'll need
 
-			$search_title = $config->get_string('site_title');
+			$search_title = $config->get_string('title');
 			//$search_form_url =  $config->get_string('base_href'); //make_link('post/list');
 			$search_form_url =  make_link('post/list/{searchTerms}');
 			$suggenton_url = make_link('browser_search/')."{searchTerms}";
