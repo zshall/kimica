@@ -5,13 +5,13 @@
  * Do not remove this notice.                                                *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-class taggerTheme extends Themelet {
-	public function build_tagger (Page $page, $event) {
-		global $config;
+class TaggerTheme extends Themelet {
+	public function build_tagger ($page, $event) {
+		global $config, $page;
 		// Initialization code
 		$base_href = $config->get_string('base_href');
 		// TODO: AJAX test and fallback.
-		$page->add_header("<script src='$base_href/ext/tagger/webtoolkit.drag.js' type='text/javascript'></script>");
+		$page->add_header("<script src='/ext/tagger/webtoolkit.drag.js' type='text/javascript'></script>");
 		$page->add_block(new Block(null,
 			"<script type='text/javascript'>Tagger.initialize("
 				.$event->get_image()->id.");</script>","main",1000));
@@ -30,7 +30,7 @@ class taggerTheme extends Themelet {
 
 		$delay = $config->get_string("ext_tagger_search_delay","250");
 
-		$url_form = make_link("tag_edit/set");
+		$url_form = make_link("post/set");
 
 		// TODO: option for initial Tagger window placement.
 		$html = <<< EOD
@@ -39,7 +39,7 @@ class taggerTheme extends Themelet {
 
 	<div id="tagger_toolbar">
 		<input type="text" value="" id="tagger_filter" onkeyup="Tagger.tag.search(this.value, $delay);"></input>
-		<input type="button" value="Add" onclick="Tagger.tag.create(byId('tagger_filter').value);"></input>
+		<input type="button" value="Add" onclick="Tagger.tag.create(document.getElementById('tagger_filter').value);"></input>
 		<form action="$url_form" method="POST" onsubmit="Tagger.tag.submit();">
 			<input type='hidden' name='image_id' value='$i_image_id' id="image_id"></input>
 			<input type='hidden' name='query' value='$h_query'></input>

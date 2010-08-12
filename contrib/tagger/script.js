@@ -3,24 +3,48 @@
 * Author: Artanis (Erik Youngren <artanis.00@gmail.com>)                      *
 * Do not remove this notice.                                                  *
 \* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
- 
+function setCookie(c_name,value,expiredays)
+{
+var exdate=new Date();
+exdate.setDate(exdate.getDate()+expiredays);
+document.cookie=c_name+ "=" +escape(value)+
+((expiredays==null) ? "" : ";expires="+exdate.toGMTString());
+}
+
+function getCookie(c_name)
+{
+if (document.cookie.length>0)
+  {
+  c_start=document.cookie.indexOf(c_name + "=");
+  if (c_start!=-1)
+    {
+    c_start=c_start + c_name.length+1;
+    c_end=document.cookie.indexOf(";",c_start);
+    if (c_end==-1) c_end=document.cookie.length;
+    return unescape(document.cookie.substring(c_start,c_end));
+    }
+  }
+return "";
+}
+
 var Tagger = {
 	initialize : function (image_id) {
 	// object navigation
 		this.tag.parent       = this;
 		this.position.parent  = this;
 	// components
-		this.editor.container = byId('tagger_parent');
-		this.editor.titlebar  = byId('tagger_titlebar');
-		this.editor.toolbar   = byId('tagger_toolbar');
-		//this.editor.menu      = byId('tagger_p-menu');
-		this.editor.body      = byId('tagger_body');
-		this.editor.tags      = byId('tagger_tags');
+		this.editor.container = document.getElementById('tagger_parent');
+		this.editor.titlebar  = document.getElementById('tagger_titlebar');
+		this.editor.toolbar   = document.getElementById('tagger_toolbar');
+		//this.editor.menu      = document.getElementById('tagger_p-menu');
+		this.editor.body      = document.getElementById('tagger_body');
+		this.editor.tags      = document.getElementById('tagger_tags');
 		this.editor.form      = this.editor.tags.parentNode;
-		this.editor.statusbar = byId('tagger_statusbar');
+		this.editor.statusbar = document.getElementById('tagger_statusbar');
 	// initial data
 		this.tag.image        = image_id;
-		this.tag.query        = config.make_link("tagger/tags");
+		this.tag.query        = "/tagger/tags";
+		this.tag.search_query = "/tagger/tag_search";
 		this.tag.list         = null;
 		this.tag.suggest      = null;
 		this.tag.image_tags();
@@ -40,7 +64,7 @@ var Tagger = {
 	
 	alert : function (type,text,timeout) {
 		var id = "tagger_alert-"+type
-		var t_alert = byId(id);
+		var t_alert = document.getElementById(id);
 		if (t_alert) {
 			if(text == false) {
 				// remove
@@ -80,7 +104,7 @@ var Tagger = {
 		search : function(s,ms) {
 			clearTimeout(Tagger.tag.timer);
 			Tagger.tag.timer = setTimeout(
-				"Tagger.tag.ajax('"+Tagger.tag.query+"?s="+s+"',Tagger.tag.receive)",
+				"Tagger.tag.ajax('"+Tagger.tag.search_query+"/"+s+"',Tagger.tag.receive)",
 				ms);
 		},
 		
@@ -88,7 +112,7 @@ var Tagger = {
 			if(xml) {
 				Tagger.tag.suggest = document.importNode(
 					xml.responseXML.getElementsByTagName("list")[0],true);
-				Tagger.tag.publish(Tagger.tag.suggest,byId("tagger_p-search"));
+				Tagger.tag.publish(Tagger.tag.suggest,document.getElementById("tagger_p-search"));
 			}
 			if(Tagger.tag.suggest.getAttribute("max")) {
 				var rows = Tagger.tag.suggest.getAttribute("rows");
@@ -106,7 +130,7 @@ var Tagger = {
 			} else {
 				Tagger.tag.list = document.importNode(
 					xml.responseXML.getElementsByTagName("list")[0],true);
-				Tagger.tag.publish(Tagger.tag.list,byId("tagger_p-applied"));
+				Tagger.tag.publish(Tagger.tag.list,document.getElementById("tagger_p-applied"));
 			}
 		},
 		
@@ -118,7 +142,7 @@ var Tagger = {
 				var tag = list.childNodes[i];
 				tag.onclick = function () {
 					Tagger.tag.toggle(this);
-					byId("tagger_filter").select();
+					document.getElementById("tagger_filter").select();
 				};
 				tag.setAttribute("title",tag.getAttribute("count")+" uses");
 			}

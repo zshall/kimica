@@ -6,14 +6,9 @@
  * Do not remove this notice.
  */
 
-class Tagger implements Extension {
-	var $theme;
+class Tagger extends SimpleExtension {
 
-	public function receive_event(Event $event) {
-		if(is_null($this->theme))
-			$this->theme = get_theme_object($this);
-
-		if($event instanceof DisplayingImageEvent) {
+		public function onDisplayingImage(Event $event) {
 			global $page, $config, $user;
 
 			if($config->get_bool("tag_edit_anon")
@@ -24,7 +19,7 @@ class Tagger implements Extension {
 			}
 		}
 
-		if($event instanceof SetupBuildingEvent) {
+		public function onSetupBuilding(Event $event) {
 			$sb = new SetupBlock("Tagger");
 			$sb->add_bool_option("ext_tagger_enabled","Enable Tagger");
 			$sb->add_int_option("ext_tagger_search_delay","<br/>Delay queries by ");
@@ -35,13 +30,17 @@ class Tagger implements Extension {
 			$sb->add_int_option("ext_tagger_limit");
 			$event->panel->add_block($sb);
 		}
-	}
+		
+		public function onExtInit(Event $event) {
+			global $config;
+			$config->set_default_int("ext_tagger_tag_max",30);
+		}
 }
 
-add_event_listener(new Tagger());
+//add_event_listener(new Tagger());
 
 // Tagger AJAX back-end
-class TaggerXML implements Extension {
+class TaggerXML extends SimpleExtension {
 	public function receive_event(Event $event) {
 		if(($event instanceof PageRequestEvent) && $event->page_matches("tagger/tags")) {
 			global $page;
@@ -49,10 +48,7 @@ class TaggerXML implements Extension {
 			//$match_tags = null;
 			//$image_tags = null;
 			$tags=null;
-			if (isset($_GET['s'])) { // tagger/tags[/...]?s=$string
-				// return matching tags in XML form
-				$tags = $this->match_tag_list($_GET['s']);
-			} else if($event->get_arg(0)) { // tagger/tags/$int
+			if($event->get_arg(0)) { // tagger/tags/$int
 				// return arg[1] AS image_id's tag list in XML form
 				$tags = $this->image_tag_list($event->get_arg(0));
 			}
@@ -66,6 +62,27 @@ class TaggerXML implements Extension {
 			$page->set_type("text/xml");
 			$page->set_data($xml);
 		}
+		if(($event instanceof PageRequestEvent) && $event->page_matches("tagger/tag_search")) {
+			global $page;
+
+			//$match_tags = null;
+			//$image_tags = null;
+			$tags=null;
+			if($event->get_arg(0)) { // tagger/tag_search/$string
+				// return matching tags in XML form
+				$tags = $this->match_tag_list($event->get_arg(0));
+			}
+
+			$xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n".
+			"<tags>".
+				$tags.
+			"</tags>";
+
+			$page->set_mode("data");
+			$page->set_type("text/xml");
+			$page->set_data($xml);
+		}
+
 	}
 
 	private function match_tag_list ($s) {
@@ -170,5 +187,6 @@ class TaggerXML implements Extension {
 
 		return $list;
 	}
-} add_event_listener( new taggerXML(),10);
+} 
+//add_event_listener( new taggerXML(),10);
 ?>
