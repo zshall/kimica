@@ -6,7 +6,8 @@ class Themelet {
 	/**
 	 * Generic error message display
 	 */
-	public function display_error(Page $page, $title, $message) {
+	public function display_error($title, $message) {
+		global $page;
 		$page->set_title($title);
 		$page->set_heading($title);
 		$page->add_block(new NavBlock());
