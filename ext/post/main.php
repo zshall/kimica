@@ -332,7 +332,7 @@ class Post extends SimpleExtension {
 				$this->theme->display_popular_calendar(calendar($cal, "post/popular"));
 			}
 			else{
-				$this->theme->display_error($page, "Error", "Malformed date.");
+				$this->theme->display_error("Error", "Malformed date.");
 			}
 		}
 		
@@ -380,7 +380,7 @@ class Post extends SimpleExtension {
 				$page->set_redirect(make_link("post/view/{$image->id}", $query));
 			}
 			else {
-				$this->theme->display_error($page, "Image not found", "No more images");
+				$this->theme->display_error("Image not found", "No more images");
 			}
 		}
 		
@@ -397,7 +397,7 @@ class Post extends SimpleExtension {
 				$this->theme->display_admin_block($iabbe->parts);
 			}
 			else {
-				$this->theme->display_error($page, "Image not found", "No image in the database has the ID #$image_id");
+				$this->theme->display_error("Image not found", "No image in the database has the ID #$image_id");
 			}
 		}
 
@@ -436,7 +436,7 @@ class Post extends SimpleExtension {
 		
 		if($event->page_matches("post/reports")) {
 			if(!$config->get_bool('report_post_enable')){
-				$this->theme->display_error($page, "Reported Posts", "Post reports are disabled.");
+				$this->theme->display_error("Reported Posts", "Post reports are disabled.");
 			}
 			else{
 				$action = $event->get_arg(0);
@@ -558,6 +558,7 @@ class Post extends SimpleExtension {
 	}
 	
 	public function onImageInfoSet($event) {
+		global $page;
 		if($this->can_tag($event->image) && !is_null($_POST['tag_edit__tags'])) {
 			send_event(new TagSetEvent($event->image, $_POST['tag_edit__tags']));
 			if($this->can_source($event->image) && !is_null($_POST['tag_edit__source'])) {
@@ -565,7 +566,7 @@ class Post extends SimpleExtension {
 			}
 		}
 		else {
-			$this->theme->display_error($page, "Error", "Anonymous tag editing is disabled");
+			$this->theme->display_error("Error", "Anonymous tag editing is disabled");
 		}
 	}
 	

@@ -156,7 +156,7 @@ class Artists implements Extension {
                     	$this->theme->new_artist_composer();
                     }else{
                         $errMessage = "You must be registered and logged in to create a new artist.";
-                        $this->theme->display_error($page, "Error", $errMessage);
+                        $this->theme->display_error("Error", $errMessage);
                     }
                     break;
                 }
@@ -174,7 +174,7 @@ class Artists implements Extension {
                         if ($newArtistID == -1)
                         {
                             $errMessage = "Error when entering artist data.";
-                            $this->theme->display_error($page, "Error", $errMessage);
+                            $this->theme->display_error("Error", $errMessage);
                         }
                         else
                         {
@@ -185,7 +185,7 @@ class Artists implements Extension {
                     else
                     {
                         $errMessage = "You must be registered and logged in to create a new artist.";
-                        $this->theme->display_error($page, "Error", $errMessage);
+                        $this->theme->display_error("Error", $errMessage);
                     }
                     break;
                 }
@@ -231,7 +231,7 @@ class Artists implements Extension {
                         $this->theme->sidebar_options("editor", $artistID, $userIsAdmin);
                     }else{
                         $errMessage = "You must be registered and logged in to edit an artist.";
-                        $this->theme->display_error($page, "Error", $errMessage);
+                        $this->theme->display_error("Error", $errMessage);
                     }
                     break;
                 }

@@ -59,6 +59,16 @@ class PixelFileHandler extends SimpleExtension {
 		$image->ext       = $metadata['extension'];
 		$image->tag_array = Tag::explode($metadata['tags']);
 		$image->source    = $metadata['source'];
+		
+		$min_w = $config->get_int("upload_min_width", -1);
+		$min_h = $config->get_int("upload_min_height", -1);
+		$max_w = $config->get_int("upload_max_width", -1);
+		$max_h = $config->get_int("upload_max_height", -1);
+		
+		if($min_w > 0 && $image->width < $min_w) throw new UploadException("Image too small.");
+		if($min_h > 0 && $image->height < $min_h) throw new UploadException("Image too small.");
+		if($max_w > 0 && $image->width > $max_w) throw new UploadException("Image too large.");
+		if($max_h > 0 && $image->height > $max_h) throw new UploadException("Image too large.");
 
 		return $image;
 	}

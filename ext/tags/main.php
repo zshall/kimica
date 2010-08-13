@@ -697,7 +697,7 @@ class Tags extends SimpleExtension {
 					$page->set_redirect(make_link("tags/alias"));
 				}
 				catch(AddAliasException $ex) {
-					$this->theme->display_error($page, "Error adding alias", $ex->getMessage());
+					$this->theme->display_error("Error adding alias", $ex->getMessage());
 				}
 			}
 		}
@@ -752,11 +752,11 @@ class Tags extends SimpleExtension {
 				$page->set_redirect(make_link("tags/alias"));
 			}
 			else {
-				$this->theme->display_error($page, "No File Specified", "You have to upload a file");
+				$this->theme->display_error("No File Specified", "You have to upload a file");
 			}
 		}
 		else {
-			$this->theme->display_error($page, "Admins Only", "Only admins can edit the alias list");
+			$this->theme->display_error("Admins Only", "Only admins can edit the alias list");
 		}
 	}
 // }}}

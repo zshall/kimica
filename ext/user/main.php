@@ -120,7 +120,7 @@ class UserPage extends SimpleExtension {
 					send_event(new UserPageBuildingEvent($display_user));
 				}
 				else {
-					$this->theme->display_error($page, "No Such User","If you typed the ID by hand, try again; if you came from a link on this site, it might be bug report time...");
+					$this->theme->display_error("No Such User","If you typed the ID by hand, try again; if you came from a link on this site, it might be bug report time...");
 				}
 			}
 			
@@ -160,7 +160,7 @@ class UserPage extends SimpleExtension {
 					$this->theme->display_signup_page($page);
 				}
 				else if($_POST['pass1'] != $_POST['pass2']) {
-					$this->theme->display_error($page, "Password Mismatch", "Passwords don't match");
+					$this->theme->display_error("Password Mismatch", "Passwords don't match");
 				}
 				else {
 					try {
@@ -181,7 +181,7 @@ class UserPage extends SimpleExtension {
 						}
 					}
 					catch(UserCreationException $ex) {
-						$this->theme->display_error($page, "User Creation Error", $ex->getMessage());
+						$this->theme->display_error("User Creation Error", $ex->getMessage());
 					}
 				}
 			}
@@ -286,7 +286,7 @@ class UserPage extends SimpleExtension {
 									$page->set_redirect(make_link("account/validate"));
 								}
 								else{
-									$this->theme->display_error($page, "Error", "Error resending the verification code. Please contact support.");
+									$this->theme->display_error("Error", "Error resending the verification code. Please contact support.");
 								}
 							}
 						}
@@ -538,7 +538,7 @@ class UserPage extends SimpleExtension {
 			$page->set_redirect(make_link("account/login"));
 		}
 		else{
-			$this->theme->display_error($page, "Error", "No user with those details was found.");
+			$this->theme->display_error("Error", "No user with those details was found.");
 		}
 	}
 	
@@ -561,10 +561,10 @@ class UserPage extends SimpleExtension {
 			$page->set_redirect(make_link("account/login"));
 		}
 		elseif($duser->role == "b"){
-			$this->theme->display_error($page, "Account", "Your account has been suspended.");
+			$this->theme->display_error("Account", "Your account has been suspended.");
 		}
 		else{
-			$this->theme->display_error($page, "Account", "No user with those details was found.");
+			$this->theme->display_error("Account", "No user with those details was found.");
 		}
 	}
 	
@@ -615,14 +615,14 @@ class UserPage extends SimpleExtension {
 			}
 			elseif($duser->role != "b"){
 				$validate_link = "<a href='".make_link("account/validate")."'>Validate</a>";
-				$this->theme->display_error($page, "Error", "You need validate your account. $validate_link");
+				$this->theme->display_error("Error", "You need validate your account. $validate_link");
 			}
 			else{
-				$this->theme->display_error($page, "Account", "Your account has been suspended.");
+				$this->theme->display_error("Account", "Your account has been suspended.");
 			}
 		}
 		else {
-			$this->theme->display_error($page, "Error", "No user with those details was found");
+			$this->theme->display_error("Error", "No user with those details was found");
 		}
 	}
 
@@ -687,7 +687,7 @@ class UserPage extends SimpleExtension {
 			log_info("user", "Created User #$uid ({$event->username})");
 		}
 		else{
-			$this->theme->display_error($page, "Error", "Theres was an error triying to send the email");
+			$this->theme->display_error("Error", "Theres was an error triying to send the email");
 		}
 	}
 
@@ -739,7 +739,7 @@ class UserPage extends SimpleExtension {
 		global $database;
 
 		if($user->is_anon()) {
-			$this->theme->display_error($page, "Error", "You aren't logged in");
+			$this->theme->display_error("Error", "You aren't logged in");
 		}
 		else if(isset($_POST['id']) && isset($_POST['pass1']) && isset($_POST['pass2'])) {
 			$id = $_POST['id'];
@@ -749,10 +749,10 @@ class UserPage extends SimpleExtension {
 			$duser = User::by_id($id);
 
 			if((!$user->is_admin()) && ($duser->name != $user->name)) {
-				$this->theme->display_error($page, "Error", "You need to be an admin to change other people's passwords");
+				$this->theme->display_error("Error", "You need to be an admin to change other people's passwords");
 			}
 			else if($pass1 != $pass2) {
-				$this->theme->display_error($page, "Error", "Passwords don't match");
+				$this->theme->display_error("Error", "Passwords don't match");
 			}
 			else {
 				// FIXME: send_event()
@@ -774,7 +774,7 @@ class UserPage extends SimpleExtension {
 		global $database;
 
 		if($user->is_anon()) {
-			$this->theme->display_error($page, "Error", "You aren't logged in");
+			$this->theme->display_error("Error", "You aren't logged in");
 		}
 		else if(isset($_POST['id']) && isset($_POST['address'])) {
 			$id = $_POST['id'];
@@ -783,12 +783,10 @@ class UserPage extends SimpleExtension {
 			$duser = User::by_id($id);
 
 			if((!$user->is_admin()) && ($duser->name != $user->name)) {
-				$this->theme->display_error($page, "Error",
-						"You need to be an admin to change other people's addressess");
+				$this->theme->display_error("Error", "You need to be an admin to change other people's addressess");
 			}
 			else if(!preg_match('/^[_a-zA-Z0-9-]+(\.[_a-zA-Z0-9-]+)*@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)+$/', $address)) {
-				$this->theme->display_error($page, "Error",
-						"Email address is not valid.");
+				$this->theme->display_error("Error", "Email address is not valid.");
 			}
 			else {
 				$duser->set_email($address);

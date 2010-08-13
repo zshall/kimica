@@ -103,7 +103,7 @@ public function onPageRequest($event) {
 
 				if ($error)
 				{
-					$this->theme->display_error($page, "Error", $warnings);
+					$this->theme->display_error("Error", $warnings);
 					$this->theme->displayNewForm();
 					break;
 				}
@@ -134,7 +134,7 @@ public function onPageRequest($event) {
 				if ($error)
 				{
 					$this->theme->displayEditForm($journal);
-					$this->theme->display_error($page, "Error", $warnings);
+					$this->theme->display_error("Error", $warnings);
 					break;
 				}
 				
@@ -178,7 +178,7 @@ public function onPageRequest($event) {
 					$this->viewJournal($journalID);
 					$this->viewComments($journalID, 1);
 					
-					$this->theme->display_error($page, "Error", $warnings);
+					$this->theme->display_error("Error", $warnings);
 					break;
 				}
 				

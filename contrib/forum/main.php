@@ -120,7 +120,7 @@ class Forum extends SimpleExtension {
 
                             if($hasErrors)
                             {
-                                $this->theme->display_error($page, "Error", $errors);
+                                $this->theme->display_error("Error", $errors);
                                 $this->theme->display_new_thread_composer($page, $_POST["message"], $_POST["title"], false);
                                 break;
                             }
@@ -198,7 +198,7 @@ class Forum extends SimpleExtension {
 
                             if ($hasErrors)
                             {
-                                $this->theme->display_error($page, "Error", $errors);
+                                $this->theme->display_error("Error", $errors);
                                 $this->theme->display_new_post_composer($page, $_POST["threadID"], $_POST["message"], $_POST["title"], false);
                                 break;
                             }
@@ -210,7 +210,7 @@ class Forum extends SimpleExtension {
                         }
 						
 						if($locked){
-							$this->theme->display_error($page, "Thread", "This thread is locked.");
+							$this->theme->display_error("Thread", "This thread is locked.");
 						}
 					break;
 					case "subscription":
@@ -236,7 +236,7 @@ class Forum extends SimpleExtension {
                     default:
 						$page->set_mode("redirect");
                         $page->set_redirect(make_link("forum/list"));
-                        //$this->theme->display_error($page, "Invalid action", "You should check forum/index.");
+                        //$this->theme->display_error("Invalid action", "You should check forum/index.");
                         break;
                 }
             }

@@ -129,6 +129,11 @@ class ImageIO extends SimpleExtension {
 		$config->set_default_int('thumb_quality', 75);
 		$config->set_default_int('thumb_mem_limit', parse_shorthand_int('8MB'));
 		$config->set_default_string('thumb_convert_path', 'convert.exe');
+		
+		$config->set_default_int('upload_min_width', -1);
+		$config->set_default_int('upload_min_height', -1);
+		$config->set_default_int('upload_max_width', -1);
+		$config->set_default_int('upload_max_height', -1);
 
 		$config->set_default_bool('image_show_meta', false);
 		$config->set_default_string('image_ilink', '');
@@ -173,10 +178,10 @@ class ImageIO extends SimpleExtension {
 				$image = Image::by_id(int_escape($_POST['image_id']));
 				if($image) {
 					if(!warehouse_file(warehouse_path('images', $image->hash, 'local'), $image->hash, $image->ext)){
-						 $this->theme->display_error($page, "Error", "Image could not be warehoused.");
+						 $this->theme->display_error("Error", "Image could not be warehoused.");
 					};
 					if(!warehouse_thumb(warehouse_path('thumbs', $image->hash, 'local'), $image->hash, $image->ext)){
-						 $this->theme->display_error($page, "Error", "Thumb could not be warehoused.");
+						 $this->theme->display_error("Error", "Thumb could not be warehoused.");
 					};
 					
 					$image->set_warehoused();
@@ -287,6 +292,20 @@ class ImageIO extends SimpleExtension {
 		$sb->add_int_option("thumb_quality");
 
 		$sb->add_shorthand_int_option("thumb_mem_limit", "<br>Max memory use: ");
+		$event->panel->add_block($sb);
+		
+		$sb = new SetupBlock("Resolution Limits");
+
+		$sb->add_label("Min width: ");
+		$sb->add_int_option("upload_min_width");
+		$sb->add_label("<br>Min height: ");
+		$sb->add_int_option("upload_min_height");
+
+		$sb->add_label("<br>Max width: ");
+		$sb->add_int_option("upload_max_width");
+		$sb->add_label("<br>Max height: ");
+		$sb->add_int_option("upload_max_height");
+
 		$event->panel->add_block($sb);
 	}
 

@@ -98,7 +98,7 @@ class ExtManager extends SimpleExtension {
 						$page->set_redirect(make_link("ext_manager"));
 					}
 					else {
-						$this->theme->display_error($page, "File Operation Failed",
+						$this->theme->display_error("File Operation Failed",
 							"The extension folder isn't writable by the web server :(");
 					}
 				}
