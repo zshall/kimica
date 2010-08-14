@@ -51,11 +51,7 @@ class Blacklist extends SimpleExtension {
 			}
 		}
 	}
-		
-	public function onTagSet($event) {
-		$this->checkSubscription($event->image->id);
-	}
-	
+			
 	public function onSetupBuilding(SetupBuildingEvent $event) {					
 		$sb = new SetupBlock("Tag Blacklist");
 		$sb->add_int_option("ext_blacklist_max", "Tags per user: ");
