@@ -54,9 +54,6 @@ class PostTheme extends Themelet {
 				$page->add_block(new Block("Posts", $this->build_table($images, null).$pagination, "main", 10));
 			}
 		}
-		else {
-			$page->add_block(new Block("No Posts Found", "No posts were found to match the search criteria."));
-		}
 	}
 	
 	public function display_populars($images, $date) {

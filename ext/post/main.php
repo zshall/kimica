@@ -117,8 +117,7 @@ class SearchTermParseEvent extends Event {
 	}
 }
 
-class SearchTermParseException extends SCoreException {
-}
+class SearchTermParseException extends SCoreException {}
 
 class PostListBuildingEvent extends Event {
 	var $search_terms = null;
@@ -240,6 +239,8 @@ class Post extends SimpleExtension {
 		$config->set_default_int("index_width", 3);
 		$config->set_default_int("index_height", 4);
 		$config->set_default_bool("index_tips", true);
+		
+		$config->set_default_int("index_max_search", 3);
 				
 		$config->set_default_string("index_mode_general", "oamsu");
 		$config->set_default_string("index_mode_admin", "oa");
@@ -270,30 +271,42 @@ class Post extends SimpleExtension {
 			$search_terms = $event->get_search_terms();
 			$page_number = $event->get_page_number();
 			$page_size = $event->get_page_size();
-					
+			
 			try {
+				$max_search = $config->get_int("index_max_search");
+				if(count($search_terms) > $max_search){
+					throw new SearchTermParseException("You can search up to {$max_search} tags.");
+				}
+				
 				$total_pages = Image::count_pages($search_terms);
 				$images = Image::find_images(($page_number-1)*$page_size, $page_size, $search_terms);
+				
+				if(count($search_terms) == 0 && count($images) == 0 && $page_number == 1) {
+					$this->theme->display_intro($page);
+					send_event(new PostListBuildingEvent($search_terms));
+				}
+				else if(count($search_terms) > 0 && count($images) == 1 && $page_number == 1) {
+					$page->set_mode("redirect");
+					$page->set_redirect(make_link("post/view/{$images[0]->id}"));
+				}
+				else {
+					send_event(new PostListBuildingEvent($search_terms));
+					
+					if($images){
+						$this->theme->set_page($page_number, $total_pages, $search_terms);
+						$this->theme->display_page($images);
+					}
+					else{
+						$this->theme->display_error($page, "Search", "No posts were found to match the search criteria.");
+					}
+				}
 			}
-			catch(SearchTermParseException $stpe) {
+			catch(SearchTermParseException $ex) {
 				// FIXME: display the error somewhere
 				$total_pages = 0;
 				$images = array();
-			}
-
-			if(count($search_terms) == 0 && count($images) == 0 && $page_number == 1) {
-				$this->theme->display_intro($page);
-				send_event(new PostListBuildingEvent($search_terms));
-			}
-			else if(count($search_terms) > 0 && count($images) == 1 && $page_number == 1) {
-				$page->set_mode("redirect");
-				$page->set_redirect(make_link("post/view/{$images[0]->id}"));
-			}
-			else {
-				send_event(new PostListBuildingEvent($search_terms));
-
-				$this->theme->set_page($page_number, $total_pages, $search_terms);
-				$this->theme->display_page($images);
+				
+				$this->theme->display_error($page, "Search", $ex->getMessage());
 			}
 		}
 		
@@ -477,7 +490,9 @@ class Post extends SimpleExtension {
 		$sb->add_int_option("index_width", "<br>Columns: ");
 		$sb->add_int_option("index_height", "<br>Rows: ");
 		
-		$sb->add_label("Populars");
+		$sb->add_int_option("index_max_search","<br>Max tags in search: ");
+		
+		$sb->add_label("<br><br><b>Populars</b>");
 		$options = array();
 		$options['Views'] = 'views';
 		if(class_exists("Votes")){
@@ -602,7 +617,13 @@ class Post extends SimpleExtension {
 	}
 	
 	public function onSearchTermParse($event) {
-		global $user;
+		global $user, $page;
+		
+//		$tags = $event->context;
+//		
+//		if(count($tags)>2){
+//			$this->theme->display_error($page, "Search", "You could search up to two tags.");
+//		}
 		
 		if($user->is_cont() || $user->is_user() || $user->is_anon()){
 			if(is_null($event->term) && $this->no_status_query($event->context)) {
