@@ -775,6 +775,9 @@ class Image {
 		$img_querylets = array();
 		$positive_tag_count = 0;
 		$negative_tag_count = 0;
+		
+		$positive_tags = array();
+		$negative_tags = array();
 
 		$stpe = new SearchTermParseEvent(null, $terms);
 		send_event($stpe);
@@ -793,6 +796,13 @@ class Image {
 			}
 			
 			$term = Tag::resolve_alias($term);
+			
+			if(!$negative){
+				array_push($positive_tags, $term);
+			}
+			else{
+				array_push($negative_tags, $term);
+			}
 
 			$stpe = new SearchTermParseEvent($term, $terms);
 			send_event($stpe);
@@ -866,6 +876,27 @@ class Image {
 				$query->append($img_search);
 			}
 		}
+		
+		// one negative tag, no positive
+		else if($positive_tag_count == 0 && $negative_tag_count == 1) {
+			$query = new Querylet(
+				// MySQL is braindead, and does a full table scan on images, running the subquery once for each row -_-
+				// "{$this->get_images} WHERE images.id IN (SELECT image_id FROM tags WHERE tag LIKE ?) ",
+				"
+					SELECT images.*, UNIX_TIMESTAMP(posted) AS posted_timestamp
+					FROM tags, image_tags, images
+					WHERE
+						tag NOT LIKE ?
+						AND tags.id = image_tags.tag_id
+						AND image_tags.image_id = images.id
+				",
+				$tag_search->variables);
+
+			if(strlen($img_search->sql) > 0) {
+				$query->append_sql(" AND ");
+				$query->append($img_search);
+			}
+		}
 
 		// more than one positive tag, or more than zero negative tags
 		else {
@@ -874,12 +905,21 @@ class Image {
 			
 			$tag_id_array = array();
 			$tags_ok = true;
-			foreach($tag_search->variables as $tag) {
+			
+			foreach($negative_tags as $tag) {
+				$tag_ids = $database->db->GetCol("SELECT id FROM tags WHERE tag NOT LIKE ?", array($tag));
+				$tag_id_array = array_merge($tag_id_array, $tag_ids);
+				$tags_ok = count($tag_ids) > 0;
+				if(!$tags_ok) break;
+			}
+			
+			foreach($positive_tags as $tag) {
 				$tag_ids = $database->db->GetCol("SELECT id FROM tags WHERE tag LIKE ?", array($tag));
 				$tag_id_array = array_merge($tag_id_array, $tag_ids);
 				$tags_ok = count($tag_ids) > 0;
 				if(!$tags_ok) break;
 			}
+			
 			if($tags_ok) {
 				$tag_id_list = join(', ', $tag_id_array);
 
