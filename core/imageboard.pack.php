@@ -786,6 +786,8 @@ class Image {
 				$img_querylets[] = new ImgQuerylet($querylet, true);
 			}
 		}
+		
+		$terms = Tag::resolve_blacklist($terms);
 
 		// turn each term into a specific type of querylet
 		foreach($terms as $term) {
