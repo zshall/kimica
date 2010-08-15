@@ -126,7 +126,7 @@ class Wiki extends SimpleExtension {
 				}
 			}
 			else {
-				$this->theme->display_permission_denied($page);
+				$this->theme->display_permission_denied();
 			}
 		}
 		else if($event->page_matches("wiki_admin/delete_revision")) {

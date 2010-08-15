@@ -66,7 +66,7 @@ class Blotter extends SimpleExtension {
 					 */
 					global $page, $database, $user;
 					if(!$user->is_admin()) {
-						$this->theme->display_permission_denied($page);
+						$this->theme->display_permission_denied();
 					} else {
 						$entries = $database->get_all("SELECT * FROM blotter ORDER BY id DESC");
 						$this->theme->display_editor($entries);
@@ -78,7 +78,7 @@ class Blotter extends SimpleExtension {
 					 */
 					global $page, $database, $user;
 					if(!$user->is_admin()) {
-						$this->theme->display_permission_denied($page);
+						$this->theme->display_permission_denied();
 					} else {
 						$entry_text = $_POST['entry_text'];
 						if($entry_text == "") { die("No entry message!"); }
@@ -97,7 +97,7 @@ class Blotter extends SimpleExtension {
 					 */
 					global $page, $database, $user;
 					if(!$user->is_admin()) {
-						$this->theme->display_permission_denied($page);
+						$this->theme->display_permission_denied();
 					} else {
 						$id = int_escape($_POST['id']);
 						if(!isset($id)) { die("No ID!"); }

@@ -117,7 +117,7 @@ class SimpleBlog extends SimpleExtension {
                      */
                     global $page, $database, $user;
                     if(!$user->is_admin()) {
-                            $this->theme->display_permission_denied($page);
+                            $this->theme->display_permission_denied();
                     } else {
                             // get all entries for top table
 							$entries = $database->get_all("SELECT * FROM simple_blog ORDER BY id DESC");
@@ -130,7 +130,7 @@ class SimpleBlog extends SimpleExtension {
                      */
                     global $page, $database, $user;
                     if(!$user->is_admin()) {
-                            $this->theme->display_permission_denied($page);
+                            $this->theme->display_permission_denied();
                     } else {
 						// get all entries for top table
 						$entries = $database->get_all("SELECT * FROM simple_blog ORDER BY id DESC");
@@ -147,7 +147,7 @@ class SimpleBlog extends SimpleExtension {
                      */
                     global $page, $database, $user;
                     if(!$user->is_admin()) {
-                            $this->theme->display_permission_denied($page);
+                            $this->theme->display_permission_denied();
                     } else {
                             $id = int_escape($_POST['id']);
 							$post_title = html_escape($_POST['post_title']);
@@ -165,7 +165,7 @@ class SimpleBlog extends SimpleExtension {
                      */
                     global $page, $database, $user;
                     if(!$user->is_admin()) {
-                            $this->theme->display_permission_denied($page);
+                            $this->theme->display_permission_denied();
                     } else {
                             $post_title = html_escape($_POST['post_title']);
                             $post_text = html_escape($_POST['post_text']);
@@ -183,7 +183,7 @@ class SimpleBlog extends SimpleExtension {
                      */
                     global $page, $database, $user;
                     if(!$user->is_admin()) {
-                            $this->theme->display_permission_denied($page);
+                            $this->theme->display_permission_denied();
                     } else {
                             $id = int_escape($_POST['id']);
                             if(!isset($id)) { die("No ID!"); }
