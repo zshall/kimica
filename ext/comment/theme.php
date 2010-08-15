@@ -193,7 +193,7 @@ class CommentListTheme extends Themelet {
 			"href='".make_link("comment/delete/$i_comment_id")."'>Delete</a> |" : "";
 		
 		$h_toolslinks = !$user->is_anon() ?
-			"$h_dellink <a href=".make_link("comment/vote/up/".$i_comment_id).">Vote Up</a> | <a href=".make_link("comment/vote/down/".$i_comment_id).">Vote Down</a> | <a href='#' OnClick=\"BBcode.Quote('comment-box-".$i_image_id."', '".$h_name."', '".$comment->comment."'); return false;\">Quote</a> | <a href=\"#$i_comment_id\">Link</a>" : "";
+			"$h_dellink <a href=".make_link("comment/vote/up/".$i_comment_id).">Vote Up</a> | <a href=".make_link("comment/vote/down/".$i_comment_id).">Vote Down</a> | <a href='#' OnClick=\"BBcode.Quote('comment-box-".$i_image_id."', '".$h_name."', '".$comment->comment."'); return false;\">Quote</a> | <a href=\"#comment-$i_comment_id\">Link</a>" : "";
 
 		if($trim) {
 			return "
@@ -206,9 +206,8 @@ class CommentListTheme extends Themelet {
 			$avatar = $duser->get_avatar_html();
 			$oe = ($this->comments_shown++ % 2 == 0) ? "even" : "odd";
 			return "
-				<li>
+				<li id='comment-$i_comment_id'>
 					<div id='comment' class='$oe'>
-						<div id='$i_comment_id'></div>
 						<div class='author'>
 							<h6>$h_userlink</h6>
 							<a href='".make_link("account/profile/$h_name")."'>$avatar</a>
