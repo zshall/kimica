@@ -240,7 +240,8 @@ class Post extends SimpleExtension {
 		$config->set_default_int("index_height", 4);
 		$config->set_default_bool("index_tips", true);
 		
-		$config->set_default_int("index_max_search", 3);
+		$config->set_default_int("index_search_max_tags", 3);
+		$config->set_default_string("index_search_limited_to", "bgu");
 				
 		$config->set_default_string("index_mode_general", "oamsu");
 		$config->set_default_string("index_mode_admin", "oa");
@@ -273,9 +274,14 @@ class Post extends SimpleExtension {
 			$page_size = $event->get_page_size();
 			
 			try {
-				$max_search = $config->get_int("index_max_search");
-				if(count($search_terms) > $max_search){
-					throw new SearchTermParseException("You can search up to {$max_search} tags.");
+			
+				$auth = $user->get_auth_from_str($config->get_string("index_search_limited_to"));
+				
+				if($auth){
+					$max_search = $config->get_int("index_search_max_tags");
+					if(count($search_terms) > $max_search){
+						throw new SearchTermParseException("You can search up to {$max_search} tags at the same time.");
+					}
 				}
 				
 				$total_pages = Image::count_pages($search_terms);
@@ -297,7 +303,7 @@ class Post extends SimpleExtension {
 						$this->theme->display_page($images);
 					}
 					else{
-						$this->theme->display_error($page, "Search", "No posts were found to match the search criteria.");
+						$this->theme->display_error("Search", "No posts were found to match the search criteria.");
 					}
 				}
 			}
@@ -306,7 +312,7 @@ class Post extends SimpleExtension {
 				$total_pages = 0;
 				$images = array();
 				
-				$this->theme->display_error($page, "Search", $ex->getMessage());
+				$this->theme->display_error("Search", $ex->getMessage());
 			}
 		}
 		
@@ -490,7 +496,7 @@ class Post extends SimpleExtension {
 		$sb->add_int_option("index_width", "<br>Columns: ");
 		$sb->add_int_option("index_height", "<br>Rows: ");
 		
-		$sb->add_int_option("index_max_search","<br>Max tags in search: ");
+		$sb->add_int_option("index_search_max_tags","<br>Max tags in search: ");
 		
 		$sb->add_label("<br><br><b>Populars</b>");
 		$options = array();
@@ -622,7 +628,7 @@ class Post extends SimpleExtension {
 //		$tags = $event->context;
 //		
 //		if(count($tags)>2){
-//			$this->theme->display_error($page, "Search", "You could search up to two tags.");
+//			$this->theme->display_error("Search", "You could search up to two tags.");
 //		}
 		
 		if($user->is_cont() || $user->is_user() || $user->is_anon()){
