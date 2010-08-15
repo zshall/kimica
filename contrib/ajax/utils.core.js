@@ -277,11 +277,10 @@ Post = {
 			url: server.host + server.path + "ajax/image/edit",
 			data: "image_id=" + id + "&tags=" + tags,
 			success: function(data){
-					var msg = $("<p>Tags has been setted for the post " + id + ".</p>").hide();
+					var msg = $("<p>Tags has been setted for the post " + id + ".</p>");
 					
-					$('#subheading p').detach();					
-					$('#subheading').append(msg);
-					msg.fadeIn("slow").delay(3000).fadeOut("slow");
+					$('#alert p').detach();
+					$('#alert').append(msg).fadeIn("slow").delay(3000).fadeOut("slow");
 			}
 		});
 	},
@@ -360,24 +359,22 @@ Post = {
 				url: server.host + server.path + "ajax/image/favorite",
 				data: "image_id=" + id + "&favorite=" + favorite,
 				success: function(){
-					style_selector(id, favorite);
 					
-					var msg = $("<p>Error.</p>").hide();
+					var msg = $("<p>Error.</p>");
 					
 					if(favorite=="set"){
 						$('#post-favorite-set').hide();
 						$('#post-favorite-unset').show();
-						msg = $("<p>Post " + id + " was added to favorites.</p>").hide();
+						msg = $("<p>Post " + id + " was added to favorites.</p>");
 					}
 					else{
 						$('#post-favorite-unset').hide();
 						$('#post-favorite-set').show();
-						msg = $("<p>Post " + id + " was removed from favorites.</p>").hide();
+						msg = $("<p>Post " + id + " was removed from favorites.</p>");
 					}
 					
-					$('#subheading p').detach();
-					$('#subheading').append(msg);
-					msg.fadeIn("slow").delay(3000).fadeOut("slow");
+					$('#alert p').detach();
+					$('#alert').append(msg).fadeIn("slow").delay(3000).fadeOut("slow");
 				}
 			});
 		}
@@ -391,35 +388,33 @@ Post = {
 				url: server.host + server.path + "ajax/image/vote",
 				data: "image_id=" + id + "&vote=" + vote,
 				success: function(){
-					style_selector(id, vote);
 					
-					var msg = $("<p>Error.</p>").hide();
+					var msg = $("<p>Error.</p>");
 					
 					if(vote=="up"){
 						$('#post-vote-up').hide();
 						$('#post-vote-remove').show();
 						$('#post-vote-down').show();
 
-						msg = $("<p>Post " + id + " was voted up.</p>").hide();
+						msg = $("<p>Post " + id + " was voted up.</p>");
 					}
 					else if(vote=="null"){
 						$('#post-vote-up').show();
 						$('#post-vote-remove').hide();
 						$('#post-vote-down').show();
 						
-						msg = $("<p>Post " + id + " was removed.</p>").hide();
+						msg = $("<p>Post " + id + " was removed.</p>");
 					}
 					else{
 						$('#post-vote-up').show();
 						$('#post-vote-remove').show();
 						$('#post-vote-down').hide();
 						
-						msg = $("<p>Post " + id + " was voted down.</p>").hide();
+						msg = $("<p>Post " + id + " was voted down.</p>");
 					}
 					
-					$('#subheading p').detach();
-					$('#subheading').append(msg);
-					msg.fadeIn("slow").delay(3000).fadeOut("slow");
+					$('#alert p').detach();
+					$('#alert').append(msg).fadeIn("slow").delay(3000).fadeOut("slow");
 				}
 			});
 		}
@@ -434,7 +429,6 @@ Post = {
 				url: server.host + server.path + "ajax/image/rate",
 				data: "image_id=" + id + "&rating=" + rate,
 				success: function(){
-					style_selector(id, rate);
 					
 					var rate_name;
 					
@@ -447,11 +441,10 @@ Post = {
 						break;
 					}
 					
-					var msg = $("<p>Post " + id + " was rated as " + rate_name + ".</p>").hide();
+					var msg = $("<p>Post " + id + " was rated " + rate_name + ".</p>");
 					
-					$('#subheading p').detach();					
-					$('#subheading').append(msg);
-					msg.fadeIn("slow").delay(3000).fadeOut("slow");
+					$('#alert p').detach();
+					$('#alert').append(msg).fadeIn("slow").delay(3000).fadeOut("slow");
 				}
 			});
 		}
@@ -461,7 +454,7 @@ Post = {
 
 Comment = {
 	Post: function(image_id){
-		var comment = $("#comment_box").val();
+		var comment = $("#comment-box-"+image_id).val();
 		comment = $.trim(comment);
 			
 		if((comment!="") && (comment!=null)){
@@ -471,12 +464,14 @@ Comment = {
 				url: server.host + server.path + "ajax/comment/add",
 				data: "image_id=" + image_id + "&comment=" + comment,
 				success: function(){
-					$("#comment_box").val("");
-					$("#comment_box").fadeOut("slow");
-					$("#comment_button").fadeOut("slow",function(){
-						$('#comment_form').append("<div class='info'><p>Comment was added.</p></div>");
-					});
-					$("#comment_form .info").fadeOut("slow");
+					$("#comment-box-"+image_id).val("");
+					$("#comment-box-"+image_id).fadeOut("slow");
+					$("#comment-button").fadeOut("slow");
+					
+					var msg = $("<p>Comment added.</p>");
+					
+					$('#alert p').detach();
+					$('#alert').append(msg).fadeIn("slow").delay(3000).fadeOut("slow");
 				}
 			});
 		}
@@ -491,7 +486,9 @@ Comment = {
 				url: server.host + server.path + "ajax/comment/remove",
 				data: "comment_id=" + comment_id,
 				success: function(){
-						$(element).fadeOut("slow");
+					$(element).fadeOut("slow",function(){
+						$(element).detach();
+					});
 				}
 			});
 		}
@@ -506,45 +503,20 @@ Comment = {
 				url: server.host + server.path + "ajax/comment/vote",
 				data: "comment_id=" + comment_id + "&vote=" + vote,
 				success: function(){
-						$(element).fadeOut("slow");
+
+					var msg = $("<p>Error.</p>");
+
+					if(vote=="up"){
+						msg = $("<p>Comment " + comment_id + " was voted up.</p>");
+					}
+					else{
+						msg = $("<p>Comment " + comment_id + " was voted down.</p>");
+					}
+					
+					$('#alert p').detach();
+					$('#alert').append(msg).fadeIn("slow").delay(3000).fadeOut("slow");
 				}
 			});
 		}
 	}
-}
-
-
-function style_selector(id, style){
-	switch(style){
-		case "a": change_style(id, "approved");
-		break;
-		case "l": change_style(id, "locked");
-		break;
-		case "p": change_style(id, "pending");
-		break;
-		case "d": change_style(id, "deleted");
-		break;
-		case "set": change_style(id, "favorited");
-		break;
-		case "unset": change_style(id, "un-favorited");
-		break;
-		case "up": change_style(id, "voted-up");
-		break;
-		case "down": change_style(id, "voted-down");
-		break;
-		case "s": change_style(id, "rated-safe");
-		break;
-		case "q": change_style(id, "rated-questionable");
-		break;
-		case "e": change_style(id, "rated-explicit");
-		break;
-	}
-}
-
-function change_style(id, mode){
-	$(".thumb a").each(function(){
-		if(id == $(this).attr("id").substring(6)){
-			$(this).attr("class", mode);
-		}
-	});
 }

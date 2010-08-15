@@ -8,6 +8,7 @@ class AjaxTheme extends Themelet {
 					<select onchange='PostModeMenu();' id='mode' name='mode'>";
 					
 		$option_delete = "";
+		$option_ban = "";
 		if($user->is_owner() || $user->is_admin()){
 			$option_delete = "<option value='delete'>Delete posts</option>";
 			$option_ban = "<option value='ban'>Ban posts</option>";

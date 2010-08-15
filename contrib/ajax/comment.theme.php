@@ -8,9 +8,9 @@ class CustomCommentListTheme extends CommentListTheme {
 		$captcha = $config->get_bool("comment_captcha") ? captcha_get_html() : "";
 
 		return "<div id='comment_form'>
-				<textarea id='comment_box' name='comment' rows='5' cols='50'></textarea>
+				<textarea id='comment-box-$i_image_id' name='comment' rows='5' cols='50'></textarea>
 				$captcha
-				<br><input id='comment_button' type='submit' onclick='Comment.Post($i_image_id)' value='Post Comment' />
+				<br><input id='comment-button' type='submit' onclick='Comment.Post($i_image_id)' value='Post Comment' />
 				</div>";
 	}
 	
@@ -26,6 +26,8 @@ class CustomCommentListTheme extends CommentListTheme {
 		$h_comment = ($trim ? substr($tfe->stripped, 0, 50)."..." : $tfe->formatted);
 		$i_comment_id = int_escape($comment->comment_id);
 		$i_image_id = int_escape($comment->image_id);
+		
+		$duser = User::by_id($i_uid);
 
 		$anoncode = "";
 		if($h_name == "Anonymous" && $this->anon_id >= 0) {
@@ -35,26 +37,41 @@ class CustomCommentListTheme extends CommentListTheme {
 		$h_userlink = "<a href='".make_link("account/profile/$h_name")."'>$h_name</a>$anoncode";
 		$stripped_nonl = str_replace("\n", "\\n", substr($tfe->stripped, 0, 50));
 		$stripped_nonl = str_replace("\r", "\\r", $stripped_nonl);
+		
 		$h_dellink = $user->is_admin() ?
-			"<a ".
-			"onclick=\"Comment.Remove($i_comment_id); return false;\" ".
-			"href='#'>Del</a> |" : "";
+			"<a onclick=\"Comment.Remove($i_comment_id); return false;\" href='#'>Del</a> |" : "";
 		
 		$h_toolslinks = !$user->is_anon() ?
-			"<br>($h_dellink <a id=\"vote-up-$i_comment_id\" href=\"#\" onclick=\"Comment.Vote($i_comment_id,'up'); return false;\">Vote Up</a> | <a id=\"vote-down-$i_comment_id\" href=\"#\" onclick=\"Comment.Vote($i_comment_id,'down'); return false;\">Vote Down</a>)" : "";
+			"$h_dellink <a id=\"vote-up-$i_comment_id\" href=\"#\" onclick=\"Comment.Vote($i_comment_id,'up'); return false;\">Vote Up</a> | <a id=\"vote-down-$i_comment_id\" href=\"#\" onclick=\"Comment.Vote($i_comment_id,'down'); return false;\">Vote Down</a> | <a href='#' OnClick=\"BBcode.Quote('comment-box-".$i_image_id."', '".$h_name."', '".$comment->comment."'); return false;\">Quote</a> | <a href=\"#comment-$i_comment_id\">Link</a>" : "";
 
-		//$avatar = "";
-		//if(!empty($comment->owner->email)) {
-		//	$hash = md5(strtolower($comment->owner->email));
-		//	$avatar = "<img src=\"http://www.gravatar.com/avatar/$hash.jpg\"><br>";
-		//}
-		$oe = ($this->comments_shown++ % 2 == 0) ? "even" : "odd";
-		return "
-			<div class='$oe comment' id='comment-$i_comment_id'>
-			$h_userlink ($h_timestamp): $h_comment
-			$h_toolslinks
-			</div>
-		";
+		if($trim) {
+			return "
+				$h_userlink: $h_comment
+				<a href='".make_link("post/view/$i_image_id")."'>&gt;&gt;&gt;</a>
+				$h_toolslinks
+			";
+		}
+		else {
+			$avatar = $duser->get_avatar_html();
+			$oe = ($this->comments_shown++ % 2 == 0) ? "even" : "odd";
+			return "
+				<li id='comment-$i_comment_id'>
+					<div id='comment' class='$oe'>
+						<div class='author'>
+							<h6>$h_userlink</h6>
+							<a href='".make_link("account/profile/$h_name")."'>$avatar</a>
+						</div>
+						<div class='content'>
+							<span>$h_timestamp</span>
+							<p>$h_comment</p>	
+						</div>
+						<div class='footer'>
+							$h_toolslinks
+						</div>
+					</div>
+				</li>
+			";
+		}
 	}
 }
 ?>
