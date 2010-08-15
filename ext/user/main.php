@@ -508,24 +508,6 @@ class UserPage extends SimpleExtension {
 	public function onUserBan($event) {
 		$this->add_user_ban($event->duser, $event->end_date, $event->reason);
 	}
-
-	public function onSearchTermParse($event) {
-		$matches = array();
-		if(preg_match("/^(poster|user)=(.*)$/i", $event->term, $matches)) {
-			$user = User::by_name($matches[2]);
-			if(!is_null($user)) {
-				$user_id = $user->id;
-			}
-			else {
-				$user_id = -1;
-			}
-			$event->add_querylet(new Querylet("images.owner_id = $user_id"));
-		}
-		else if(preg_match("/^(poster|user)_id=([0-9]+)$/i", $event->term, $matches)) {
-			$user_id = int_escape($matches[2]);
-			$event->add_querylet(new Querylet("images.owner_id = $user_id"));
-		}
-	}
 // }}}
 // Things done *with* the user {{{
 	private function validate($page, $name, $code)  {
