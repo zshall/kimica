@@ -211,7 +211,7 @@ class Setup extends SimpleExtension {
 
 		if($event->page_matches("setup")) {
 			if(!$user->is_admin()) {
-				$this->theme->display_permission_denied($page);
+				$this->theme->display_permission_denied();
 			}
 			else {
 				if($event->get_arg(0) == "easy") {

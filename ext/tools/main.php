@@ -44,7 +44,7 @@ class AdminPage implements Extension {
 
 		if(($event instanceof PageRequestEvent) && $event->page_matches("tools")) {
 			if(!$user->is_admin()) {
-				$this->theme->display_permission_denied($page);
+				$this->theme->display_permission_denied();
 			}
 			else {
 				send_event(new AdminBuildingEvent($page));

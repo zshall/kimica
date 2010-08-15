@@ -209,7 +209,7 @@ class UserPrefsSetup extends SimpleExtension {
 				if($user->id != $user_id_preferences && !$user->is_admin()) { $this->theme->display_error("Error", "You don't have privileges"); }
 				else {
 				if($user->is_anon()) {
-					$this->theme->display_permission_denied($page);
+					$this->theme->display_permission_denied();
 				} else {
 						// The magic code:
 						//$prefs_setup = new DatabasePrefs($database, $user_id_preferences);

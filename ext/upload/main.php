@@ -115,7 +115,7 @@ class Upload implements Extension {
 					$this->theme->display_upload_status($page, $ok);
 				}
 				else {
-					$this->theme->display_permission_denied($page);
+					$this->theme->display_permission_denied();
 				}
 			}
 			else if(!empty($_GET['url'])) {
@@ -129,7 +129,7 @@ class Upload implements Extension {
 					$this->theme->display_upload_status($page, $ok);
 				}
 				else {
-					$this->theme->display_permission_denied($page);
+					$this->theme->display_permission_denied();
 				}
 			}
 			else {
