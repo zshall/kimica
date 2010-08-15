@@ -150,7 +150,7 @@ xanax
 					$vote = $event->get_arg(1);
 					$comment_id = int_escape($event->get_arg(2));
 				
-					if($event->count_args() == 2) {
+					if($event->count_args() == 3) {
 						send_event(new CommentVoteEvent($comment_id, $user, $vote));
 						
 						$page->set_mode("redirect");
