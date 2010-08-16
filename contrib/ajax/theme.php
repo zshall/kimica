@@ -30,6 +30,7 @@ class AjaxTheme extends Themelet {
 							<option value='admin-locked'>Set locked</option>
 							<option value='admin-pending'>Set pending</option>
 							<option value='admin-deleted'>Set deleted</option>
+							<option value='admin-hidden'>Set hidden</option>
 							</optgroup>";
 		}
 		

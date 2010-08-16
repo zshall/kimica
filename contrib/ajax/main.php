@@ -210,7 +210,7 @@ class Ajax extends SimpleExtension {
 				$image = Image::by_id($image_id);
 				
 				if($image){
-					if (($status == "l") || ($status == "a") || ($status == "p") || ($status == "d")) {
+					if (($status == "l") || ($status == "a") || ($status == "p") || ($status == "d") || ($status == "h")) {
 						$image->set_status($status);
 						
 						$page->set_mode("data");

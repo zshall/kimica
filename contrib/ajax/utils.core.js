@@ -188,6 +188,10 @@ function FileClick(id){
 		Post.Status(id, "d");
 	}
 	
+	if(mode=="admin-hidden"){		
+		Post.Status(id, "h");
+	}
+	
 	if(mode=="add-fav"){
 		Post.Favorite(id, "set");
 	}
