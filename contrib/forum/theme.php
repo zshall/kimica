@@ -1,15 +1,14 @@
 <?php
 class ForumTheme extends Themelet {
 
-    public function display_thread_list(Page $page, $threads, $showAdminOptions, $pageNumber, $totalPages)
-    {
+    public function display_thread_list(Page $page, $threads, $showAdminOptions, $pageNumber, $totalPages){
         if(count($threads) == 0){
             $html = "There are no threads to show.";
 			$pagination = "";
 		}
         else{
             $html = $this->make_thread_list($threads, $showAdminOptions);
-			$pagination = $this->build_paginator("forum/index", null, $pageNumber, $totalPages);
+			$pagination = $this->build_paginator("forum/list", null, $pageNumber, $totalPages);
 		}
 				
 		$page->set_title(html_escape("Forum"));
@@ -19,8 +18,7 @@ class ForumTheme extends Themelet {
 
 
 
-    public function display_new_thread_composer(Page $page, $threadText = null, $threadTitle = null)
-    {
+    public function display_new_thread_composer(Page $page, $threadText = null, $threadTitle = null){
 		global $config, $user;
 		$max_characters = $config->get_int('forumMaxCharsPerPost');
 		
@@ -66,8 +64,7 @@ class ForumTheme extends Themelet {
 	
 	
 	
-    public function display_new_post_composer(Page $page, $threadID)
-    {
+    public function display_new_post_composer(Page $page, $threadID){
 		global $config;
 		
 		$max_characters = $config->get_int('forumMaxCharsPerPost');
@@ -105,15 +102,10 @@ class ForumTheme extends Themelet {
 
 
 
-    public function display_thread($posts, $is_admin, $is_logged,  $threadTitle, $threadID, $pageNumber, $totalPages)
-    {
+    public function display_thread($posts, $is_admin, $is_logged, $threadID, $pageNumber, $totalPages){
 		global $config, $page/*, $user*/;
 
-		$theme_name = $config->get_string('theme');
-		$data_href = $config->get_string('base_href');
-		$base_href = $config->get_string('base_href');
-		
-		$title = $threadTitle;
+		$title = "";
 		
 		$n = 0;
 			
@@ -126,6 +118,8 @@ class ForumTheme extends Themelet {
         foreach ($posts as $post)
         {
             $unformated = $post["message"];
+			
+			$title = $post["title"];
 
             $tfe = new TextFormattingEvent($unformated);
             send_event($tfe);
@@ -149,7 +143,7 @@ class ForumTheme extends Themelet {
 			$postID = $post['id'];
 					
 			$unformated = str_replace("'", "\'", $unformated);
-			
+						
 			$quote_link = "";
 			if(!$is_logged){
 				$quote_link = " <a href='#' OnClick=\"BBcode.Quote('message', '".$post["user_name"]."', '".$unformated."'); return false;\">Quote</a>";
@@ -160,24 +154,29 @@ class ForumTheme extends Themelet {
 				$message_link = " <a href=".make_link("account/messages/new/".$poster->id).">Message</a>";
 			}
 			
+			$report_link = "";
+			if(!$is_logged){
+				$report_link = " <a href=".make_link("forum/report/".$threadID."/".$postID).">Report</a>";
+			}
+			
 			$delete_link = "";
 			if($is_admin){
 				$delete_link = " <a href=".make_link("forum/delete/".$threadID."/".$postID).">Delete</a>";
 			}
             
-            $html .= "<tr class='$oe'>".
+            $html .= "<tr id='post-$postID' class='$oe'>".
                 "<td class='forum_user'>".$user."<br>".$rank."<br>".$gravatar."</td>".
                 "<td class='forum_message'>".$message."</td>"."</tr>
 				<tr class='$oe'>
 					<td class='forum_subuser'><small>".autodate($post["date"])."</small></td>
-					<td class='forum_submessage'>".$message_link.$quote_link.$delete_link."</td>
+					<td class='forum_submessage'>".$message_link.$quote_link.$report_link.$delete_link."</td>
 				</tr>";
 
         }
 		
         $html .= "</tbody></table>";
         
-		$pagination = $this->build_paginator("forum/view/".$threadID, null, $pageNumber, $totalPages);
+		$pagination = $this->build_paginator("forum/thread/".$threadID, null, $pageNumber, $totalPages);
 
 		$page->set_title(html_escape($title));
 		$page->set_heading(html_escape($title));
@@ -185,6 +184,81 @@ class ForumTheme extends Themelet {
 
     }
 	
+	
+	public function display_post($posts, $is_admin, $is_logged){
+		global $config, $page/*, $user*/;
+			
+		$n = 0;
+			
+        $html = "<table id='postList' class='zebra'>".
+			"<thead><tr>".
+            "<th>User</th>".
+            "<th>Message</th>".
+			"</tr></thead>";
+		
+        foreach ($posts as $post)
+        {
+            $unformated = $post["message"];
+
+            $tfe = new TextFormattingEvent($unformated);
+            send_event($tfe);
+            $message = $tfe->formatted;
+			
+			$message = str_replace('\n\r', '<br>', $message);
+            $message = str_replace('\r\n', '<br>', $message);
+            $message = str_replace('\n', '<br>', $message);
+            $message = str_replace('\r', '<br>', $message);
+			
+            $user = "<a href='".make_link("account/profile/".$post["user_name"]."")."'>".$post["user_name"]."</a>";
+
+            $poster = User::by_name($post["user_name"]);
+			$gravatar = $poster->get_avatar_html();
+
+            $oe = ($n++ % 2 == 0) ? "even" : "odd";
+			
+			$rank = $poster->role_to_human();
+						
+			$postID = $post['id'];
+					
+			$unformated = str_replace("'", "\'", $unformated);
+						
+			$quote_link = "";
+			if(!$is_logged){
+				$quote_link = " <a href='#' OnClick=\"BBcode.Quote('message', '".$post["user_name"]."', '".$unformated."'); return false;\">Quote</a>";
+			}
+			
+			$message_link = "";
+			if(!$is_logged){
+				$message_link = " <a href=".make_link("account/messages/new/".$poster->id).">Message</a>";
+			}
+			
+			$report_link = "";
+			if(!$is_logged){
+				$report_link = " <a href=".make_link("forum/report/".$post["thread_id"]."/".$postID).">Report</a>";
+			}
+			
+			$delete_link = "";
+			if($is_admin){
+				$delete_link = " <a href=".make_link("forum/delete/".$post["thread_id"]."/".$postID).">Delete</a>";
+			}
+            
+            $html .= "<tr id='post-$postID' class='$oe'>".
+                "<td class='forum_user'>".$user."<br>".$rank."<br>".$gravatar."</td>".
+                "<td class='forum_message'>".$message."</td>"."</tr>
+				<tr class='$oe'>
+					<td class='forum_subuser'><small>".autodate($post["date"])."</small></td>
+					<td class='forum_submessage'>".$message_link.$quote_link.$report_link.$delete_link."</td>
+				</tr>";
+
+        }
+		
+        $html .= "</tbody></table>";
+        
+		$page->set_title("Forum Post");
+		$page->set_heading("Forum Post");
+        $page->add_block(new Block("Forum Post", $html, "main", 20));
+
+    }	
 	
 
     public function add_actions_block(Page $page, $threadID, $sticky, $locked, $subscribed){
@@ -227,8 +301,7 @@ class ForumTheme extends Themelet {
 
 
 
-    private function make_thread_list($threads, $is_admin)
-    {
+    private function make_thread_list($threads, $is_admin){
         $html = "<table id='threadList' class='zebra'>".
             "<thead><tr>".
             "<th>Title</th>".
@@ -270,7 +343,7 @@ class ForumTheme extends Themelet {
 			}
             
             $html .= "<tr class='$oe'>".
-                '<td class="textleft">'.$prefix.'<a href="'.make_link("forum/view/".$thread["id"]).'">'.$title."</a></td>".
+                '<td class="textleft">'.$prefix.'<a href="'.make_link("forum/thread/".$thread["id"]).'">'.$title."</a></td>".
 				'<td><a href="'.make_link("account/profile/".$thread["user_name"]).'">'.$thread["user_name"]."</a></td>".
 				"<td>".autodate($thread["uptodate"])."</td>".
                 "<td>".$thread["response_count"]."</td>";

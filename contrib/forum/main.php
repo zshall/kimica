@@ -90,7 +90,7 @@ class Forum extends SimpleExtension {
                         if(!$user->is_anon()) $this->theme->display_new_thread_composer($page);
                         break;
                     }
-                    case "view":
+                    case "thread":
                     {
                         $threadID = int_escape($event->get_arg(1));
                         $pageNumber = int_escape($event->get_arg(2));
@@ -105,6 +105,12 @@ class Forum extends SimpleExtension {
                         if(!$user->is_anon() && !$locked) $this->theme->display_new_post_composer($page, $threadID);
                         break;
                     }
+					case "post":
+					{
+						$postID = int_escape($event->get_arg(1));
+						$this->show_post($postID);
+						break;
+					}
                     case "new":
                     {
 						global $page;
@@ -113,7 +119,7 @@ class Forum extends SimpleExtension {
                     }
                     case "create":
                     {
-                        $redirectTo = "forum/index";
+                        $redirectTo = "forum/list";
                         if (!$user->is_anon())
                         {
                             list($hasErrors, $errors) = $this->valid_values_for_new_thread();
@@ -127,7 +133,7 @@ class Forum extends SimpleExtension {
 
                             $newThreadID = $this->save_new_thread($user);
                             $this->save_new_post($newThreadID, $user);
-                            $redirectTo = "forum/view/".$newThreadID."/1";
+                            $redirectTo = "forum/thread/".$newThreadID."/1";
                         }
 
                         $page->set_mode("redirect");
@@ -142,7 +148,7 @@ class Forum extends SimpleExtension {
                         if ($user->is_admin()) {$this->delete_post($postID);}
 
                         $page->set_mode("redirect");
-                        $page->set_redirect(make_link("forum/view/".$threadID));
+                        $page->set_redirect(make_link("forum/thread/".$threadID."/1"));
                         break;
                     case "nuke":
                         $threadID = int_escape($event->get_arg(1));
@@ -151,7 +157,7 @@ class Forum extends SimpleExtension {
                             $this->delete_thread($threadID);
 
                         $page->set_mode("redirect");
-                        $page->set_redirect(make_link("forum/index"));
+                        $page->set_redirect(make_link("forum/list"));
                         break;
 					case "sticky":
                         $action = $event->get_arg(1);
@@ -169,7 +175,7 @@ class Forum extends SimpleExtension {
 						}
 
                         $page->set_mode("redirect");
-                        $page->set_redirect(make_link("forum/view/".$threadID));
+                        $page->set_redirect(make_link("forum/thread/".$threadID));
 					break;
 					case "lock":
 						$action = $event->get_arg(1);
@@ -187,7 +193,7 @@ class Forum extends SimpleExtension {
 						}
 						
 						$page->set_mode("redirect");
-                   		$page->set_redirect(make_link("forum/view/".$threadID."/1"));
+                   		$page->set_redirect(make_link("forum/thread/".$threadID."/1"));
 					break;
                     case "answer":
 						$threadID = int_escape($_POST["threadID"]);
@@ -206,7 +212,7 @@ class Forum extends SimpleExtension {
                             $this->save_new_post($threadID, $user);
 							
 							$page->set_mode("redirect");
-                        	$page->set_redirect(make_link("forum/view/".$threadID."/1"));
+                        	$page->set_redirect(make_link("forum/thread/".$threadID."/1"));
                         }
 						
 						if($locked){
@@ -226,32 +232,40 @@ class Forum extends SimpleExtension {
 							break;
 							default:
 								$page->set_mode("redirect");
-                        		$page->set_redirect(make_link("forum/view/".$threadID."/1"));
+                        		$page->set_redirect(make_link("forum/thread/".$threadID."/1"));
 							break;
 						}
 						
 						$page->set_mode("redirect");
-                        $page->set_redirect(make_link("forum/view/".$threadID."/1"));						
+                        $page->set_redirect(make_link("forum/thread/".$threadID."/1"));						
+					break;
+					case "report":
+						if(!$user->is_anon()) {
+							$threadID = int_escape($event->get_arg(1));
+							$postID = int_escape($event->get_arg(2));
+								
+							send_event(new AlertAdditionEvent("Forum", "Reported Post", "", "forum/post/".$postID));
+								
+							$page->set_mode("redirect");
+							$page->set_redirect(make_link("forum/thread/".$threadID."/1"));
+						}
 					break;
                     default:
 						$page->set_mode("redirect");
                         $page->set_redirect(make_link("forum/list"));
-                        //$this->theme->display_error("Invalid action", "You should check forum/index.");
-                        break;
+					break;
                 }
             }
 		}
 
-        private function get_total_pages_for_thread($threadID)
-        {
+        private function get_total_pages_for_thread($threadID){
             global $database, $config;
             $result = $database->get_row("SELECT COUNT(1) AS count FROM forum_posts WHERE thread_id = ?", array($threadID));
 
             return ceil($result["count"] / $config->get_int("forumPostsPerPage"));
         }
 
-        private function valid_values_for_new_thread()
-        {
+        private function valid_values_for_new_thread(){
             $hasErrors = false;
 
             $errors = "";
@@ -285,8 +299,8 @@ class Forum extends SimpleExtension {
 
             return array($hasErrors, $errors);
         }
-        private function valid_values_for_new_post()
-        {
+		
+        private function valid_values_for_new_post(){
             $hasErrors = false;
 
             $errors = "";
@@ -315,17 +329,18 @@ class Forum extends SimpleExtension {
             
             return array($hasErrors, $errors);
         }
-        private function get_thread_title($threadID)
-        {
+		
+        private function get_thread_title($threadID){
             global $database;
             $result = $database->get_row("SELECT t.title FROM forum_threads AS t WHERE t.id = ? ", array($threadID));
             return $result["title"];
         }
 		
-        private function show_last_threads(Page $page, $event, $showAdminOptions = false)
-        {
+        private function show_last_threads(Page $page, $event, $showAdminOptions = false){
 			global $config, $database;
+			
             $pageNumber = $event->get_arg(1);
+			
             if(is_null($pageNumber) || !is_numeric($pageNumber))
                 $pageNumber = 0;
             else if ($pageNumber <= 0)
@@ -352,12 +367,12 @@ class Forum extends SimpleExtension {
             $this->theme->display_thread_list($page, $threads, $showAdminOptions, $pageNumber + 1, $totalPages);
         }
 		
-		private function show_posts($event)
-        {
+		private function show_posts($event){
 			global $config, $database, $user;
 			
 			$threadID = $event->get_arg(1);
             $pageNumber = $event->get_arg(2);
+			
             if(is_null($pageNumber) || !is_numeric($pageNumber))
                 $pageNumber = 0;
             else if ($pageNumber <= 0)
@@ -368,8 +383,10 @@ class Forum extends SimpleExtension {
             $postsPerPage = $config->get_int('forumPostsPerPage', 15);
 
             $posts = $database->get_all(
-                "SELECT p.id, p.date, p.message, u.name as user_name, u.email AS user_email, u.role AS user_role ".
+                "SELECT t.title, p.id, p.thread_id, p.date, p.message, u.name as user_name, u.email AS user_email, u.role AS user_role ".
                 "FROM forum_posts AS p ".
+				"INNER JOIN forum_threads AS t ".
+                "ON p.thread_id = t.id ".
                 "INNER JOIN users AS u ".
                 "ON p.user_id = u.id ".
                 "WHERE thread_id = ? ".
@@ -379,14 +396,27 @@ class Forum extends SimpleExtension {
             );
 			
             $totalPages = ceil($database->db->GetOne("SELECT COUNT(*) FROM forum_posts WHERE thread_id = ?", array($threadID)) / $postsPerPage);
-			
-			$threadTitle = $this->get_thread_title($threadID);
-			
-			$this->theme->display_thread($posts, $user->is_admin(), $user->is_anon(), $threadTitle, $threadID, $pageNumber + 1, $totalPages);
+						
+			$this->theme->display_thread($posts, $user->is_admin(), $user->is_anon(), $threadID, $pageNumber + 1, $totalPages);
+        }
+		
+		private function show_post($postID){
+			global $config, $database, $user;
+							
+            $posts = $database->get_all(
+                "SELECT p.id, p.thread_id, p.date, p.message, u.name as user_name, u.email AS user_email, u.role AS user_role ".
+                "FROM forum_posts AS p ".
+                "INNER JOIN users AS u ".
+                "ON p.user_id = u.id ".
+                "WHERE p.id = ? ".
+				"ORDER BY p.date ASC "
+                , array($postID)
+            );
+						
+			$this->theme->display_post($posts, $user->is_admin(), $user->is_anon());
         }
 
-        private function save_new_thread($user)
-        {
+        private function save_new_thread($user){
             $title = $_POST["title"];
 			$message = $_POST["message"];
 			$sticky = $_POST["sticky"];
@@ -437,8 +467,7 @@ class Forum extends SimpleExtension {
 			$database->execute("DELETE FROM forum_subscription WHERE thread_id = ? AND user_id = ?", array($threadID, $user->id));
 		}
 
-        private function save_new_post($threadID, $user)
-        {
+        private function save_new_post($threadID, $user){
 			global $config;
             $userID = $user->id;
             $message = $_POST["message"];
@@ -467,7 +496,7 @@ class Forum extends SimpleExtension {
 			global $user, $database;
 			$subscriptions = $database->get_all("SELECT * FROM forum_subscription WHERE thread_id = ?", array($threadID));
 			
-			$threadLink = "<a href='".make_http(make_link("forum/view/".$threadID))."'>".$this->get_thread_title($threadID)."</a>";
+			$threadLink = "<a href='".make_http(make_link("forum/thread/".$threadID))."'>".$this->get_thread_title($threadID)."</a>";
 			
 			foreach($subscriptions as $subscription){
 				$duser = User::by_id($subscription["user_id"]);
