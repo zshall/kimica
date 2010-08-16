@@ -396,6 +396,7 @@ class Tags extends SimpleExtension {
 			switch($row["status"]) {
 				case "p": $h_status = "pending";
 				case "d": $h_status = "deleted";
+				case "h": $h_status = "hidden";
 			}
 			
 			$h_bans .= "<tr class='$oe'><td>$h_tag</td><td>$h_status</td>";
@@ -423,6 +424,7 @@ class Tags extends SimpleExtension {
 							<select name='status'>
 								<option value='p'>Pending</option>
 								<option value='d'>Deleted</option>
+								<option value='h'>Hidden</option>
 							</select> 
 						</td>
 						<td><input type='submit' value='Add'></td>
