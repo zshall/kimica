@@ -111,10 +111,7 @@ class Image {
 
 		if($start < 0) $start = 0;
 		if($limit < 1) $limit = 1;
-		
-		//FIXME: system could search images only for negative tags, it needs at least one possitive.
-		//$tags = Tag::resolve_blacklist($tags);
-			
+					
 		$querylet = Image::build_search_querylet($tags);
 		$querylet->append(new Querylet("ORDER BY images.id DESC LIMIT ? OFFSET ?", array($limit, $start)));
 		$result = $database->execute($querylet->sql, $querylet->variables);
@@ -420,6 +417,10 @@ class Image {
 		return ($this->status == "d");
 	}
 	
+	public function is_hidden() {
+		return ($this->status == "h");
+	}
+	
 	public function set_status($status) {
 		global $database;
 		$database->Execute("UPDATE images SET status = ? WHERE id = ?", array($status, $this->id));
@@ -435,6 +436,7 @@ class Image {
 			case "a": return "approved";
 			case "p": return "pending";
 			case "d": return "deleted";
+			case "h": return "hidden";
 			default:  return "unknown";
 		}
 	}
