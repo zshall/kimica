@@ -305,6 +305,19 @@ function create_tables($dsn) { // {{{
 			INDEX (from_id),
 			FOREIGN KEY (from_id) REFERENCES users(id) ON DELETE CASCADE
 		"));
+		$db->execute($engine->create_table_sql("notifications", "
+			id SCORE_AIPK,
+			status ENUM('p', 'r', 's') NOT NULL DEFAULT 'p',
+			section VARCHAR(255) NOT NULL,
+			message VARCHAR(255) NOT NULL,
+			description TEXT,
+			location VARCHAR(255) NOT NULL,
+			created_at DATETIME NOT NULL,
+			alerter_id INTEGER NOT NULL DEFAULT 1,
+			reviewer_id INTEGER NOT NULL DEFAULT 1,
+			INDEX (alerter_id),
+			FOREIGN KEY (alerter_id) REFERENCES users(id) ON DELETE CASCADE
+		"));
 		$db->execute($engine->create_table_sql("images", "
 			id SCORE_AIPK,
 			owner_id INTEGER NOT NULL,
@@ -317,7 +330,7 @@ function create_tables($dsn) { // {{{
 			width INTEGER NOT NULL,
 			height INTEGER NOT NULL,
 			posted SCORE_DATETIME NOT NULL DEFAULT SCORE_NOW,
-			status ENUM('l', 'a', 'p', 'd') NOT NULL DEFAULT 'p',
+			status ENUM('l', 'a', 'p', 'd', 'h') NOT NULL DEFAULT 'p',
 			warehoused ENUM('y', 'n') NOT NULL DEFAULT 'n',
 			views INTEGER NOT NULL DEFAULT 0,
 			INDEX(owner_id),
@@ -385,7 +398,7 @@ function create_tables($dsn) { // {{{
 		$db->execute($engine->create_table_sql("comment_votes", "
 			comment_id INTEGER NOT NULL,
 			user_id INTEGER NOT NULL,
-			vote INTEGER NOT NULL,
+			vote INTEGER NOT NULL DEFAULT 0,
 			created_at SCORE_DATETIME NOT NULL DEFAULT SCORE_NOW,
 			UNIQUE(comment_id, user_id),
 			INDEX(comment_id),
