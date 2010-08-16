@@ -171,6 +171,7 @@ interface CacheEngine {
 	public function get_hits();
 	public function get_misses();
 }
+
 class NoCache implements CacheEngine {
 	public function get($key) {return false;}
 	public function set($key, $val, $time=0) {}
@@ -179,6 +180,7 @@ class NoCache implements CacheEngine {
 	public function get_hits() {return 0;}
 	public function get_misses() {return 0;}
 }
+
 class MemcacheCache implements CacheEngine {
 	var $memcache=null, $hits=0, $misses=0;
 
@@ -216,6 +218,7 @@ class MemcacheCache implements CacheEngine {
 	public function get_hits() {return $this->hits;}
 	public function get_misses() {return $this->misses;}
 }
+
 class APCCache implements CacheEngine {
 	var $hits=0, $misses=0;
 
@@ -311,7 +314,7 @@ class Database {
 			print "
 			<html>
 				<head>
-					<title>Internal error - Shimmie-$version</title>
+					<title>Internal error - Kimica-$version</title>
 				</head>
 				<body>
 					Internal error: Could not connect to database
