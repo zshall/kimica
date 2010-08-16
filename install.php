@@ -386,6 +386,7 @@ function create_tables($dsn) { // {{{
 			comment_id INTEGER NOT NULL,
 			user_id INTEGER NOT NULL,
 			vote INTEGER NOT NULL,
+			created_at SCORE_DATETIME NOT NULL DEFAULT SCORE_NOW,
 			UNIQUE(comment_id, user_id),
 			INDEX(comment_id),
 			FOREIGN KEY (comment_id) REFERENCES comments(id) ON DELETE CASCADE,
