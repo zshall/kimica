@@ -447,10 +447,28 @@ class Post extends SimpleExtension {
 				else if($action == "d"){
 					$image->set_status("d");
 				}
+				else if($action == "h"){
+					$image->set_status("h");
+				}
 			}
 
 			$page->set_mode("redirect");
 			$page->set_redirect(make_link("post/view/$image_id", $query));
+		}
+		
+		
+		if($event->page_matches("post/report")) {
+			if(!$user->is_anon()) {
+				if(isset($_POST['image_id']) && isset($_POST['reason'])) {
+					$post_id = int_escape($_POST['image_id']);
+					$reason = html_escape($_POST['reason']);
+					
+					send_event(new AlertAdditionEvent("Posts", "Reported Post", $reason, "post/view/".$post_id));
+					
+					$page->set_mode("redirect");
+					$page->set_redirect(make_link("post/view/$post_id"));
+				}
+			}
 		}
 		
 		if($event->page_matches("post/reports")) {
@@ -587,7 +605,7 @@ class Post extends SimpleExtension {
 			}
 		}
 		else {
-			$this->theme->display_error("Error", "Anonymous tag editing is disabled");
+			$this->theme->display_permission_denied();
 		}
 	}
 	
@@ -682,7 +700,7 @@ class Post extends SimpleExtension {
 			$tags = $matches[2];
 			$event->add_querylet(new Querylet("images.id IN (SELECT DISTINCT image_id FROM image_tags GROUP BY image_id HAVING count(image_id) $cmp $tags)"));
 		}
-		else if(preg_match("/^status=(l|a|p|d)$/", $event->term, $matches)) {
+		else if(preg_match("/^status=(l|a|p|d|h)$/", $event->term, $matches)) {
 			$status = $matches[1];
 			if($user->is_admin() || $user->is_mod()){
 				$event->add_querylet(new Querylet("status = ?", array($status)));

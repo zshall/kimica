@@ -285,6 +285,7 @@ class PostTheme extends Themelet {
 		$approved = "";
 		$pending = "";
 		$deleted = "";
+		$hidden = "";
 		if($status=="l"){
 			$locked = "selected='selected'";
 		}
@@ -297,6 +298,9 @@ class PostTheme extends Themelet {
 		else if($status=="d"){
 			$deleted = "selected='selected'";
 		}
+		else if($status=="h"){
+			$hidden = "selected='selected'";
+		}
 		$i_image_id = int_escape($image->id);
 		$html = "<form action='".make_link("post/status")."' method='POST'>
 				<input type='hidden' name='image_id' value='$i_image_id'>
@@ -305,6 +309,7 @@ class PostTheme extends Themelet {
 			   		<option value='a' $approved>Approved</option>
 			   		<option value='p' $pending>Pending</option>
 			   		<option value='d' $deleted>Deleted</option>
+					<option value='h' $hidden>Hidden</option>
 				</select> 
 				<input type='submit' value='Change Status'>
 				</form>
@@ -350,7 +355,7 @@ class PostTheme extends Themelet {
 
 		$i_image = int_escape($image->id);
 		$html = "
-			<form action='".make_link("post/reports/add")."' method='POST'>
+			<form action='".make_link("post/report")."' method='POST'>
 				<input type='hidden' name='image_id' value='$i_image'>
 				<input type='text' name='reason' value='Report Reason' onclick='this.value=\"\";'>
 				<input type='submit' value='Report'>
