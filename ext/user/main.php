@@ -888,7 +888,6 @@ class UserPage extends SimpleExtension {
 	private function undone_message() {
 		global $database;
 		foreach($_POST['id'] as $id) {
-
 			$database->execute("UPDATE messages SET status = 'r' WHERE id = ?", array($id));
 		}
 	}

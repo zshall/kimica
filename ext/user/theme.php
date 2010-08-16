@@ -435,11 +435,13 @@ class UserPageTheme extends Themelet {
 		$html .= "<tr><td>Priority:</td><td><select name='priority'><option value='l'>Low</option><option value='n' selected='selected'>Normal</option><option value='h'>High</option></select></td></tr>";
 		$html .= "<tr><td>Subject:</td><td><input type='text' value='{$subject}' name='subject'></td></tr>";
 		$html .= "<tr><td>Message:</td><td><textarea rows='10' name='message'>$message</textarea>";
-		$html .= "<tr><td colspan='2'><input type='submit' name='action' value='Send'></td></tr>";
 		$html .= "</tbody>";
 		$html .= "</table>";
+		$html .= "<input type='submit' name='action' value='Send'>";
 		$html .= "</form>";
 		
+		$page->set_title("New Message");
+		$page->set_heading("New Message");
 		$page->add_block(new Block("New Message", $html, "main", 20));
 	}
 		
