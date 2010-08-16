@@ -167,6 +167,27 @@ xanax
 					}
 				}
 			}
+			else if($event->get_arg(0) == "report") {
+				if(!$user->is_anon()) {
+					$comment_id = int_escape($event->get_arg(1));
+					
+					if($event->count_args() == 2) {
+						send_event(new AlertAdditionEvent("Comments", "Reported Comment", "", "comment/view/".$comment_id));
+						
+						$page->set_mode("redirect");
+						$page->set_redirect($_SERVER['HTTP_REFERER']);
+					}
+				}
+			}
+			else if($event->get_arg(0) == "view") {
+				if(!$user->is_anon()) {
+					$comment_id = int_escape($event->get_arg(1));
+					
+					if($event->count_args() == 2) {
+						$this->theme->display_comment($this->get_comment($comment_id));
+					}
+				}
+			}
 			else if($event->get_arg(0) == "list") {
 				$this->build_page($event->get_arg(1));
 			}
@@ -377,6 +398,28 @@ xanax
 				AND comments.votes >= ?
 				ORDER BY comments.id ASC
 				", array($i_image_id, $threshold));
+		$comments = array();
+		foreach($rows as $row) {
+			$comments[] = new Comment($row);
+		}
+		return $comments;
+	}
+	
+	private function get_comment($comment_id){
+		global $config, $database, $user;
+		
+		$rows = $database->get_all("
+				SELECT
+				users.id as user_id, users.name as user_name, users.email as user_email,
+				comments.comment as comment, comments.id as comment_id,
+				comments.image_id as image_id, comments.owner_ip as poster_ip,
+				comments.posted as posted,
+				comments.votes as votes
+				FROM comments
+				LEFT JOIN users ON comments.owner_id=users.id
+				WHERE comments.id=?
+				ORDER BY comments.id ASC
+				", array($comment_id));
 		$comments = array();
 		foreach($rows as $row) {
 			$comments[] = new Comment($row);

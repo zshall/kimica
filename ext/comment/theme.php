@@ -162,7 +162,24 @@ class CommentListTheme extends Themelet {
 		
 		$page->add_block(new Block("Comments", $html, "main", 30));
 	}
-
+	
+	public function display_comment($comments){
+		global $page;
+		
+		$html = "<div id='comments'><ul>";
+		foreach($comments as $comment) {
+			$html .= $this->comment_to_html($comment);
+		}
+		$html .= "</ul></div>";
+		
+		if(!$comments){
+			$html = "There is no comment to show.";
+		}
+		
+		$page->set_title("Comments");
+		$page->set_heading("Comments");
+		$page->add_block(new Block("Comment", $html, "main", 10));
+	}
 
 	protected function comment_to_html($comment, $trim=false) {
 		global $user;
@@ -193,7 +210,7 @@ class CommentListTheme extends Themelet {
 			"href='".make_link("comment/delete/$i_comment_id")."'>Delete</a> |" : "";
 		
 		$h_toolslinks = !$user->is_anon() ?
-			"$h_dellink <a href=".make_link("comment/vote/up/".$i_comment_id).">Vote Up</a> | <a href=".make_link("comment/vote/down/".$i_comment_id).">Vote Down</a> | <a href='#' OnClick=\"BBcode.Quote('comment-box-".$i_image_id."', '".$h_name."', '".$comment->comment."'); return false;\">Quote</a> | <a href=\"#comment-$i_comment_id\">Link</a>" : "";
+			"$h_dellink <a href=".make_link("comment/vote/up/".$i_comment_id).">Vote Up</a> | <a href=".make_link("comment/vote/down/".$i_comment_id).">Vote Down</a> | <a href='#' OnClick=\"BBcode.Quote('comment-box-".$i_image_id."', '".$h_name."', '".$comment->comment."'); return false;\">Quote</a> | <a href=".make_link("comment/report/".$i_comment_id).">Report</a> | <a href=\"#comment-$i_comment_id\">Link</a>" : "";
 
 		if($trim) {
 			return "
