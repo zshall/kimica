@@ -52,6 +52,8 @@ class CommentVoteEvent extends Event {
 
 class CommentPostingException extends SCoreException {}
 
+class CommentVotingException extends SCoreException {}
+
 class Comment {
 	public function Comment($row) {
 		$this->owner = null;
@@ -83,6 +85,8 @@ class CommentList extends SimpleExtension {
 		$config->set_default_bool('comment_anon', true);
 		$config->set_default_int('comment_window', 5);
 		$config->set_default_int('comment_limit', 10);
+		$config->set_default_int('comment_vote_window', 5);
+		$config->set_default_int('comment_vote_limit', 10);
 		$config->set_default_int('comment_list_count', 10);
 		$config->set_default_int('comment_count', 5);
 		$config->set_default_bool('comment_captcha', false);
@@ -149,12 +153,17 @@ xanax
 				if(!$user->is_anon()) {
 					$vote = $event->get_arg(1);
 					$comment_id = int_escape($event->get_arg(2));
-				
+								
 					if($event->count_args() == 3) {
-						send_event(new CommentVoteEvent($comment_id, $user, $vote));
+						try{							
+							send_event(new CommentVoteEvent($comment_id, $user, $vote));
 						
-						$page->set_mode("redirect");
-						$page->set_redirect($_SERVER['HTTP_REFERER']);
+							$page->set_mode("redirect");
+							$page->set_redirect($_SERVER['HTTP_REFERER']);
+						}
+						catch(CommentVotingException $ex) {
+							$this->theme->display_error("Comment Votes", $ex->getMessage());
+						}
 					}
 				}
 			}
@@ -224,6 +233,14 @@ xanax
 		$sb->add_label("<br>Every ");
 		$sb->add_int_option("comment_window");
 		$sb->add_label(" minutes");
+		
+		$sb->add_label("<br>Limit to ");
+		$sb->add_int_option("comment_vote_limit");
+		$sb->add_label(" comment votes");
+		$sb->add_label("<br>Every ");
+		$sb->add_int_option("comment_vote_window");
+		$sb->add_label(" minutes");
+		
 		$sb->add_label("<br>Show ");
 		$sb->add_int_option("comment_count");
 		$sb->add_label(" recent comments on the index");
@@ -378,13 +395,26 @@ xanax
 
 		$window = int_escape($config->get_int('comment_window'));
 		$max = int_escape($config->get_int('comment_limit'));
+		
+		$comments = $database->db->GetOne("SELECT COUNT(*) FROM comments WHERE owner_ip = ? AND posted > date_sub(now(), interval ? minute)", array($_SERVER['REMOTE_ADDR'], $window));
 
-		$result = $database->Execute("SELECT * FROM comments WHERE owner_ip = ? ".
-				"AND posted > date_sub(now(), interval ? minute)",
-				Array($_SERVER['REMOTE_ADDR'], $window));
-		$recent_comments = $result->RecordCount();
+		return ($comments >= $max);
+	}
+	
+	private function is_vote_limit_hit() {
+		global $user;
+		global $config;
+		global $database;
 
-		return ($recent_comments >= $max);
+		// sqlite fails at intervals
+		if($database->engine->name == "sqlite") return false;
+
+		$window = int_escape($config->get_int('comment_vote_window'));
+		$max = int_escape($config->get_int('comment_vote_limit'));
+
+		$comment_votes = $database->db->GetOne("SELECT COUNT(*) FROM comment_votes WHERE user_id = ? AND created_at > date_sub(now(), interval ? minute)", array($user->id, $window));
+				
+		return ($comment_votes >= $max);
 	}
 
 	private function hash_match() {
@@ -529,18 +559,31 @@ xanax
 	}
 	
 	private function add_comment_vote($comment_id, $user, $vote) {
-		global $database;
-		$database->Execute("DELETE FROM comment_votes WHERE comment_id = ? AND user_id = ?", array($comment_id, $user->id));
+		global $config, $database;
 		
-		if(($vote == "up") || ($vote == "down")) {
-			$score = -1;
-			if($vote == "up") {
-				$score = 1;
+		$comment_owner = $database->db->GetRow("SELECT id FROM comments WHERE id = ? AND owner_id = ?", array($comment_id, $user->id));
+		
+		if($this->is_vote_limit_hit()){
+			$window = int_escape($config->get_int('comment_vote_window'));
+			$comments = int_escape($config->get_int('comment_vote_limit'));
+			throw new CommentVotingException("You can vote up to $comments comments every $window minutes.");
+		}
+		else if($comment_owner) {
+			throw new CommentVotingException("You cannot vote your own comment.");
+		}
+		else{
+			$database->Execute("DELETE FROM comment_votes WHERE comment_id = ? AND user_id = ?", array($comment_id, $user->id));
+				
+			if(($vote == "up") || ($vote == "down")) {
+				$score = -1;
+				if($vote == "up") {
+					$score = 1;
+				}
+				
+				$database->Execute("INSERT INTO comment_votes(comment_id, user_id, vote, created_at) VALUES(?, ?, ?, now())",array($comment_id, $user->id, $score));
+				$database->Execute("UPDATE comments SET votes=(SELECT SUM(vote) FROM comment_votes WHERE comment_id = ?) WHERE id = ?", array($comment_id, $comment_id));
 			}
-			
-			$database->Execute("INSERT INTO comment_votes(comment_id, user_id, vote) VALUES(?, ?, ?)",array($comment_id, $user->id, $score));
-			$database->Execute("UPDATE comments SET votes=(SELECT SUM(vote) FROM comment_votes WHERE comment_id = ?) WHERE id = ?", array($comment_id, $comment_id));
-		}		
+		}
 	}
 // }}}
 }
