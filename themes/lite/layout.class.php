@@ -99,18 +99,18 @@ class Layout {
 			case "comment":
 				$cs .= "<a class='tab' href='".make_link('comment/list')."'>All</a>";
 				$cs .= "<a class='tab' href='".make_link('rss/comments')."'>Feed</a>";
-				$cs .= "<a class='tab' href='".make_link("ext_doc/comment")."'>Help</a>";
+				$cs .= "<a class='tab' href='".make_link("extensions/docs/comment")."'>Help</a>";
 				break;
 			case "pool":
 				$cs .= "<a class='tab' href='".make_link('pool/list')."'>List</a>";
 				$cs .= "<a class='tab' href='".make_link("pool/new")."'>Create</a>";
 				$cs .= "<a class='tab' href='".make_link("pool/updated")."'>Changes</a>";
-				$cs .= "<a class='tab' href='".make_link("ext_doc/pools")."'>Help</a>";
+				$cs .= "<a class='tab' href='".make_link("extensions/docs/pools")."'>Help</a>";
 				break;
 			case "wiki":
 				$cs .= "<a class='tab' href='".make_link('wiki')."'>Index</a>";
 				$cs .= "<a class='tab' href='".make_link("wiki/rules")."'>Rules</a>";
-				$cs .= "<a class='tab' href='".make_link("ext_doc/wiki")."'>Help</a>";
+				$cs .= "<a class='tab' href='".make_link("extensions/docs/wiki")."'>Help</a>";
 				break;
 			case "tags":
 			case "alias":
@@ -119,7 +119,7 @@ class Layout {
 				$cs .= "<a class='tab' href='".make_link('tags/popularity')."'>Popularity</a>";
 				$cs .= "<a class='tab' href='".make_link('tags/categories')."'>Categories</a>";
 				$cs .= "<a class='tab' href='".make_link('alias/list')."'>Aliases</a>";
-				$cs .= "<a class='tab' href='".make_link("ext_doc/tag_edit")."'>Help</a>";
+				$cs .= "<a class='tab' href='".make_link("extensions/docs/tag_edit")."'>Help</a>";
 				break;
 			case "upload":
 				if($hw) $cs .= "<a class='tab' href='".make_link("wiki/upload_guidelines")."'>Guidelines</a>";
