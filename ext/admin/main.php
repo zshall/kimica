@@ -125,6 +125,10 @@ class Admin extends SimpleExtension {
 			$this->theme->display_bulk_uploader();
 		}
 	}
+	
+	public function onUserBlockBuilding($event) {
+		$event->add_link("Admin Tools", make_link("admin"), 100);
+	}
 			
 	public function onAlertAddition($event){
 		$this->add_alert($event);
