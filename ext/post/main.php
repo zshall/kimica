@@ -655,10 +655,9 @@ class Post extends SimpleExtension {
 //			$this->theme->display_error("Search", "You could search up to two tags.");
 //		}
 		
-		if($user->is_cont() || $user->is_user() || $user->is_anon()){
-			if(is_null($event->term) && $this->no_status_query($event->context)) {
-				$event->add_querylet(new Querylet("status IN ('l', 'a')"));
-			}
+		if(is_null($event->term) && $this->no_status_query($event->context)) {
+			$status = $this->visible_status();
+			$event->add_querylet(new Querylet("status IN ($status)"));
 		}
 								
 		$matches = array();
@@ -721,6 +720,32 @@ class Post extends SimpleExtension {
 			}
 		}
 		return true;
+	}
+	
+	public static function visible_status() {
+		global $config, $user;
+		
+		$status['a'] = $config->get_string("post_approved_visible_to");
+		$status['l'] = $config->get_string("post_locked_visible_to");
+		$status['p'] = $config->get_string("post_pending_visible_to");
+		$status['d'] = $config->get_string("post_deleted_visible_to");
+		$status['h'] = $config->get_string("post_hidden_visible_to");
+		
+		$image_status = "";
+		
+		foreach($status as $key => $value) {
+			$arr = str_split($value);
+			if(in_array($user->role, $arr)){
+				$image_status .= $key;
+			}
+		}
+		
+		$arr = array();
+		for($i=0; $i<strlen($image_status); $i++) {
+			$arr[] = "'" . $image_status[$i] . "'";
+		}
+		$set = join(', ', $arr);
+		return $set;
 	}
 	
 	private function recent_posts($duser=null){
