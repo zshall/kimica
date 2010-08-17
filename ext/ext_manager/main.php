@@ -89,17 +89,28 @@ class ExtensionInfo {
 class ExtManager extends SimpleExtension {
 	public function onPageRequest(PageRequestEvent $event) {
 		global $page, $user;
-		if($event->page_matches("ext_manager")) {
+		if($event->page_matches("extensions")) {
 			if($user->is_admin()) {
 				if($event->get_arg(0) == "set") {
 					if(is_writable("ext")) {
 						$this->set_things($_POST);
 						$page->set_mode("redirect");
-						$page->set_redirect(make_link("ext_manager"));
+						$page->set_redirect(make_link("extensions"));
 					}
 					else {
 						$this->theme->display_error("File Operation Failed",
 							"The extension folder isn't writable by the web server :(");
+					}
+				}
+				elseif($event->get_arg(0) == "docs") {
+					$ext = $event->get_arg(1);
+					if(file_exists("ext/$ext/main.php")) {
+						$info = new ExtensionInfo("ext/$ext/main.php");
+						$this->theme->display_doc($page, $info);
+					}
+					else if(file_exists("contrib/$ext/main.php")) {
+						$info = new ExtensionInfo("contrib/$ext/main.php");
+						$this->theme->display_doc($page, $info);
 					}
 				}
 				else {
@@ -110,27 +121,12 @@ class ExtManager extends SimpleExtension {
 				$this->theme->display_table($page, $this->get_extensions(false), false);
 			}
 		}
-
-		if($event->page_matches("ext_doc")) {
-			$ext = $event->get_arg(0);
-			if(file_exists("ext/$ext/main.php")) {
-				$info = new ExtensionInfo("ext/$ext/main.php");
-				$this->theme->display_doc($page, $info);
-			}
-			else if(file_exists("contrib/$ext/main.php")) {
-				$info = new ExtensionInfo("contrib/$ext/main.php");
-				$this->theme->display_doc($page, $info);
-			}
-			else {
-				$this->theme->display_table($page, $this->get_extensions(false), false);
-			}
-		}
 	}
 
 	public function onUserBlockBuilding(UserBlockBuildingEvent $event) {
 		global $user;
 		if($user->is_admin()) {
-			$event->add_link("Extension Manager", make_link("ext_manager"));
+			$event->add_link("Extensions", make_link("extensions"));
 		}
 	}
 
@@ -179,14 +175,14 @@ class ExtManager extends SimpleExtension {
 				else {
 					full_copy("contrib/$fname", "ext/$fname");
 				}
-				log_info("ext_manager", "Enabling $fname");
+				log_info("extensions", "Enabling $fname");
 			}
 		}
 		else {
 			// disable if currently enabled
 			if(file_exists("ext/$fname")) {
 				deltree("ext/$fname");
-				log_info("ext_manager", "Disabling $fname");
+				log_info("extensions", "Disabling $fname");
 			}
 		}
 	}
