@@ -340,9 +340,17 @@ class Post extends SimpleExtension {
 					$rating = "(images.rating IN ($rating)) AND";
 				}
 				
+				$status = $this->visible_status();
+				if($status){
+					$status = "(images.status IN ($status)) AND";
+				}
+				else{
+					$status = "";
+				}
+				
 				$search_mode = $config->get_string('populars_mode', 'views');
 							
-				$results = $database->get_all("SELECT images.id FROM images WHERE $rating (images.posted LIKE ?) ORDER BY images.$search_mode DESC, images.id DESC LIMIT ? OFFSET 0", array($search_date, $images));
+				$results = $database->get_all("SELECT images.id FROM images WHERE $rating $status (images.posted LIKE ?) ORDER BY images.$search_mode DESC, images.id DESC LIMIT ? OFFSET 0", array($search_date, $images));
 				
 				$images = array();
 				foreach($results as $result) {
