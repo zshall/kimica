@@ -437,8 +437,8 @@ class UserPage extends SimpleExtension {
 	public function onUserPageBuilding($event) {
 		global $page, $user, $config;
 
-		$h_join_date = html_escape(autodate($event->display_user->join_date));
-		$h_login_date = html_escape(autodate($event->display_user->login_date));
+		$h_join_date = autodate($event->display_user->join_date);
+		$h_login_date = autodate($event->display_user->login_date);
 		$event->add_stats(array("Join Date", "$h_join_date"), 10);
 		$event->add_stats(array("Last Login", "$h_login_date"), 20);
 		$event->add_stats(array("Role", ucfirst($event->display_user->role_to_human())), 30);
