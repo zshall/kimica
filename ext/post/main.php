@@ -657,7 +657,9 @@ class Post extends SimpleExtension {
 		
 		if(is_null($event->term) && $this->no_status_query($event->context)) {
 			$status = $this->visible_status();
-			$event->add_querylet(new Querylet("status IN ($status)"));
+			if($status){
+				$event->add_querylet(new Querylet("status IN ($status)"));
+			}
 		}
 								
 		$matches = array();
@@ -745,7 +747,13 @@ class Post extends SimpleExtension {
 			$arr[] = "'" . $image_status[$i] . "'";
 		}
 		$set = join(', ', $arr);
-		return $set;
+		
+		if($image_status){
+			return $set;
+		}
+		else{
+			return "";
+		}
 	}
 	
 	private function recent_posts($duser=null){
