@@ -446,7 +446,7 @@ class Image {
 		
 		$status = $this->status_to_human();
 
-		$visible = $config->get_string("post_$status_visible_to", "oamcug");
+		$visible = $config->get_string("post_".$status."_visible_to", "oamcug");
 
 		$can_view = FALSE;
 		$arr = str_split($visible);
