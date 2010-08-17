@@ -242,12 +242,18 @@ class Post extends SimpleExtension {
 		
 		$config->set_default_int("index_search_max_tags", 3);
 		$config->set_default_string("index_search_limited_to", "bgu");
-				
-		$config->set_default_string("index_mode_general", "oamsu");
+		
+		$config->set_default_string("post_approved_visible_to", "oamcug");
+		$config->set_default_string("post_locked_visible_to", "oamcug");
+		$config->set_default_string("post_pending_visible_to", "oam");
+		$config->set_default_string("post_deleted_visible_to", "oam");
+		$config->set_default_string("post_hidden_visible_to", "oa");
+								
+		$config->set_default_string("index_mode_general", "oamcu");
 		$config->set_default_string("index_mode_admin", "oa");
-		$config->set_default_string("index_mode_favorites", "oamsu");
-		$config->set_default_string("index_mode_score", "oamsu");
-		$config->set_default_string("index_mode_rating", "oamsu");
+		$config->set_default_string("index_mode_favorites", "oamcu");
+		$config->set_default_string("index_mode_score", "oamcu");
+		$config->set_default_string("index_mode_rating", "oamcu");
 		
 		$config->set_default_string("populars_mode", "views");
 	}
@@ -399,7 +405,7 @@ class Post extends SimpleExtension {
 				$page->set_redirect(make_link("post/view/{$image->id}", $query));
 			}
 			else {
-				$this->theme->display_error("Image not found", "No more images");
+				$this->theme->display_error("Post", "No more images.");
 			}
 		}
 		
@@ -408,7 +414,7 @@ class Post extends SimpleExtension {
 
 			$image = Image::by_id($image_id);
 	
-			if(!is_null($image) && ($image->is_approved() || $image->is_locked() || ($user->is_admin() || $user->is_mod()))) {
+			if(!is_null($image) && ($image->get_auth())) {
 				send_event(new DisplayingImageEvent($image));
 				$iabbe = new ImageAdminBlockBuildingEvent($image, $user);
 				send_event($iabbe);
@@ -416,7 +422,7 @@ class Post extends SimpleExtension {
 				$this->theme->display_admin_block($iabbe->parts);
 			}
 			else {
-				$this->theme->display_error("Image not found", "No image in the database has the ID #$image_id");
+				$this->theme->display_error("Post", "No image in the database has the ID #$image_id.");
 			}
 		}
 

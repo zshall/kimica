@@ -83,8 +83,9 @@ class CommentListTheme extends Themelet {
 			if(class_exists("Votes")){
 				$scores = "<span class='info'><strong>Score </strong>".$image->votes."</span>";
 			}
-			
-			$html .= "
+					
+			if($image->get_auth()) {
+				$html .= "
 				<div id='comment-list'>
 					<div class='comment-thumb'>$thumb_html</div>
 					<ul>
@@ -104,16 +105,15 @@ class CommentListTheme extends Themelet {
 						$comment_html
 					</ul>
 				</div>
-			";
+				";
+			}
 		}
-		
-		if(($image->is_approved() || $image->is_locked() || ($user->is_admin() || $user->is_mod()))) {
-			$page->add_block(new Block("Comments", $html.$pagination, "main", $position++));
-		}
-		
+				
 		if(!$images){
-			$page->add_block(new Block("Comments", "There is no comments to show.", "main", $position++));
+			$html = "There is no comments to show.";
 		}
+		
+		$page->add_block(new Block("Comments", $html.$pagination, "main", $position++));
 	}
 
 

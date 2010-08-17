@@ -404,9 +404,7 @@ class ImageIO extends SimpleExtension {
 // }}}
 // fetch image {{{
 	private function send_file($image_arg, $type) {
-		global $config;
-		global $user;
-		global $database;
+		global $config, $user, $page;
 				
 		$matches = array();
 		if(preg_match("/(\d+)/", $image_arg, $matches)){
@@ -417,8 +415,7 @@ class ImageIO extends SimpleExtension {
 			$image = Image::by_hash($matches[1]);
 		}
 
-		global $page;
-		if(!is_null($image) && ($image->is_approved() || $image->is_locked() || $user->is_admin() || $user->is_mod())) {
+		if(!is_null($image) && ($image->get_auth())) {
 			$page->set_mode("data");
 			if($type == "thumb") {
 				$page->set_type("image/jpeg");
@@ -452,8 +449,7 @@ class ImageIO extends SimpleExtension {
 			$page->set_title("Not Found");
 			$page->set_heading("Not Found");
 			$page->add_block(new Block("Navigation", "<a href='".make_link()."'>Index</a>", "left", 0));
-			$page->add_block(new Block("Image not in database",
-					"The requested image was not found in the database"));
+			$page->add_block(new Block("Post", "The requested post was not found in the database."));
 		}
 	}
 // }}}
