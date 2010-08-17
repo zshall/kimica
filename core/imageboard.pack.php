@@ -444,7 +444,7 @@ class Image {
 	public function get_auth() {
 		global $config, $user;
 		
-		$status = $this->status_to_human()
+		$status = $this->status_to_human();
 
 		$visible = $config->get_string("post_$status_visible_to", "oamcug");
 
