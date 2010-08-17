@@ -27,6 +27,11 @@ class AlertAdditionEvent extends Event {
 class Admin extends SimpleExtension {
 	public function onPageRequest($event) {
 		global $page, $user;
+		
+		if($event->page_matches("admin")) {
+			$this->theme->display_sidebar();
+		}
+		
 		if($event->page_matches("admin/alerts")) {
 			$action = $event->get_arg(0);
 			
@@ -66,14 +71,61 @@ class Admin extends SimpleExtension {
 							break;
 						}
 					break;
+					default:
+						$this->theme->display_alerts($this->get_alerts());
+					break;
 				}
 			}
 			else{
 				$this->theme->display_permission_denied();
 			}
 		}
+		
+		if($event->page_matches("admin/database")) {
+			$action = $event->get_arg(0);
+						
+			if($user->is_admin()){
+				$this->theme->display_tag_tools();
+				
+				if(isset($_POST['action'])){
+					switch($_POST['action']) {
+						case 'lowercase all tags':
+							$this->tags_to_lowercase();
+							$redirect = true;
+						break;
+						case 'recount tag use':
+							$this->tags_recount_use();
+							$redirect = true;
+						break;
+						case 'purge unused tags':
+							$this->tags_purge_unused();
+							$redirect = true;
+						break;
+						case 'convert to innodb':
+							$this->database_to_innodb();
+							$redirect = true;
+						break;
+						case 'database dump':
+							$this->database_dump();
+						break;					
+					}
+				}
+			}
+			else{
+				$this->theme->display_permission_denied();
+			}
+		}
+		
+		if($event->page_matches("admin/posts")) {
+			$this->theme->display_bulk_tag_editor();
+			$this->theme->display_bulk_source_editor();
+			if(class_exists("Ratings")){
+				$this->theme->display_bulk_rater();
+			}
+			$this->theme->display_bulk_uploader();
+		}
 	}
-	
+			
 	public function onAlertAddition($event){
 		$this->add_alert($event);
 	}
@@ -116,6 +168,54 @@ class Admin extends SimpleExtension {
 			case "r": return "reviewed";
 			case "s": return "solved";
 		}
+	}
+	
+	private function tags_to_lowercase() {
+		global $database;
+		$database->execute("UPDATE tags SET tag=lower(tag)");
+	}
+	
+	private function tags_recount_use() {
+		global $database;
+		$database->Execute("
+			UPDATE tags
+			SET count = COALESCE(
+				(SELECT COUNT(image_id) FROM image_tags WHERE tag_id=tags.id GROUP BY tag_id),
+				0
+			)");
+	}
+	
+	private function tags_purge_unused() {
+		global $database;
+		$this->tags_recount_use();
+		$database->Execute("DELETE FROM tags WHERE count=0");
+	}
+	
+	private function database_to_innodb() {
+		global $database;
+		if($database->engine->name == "mysql") {
+			$tables = $database->db->MetaTables();
+			foreach($tables as $table) {
+				log_info("upgrade", "converting $table to innodb");
+				$database->execute("ALTER TABLE $table TYPE=INNODB");
+			}
+		}
+	}
+	
+	private function database_dump() {
+		global $page;
+		include "config.php";
+
+		switch($db_type) {
+			case 'mysql':
+				$cmd = "mysqldump -h$db_host -u$db_user -p$db_pass $db_name";
+				break;
+		}
+
+		$page->set_mode("data");
+		$page->set_type("application/x-unknown");
+		$page->set_filename('kimica-'.date('Ymd').'.sql');
+		$page->set_data(shell_exec($cmd));
 	}
 }
 
