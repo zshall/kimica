@@ -444,24 +444,10 @@ class Image {
 	public function get_auth() {
 		global $config, $user;
 		
-		switch($this->status){
-			case "l":
-				$visible = $config->get_string("post_locked_visible_to", "oamcug");
-			break;
-			case "a":
-				$visible = $config->get_string("post_approved_visible_to", "oamcug");
-			break;
-			case "p":
-				$visible = $config->get_string("post_pending_visible_to", "oam");
-			break;
-			case "d":
-				$visible = $config->get_string("post_deleted_visible_to", "oam");
-			break;
-			case "h":
-				$visible = $config->get_string("post_hidden_visible_to", "oa");
-			break;
-		}
-		
+		$status = $this->status_to_human()
+
+		$visible = $config->get_string("post_$status_visible_to", "oamcug");
+
 		$can_view = FALSE;
 		$arr = str_split($visible);
 		if(in_array($user->role, $arr)){
