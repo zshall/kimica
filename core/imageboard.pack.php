@@ -441,7 +441,13 @@ class Image {
 		}
 	}
 	
-	public function get_auth() {
+	
+	/*
+	 * Get if the user can see the current image
+	 *
+	 * @retval bool
+	 */
+	public function get_status_auth() {
 		global $config, $user;
 		
 		$status = $this->status_to_human();
@@ -454,6 +460,32 @@ class Image {
 			$can_view = TRUE;
 		}
 		return $can_view;
+	}
+	
+	
+	/*
+	 * Get the string of statuses that the user can see. For example admin can see: alpdh (Approved, Locked, Pending, Deleted, Hidden)
+	 *
+	 * @retval string (Ex. alpdh)
+	 */
+	public function get_status_auth_str(){
+		global $config, $user;
+		
+		$status['a'] = $config->get_string("post_approved_visible_to");
+		$status['l'] = $config->get_string("post_locked_visible_to");
+		$status['p'] = $config->get_string("post_pending_visible_to");
+		$status['d'] = $config->get_string("post_deleted_visible_to");
+		$status['h'] = $config->get_string("post_hidden_visible_to");
+		
+		$image_status = "";
+		
+		foreach($status as $key => $value) {
+			$arr = str_split($value);
+			if(in_array($user->role, $arr)){
+				$image_status .= $key;
+			}
+		}
+		return $image_status;
 	}
 	
 	/*
