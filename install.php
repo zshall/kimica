@@ -381,6 +381,12 @@ function create_tables($dsn) { // {{{
 			FOREIGN KEY (image_id) REFERENCES images(id) ON DELETE CASCADE,
 			FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 		"));
+		$db->execute($engine->create_table_sql("tag_blacklist", "
+			user_id INTEGER NOT NULL,
+			tag VARCHAR(64) NOT NULL,
+			INDEX(user_id),
+			FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+		"));
 		$db->execute($engine->create_table_sql("comments", "
 			id SCORE_AIPK,
 			image_id INTEGER NOT NULL,
@@ -441,15 +447,12 @@ function insert_defaults($dsn, $account) { // {{{
 		
 		$hash = md5(strtolower($username) . $password);
 		
-		$config_insert = $db->Prepare("INSERT INTO config(name, value) VALUES(?, ?)");
-		$user_insert = $db->Prepare("INSERT INTO users(name, pass, joindate,validate, role, email) VALUES(?, ?, now(), ?, ?, ?)");
-
-		$db->Execute($user_insert, Array('Anonymous', null, null, 'g', null));
-		$db->Execute($config_insert, Array('anon_id', $db->Insert_ID()));
-		$db->Execute($user_insert, Array($username, $hash, null, 'o', $email));
+		$db->Execute("INSERT INTO users(name, pass, joindate, validate, role, email) VALUES(?, ?, ?, now(), ?, ?, ?)", array('Guest', null, null, 'g', null));
+		$db->Execute("INSERT INTO config(name, value) VALUES(?, ?)", array('anon_id', '1'));
+		$db->Execute("INSERT INTO users(name, pass, joindate,validate, role, email) VALUES(?, ?, now(), ?, ?, ?)", array($username, $hash, null, 'o', $email));
 
 		if(check_im_version() > 0) {
-			$db->Execute($config_insert, Array('thumb_engine', 'convert'));
+			$db->Execute("INSERT INTO config(name, value) VALUES(?, ?)", array('thumb_engine', 'convert'));
 		}
 
 		$db->Close();
