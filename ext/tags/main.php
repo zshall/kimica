@@ -183,13 +183,7 @@ class Tags extends SimpleExtension {
 			log_info("alias_editor", "Added alias for {$event->oldtag} -> {$event->newtag}");
 		}
 	}
-	
-	public function onAdminBuilding($event) {
-		global $page;
-		$this->theme->display_mass_editor($page);
-		$this->theme->display_source_editor($page);
-	}
-
+		
 	public function onPostListBuilding($event) {
 		global $config, $page;
 		if($config->get_int('tag_list_length') > 0) {

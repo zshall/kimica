@@ -24,10 +24,6 @@ class Ratings implements Extension {
 		global $config, $database, $page, $user;
 		if(is_null($this->theme)) $this->theme = get_theme_object($this);
 
-		if($event instanceof AdminBuildingEvent) {
-			$this->theme->display_bulk_rater();
-		}
-
 		if(($event instanceof PageRequestEvent) && $event->page_matches("admin/bulk_rate")) {
 			global $database, $user, $page;
 			if(!$user->is_admin()) {

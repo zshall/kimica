@@ -182,12 +182,7 @@ class Upload implements Extension {
 		}
 
 		}
-				
-		if($event instanceof AdminBuildingEvent) {
-			global $page;
-			$this->theme->display_admin_block($page);
-		}
-		
+						
 		if(($event instanceof PageRequestEvent) && $event->page_matches("bulk_add")) {
 			if($user->is_admin() && isset($_POST['dir'])) {
 				set_time_limit(0);
