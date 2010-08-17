@@ -46,6 +46,10 @@ class AdsTheme extends Themelet {
 		}
 		$html .= '</tbody>
 				</table>';
+				
+		if(!$ads){
+			$html = "There is no ads to show.";
+		}
 		
 		$page->set_title("Ads");
 		$page->set_heading("Ads");
@@ -54,7 +58,7 @@ class AdsTheme extends Themelet {
 	
 	public function add_ad(){
 		global $page;
-		$html = '<form action="'.make_link("ads/add").'" method="post">
+		$html = '<form action="'.make_link("ads/save").'" method="post">
 					<table>
 						<tbody>
 						  <tr>

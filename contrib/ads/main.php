@@ -62,13 +62,13 @@ class Ads extends SimpleExtension {
 			}
 		}
 		
-		if($event->page_matches("ads/create")) {
+		if($event->page_matches("ads/new")) {
 			if($user->is_admin()){
 				$this->theme->add_ad();
 			}
 		}
 				
-		if($event->page_matches("ads/add")) {
+		if($event->page_matches("ads/save")) {
 			if($user->is_admin()){
 				$this->add_ad();
 			}
