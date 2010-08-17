@@ -84,7 +84,7 @@ class CommentListTheme extends Themelet {
 				$scores = "<span class='info'><strong>Score </strong>".$image->votes."</span>";
 			}
 					
-			if($image->get_auth()) {
+			if($image->get_status_auth()) {
 				$html .= "
 				<div id='comment-list'>
 					<div class='comment-thumb'>$thumb_html</div>

@@ -415,7 +415,7 @@ class ImageIO extends SimpleExtension {
 			$image = Image::by_hash($matches[1]);
 		}
 
-		if(!is_null($image) && ($image->get_auth())) {
+		if(!is_null($image) && ($image->get_status_auth())) {
 			$page->set_mode("data");
 			if($type == "thumb") {
 				$page->set_type("image/jpeg");

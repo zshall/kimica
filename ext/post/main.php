@@ -422,7 +422,7 @@ class Post extends SimpleExtension {
 
 			$image = Image::by_id($image_id);
 	
-			if(!is_null($image) && ($image->get_auth())) {
+			if(!is_null($image) && ($image->get_status_auth())) {
 				send_event(new DisplayingImageEvent($image));
 				$iabbe = new ImageAdminBlockBuildingEvent($image, $user);
 				send_event($iabbe);
@@ -735,20 +735,7 @@ class Post extends SimpleExtension {
 	public static function visible_status() {
 		global $config, $user;
 		
-		$status['a'] = $config->get_string("post_approved_visible_to");
-		$status['l'] = $config->get_string("post_locked_visible_to");
-		$status['p'] = $config->get_string("post_pending_visible_to");
-		$status['d'] = $config->get_string("post_deleted_visible_to");
-		$status['h'] = $config->get_string("post_hidden_visible_to");
-		
-		$image_status = "";
-		
-		foreach($status as $key => $value) {
-			$arr = str_split($value);
-			if(in_array($user->role, $arr)){
-				$image_status .= $key;
-			}
-		}
+		$image_status = Image::get_status_auth_str();
 		
 		$arr = array();
 		for($i=0; $i<strlen($image_status); $i++) {
