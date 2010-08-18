@@ -4,7 +4,7 @@
  * Author: Sein Kraft <mail@seinkraft.info>
  * License: GPLv2
  * Description: Simple tag subscription extension
- * Documentation: Batch should match with the maximun emails wich could be sent by the server. It's preferible set a samller number to avoid the saturation on server or the server account could be considered as spam if you're on a shared and suspended regarding the TOS of the hosting provider.<br>By default it's needed run two cronjobs in cpanel and execute the next url with GET <a href="">http://www.domain.com/subscription/cron/check</a> once a day and other conjob with GET <a href="">http://www.domain.com/subscription/cron/send</a> every hour, otherwise dayly, weekly and monthly digest shouln't work but yes the instant digest.
+ * Documentation: Batch should match with the maximun emails wich could be sent by the server. It's preferible set a samller number to avoid the saturation on server or the server account could be considered as spam if you're on a shared and suspended regarding the TOS of the hosting provider.<br>By default it's needed run one cronjob in cpanel and execute the next url with GET <a href="">http://www.domain.com/admin/cron/[cron_key]</a> every hour, otherwise dayly, weekly and monthly digest shouln't work but yes the instant digest.
  */
 class Subscription extends SimpleExtension {
 
@@ -79,22 +79,6 @@ class Subscription extends SimpleExtension {
 					$page->set_redirect(make_link("account/subscriptions"));
 					break;
 				}
-				case "cron":
-				{
-					switch($event->get_arg(1)) {
-						case "check":
-						{
-							$this->runCronJobQueue();
-							break;
-						}
-						case "send":
-						{
-							$this->runCronJobSend();
-							break;
-						}
-					}
-					break;
-				}
 				default:
 				{								
 					$tags = $database->get_all("SELECT * FROM subscriptions WHERE user_id = ? ORDER BY id DESC", array($user->id));
@@ -144,34 +128,25 @@ class Subscription extends SimpleExtension {
 	}
 	
 	
-	
-	/*
-	* WE SET THE DIGESTS TO BE SENT. WILL BE EXECUTED ONCE AT DAY
-	*/
-	private function runCronJobQueue() {
-	
-		$this->updateDigestEntry("d");
+	public function onCronWorking($event) {
 		
-		//run every week. always on sunday
-		if(date('w') == "0"){
-			$this->updateDigestEntry("w");
+		//WE SET THE DIGESTS TO BE SENT. WILL BE EXECUTED ONCE AT DAY
+		if(date("H") == "00"){
+			$this->updateDigestEntry("d");
+			
+			//run every week. always on sunday
+			if(date('w') == "0"){
+				$this->updateDigestEntry("w");
+			}
+			
+			//run every month. always on the first day
+			if(date('j') == "1"){
+				$this->updateDigestEntry("m");
+			}
 		}
 		
-		//run every month. always on the first day
-		if(date('j') == "1"){
-			$this->updateDigestEntry("m");
-		}
-	}
-	
-	
-	
-	/*
-	* WE SEND THE EMAILS. WILL BE EXECUTED EVERY HOUR
-	*/
-	private function runCronJobSend() {
-	
 		$this->runAdvancedDigest("d");
-		
+
 		//run every week. always on sunday
 		if(date('w') == "0"){
 			$this->runAdvancedDigest("w");
@@ -182,7 +157,6 @@ class Subscription extends SimpleExtension {
 			$this->runAdvancedDigest("m");
 		}
 	}
-	
 	
 	
 	/*

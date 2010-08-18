@@ -23,10 +23,26 @@ class AlertAdditionEvent extends Event {
 	}
 }
 
- 
+class CronWorkingEvent extends Event {
+	public function CronWorkingEvent() {
+	}
+}
+
 class Admin extends SimpleExtension {
+
+	public function onInitExt($event) {
+		global $config;
+		
+		if($config->get_int("ext_admin_version") < 1) {
+			$config->set_string("admin_cron_key", substr(md5(microtime()), 0, 16));
+			$config->set_bool("admin_run_backups", false);
+		}
+		
+		$config->set_int("ext_admin_version", 1);
+	}
+	
 	public function onPageRequest($event) {
-		global $page, $user;
+		global $page, $config, $user;
 		
 		if($event->page_matches("admin")) {
 			$this->theme->display_sidebar();
@@ -106,7 +122,7 @@ class Admin extends SimpleExtension {
 							$redirect = true;
 						break;
 						case 'database dump':
-							$this->database_dump();
+							$this->database_dump("dump");
 						break;					
 					}
 				}
@@ -123,6 +139,14 @@ class Admin extends SimpleExtension {
 				$this->theme->display_bulk_rater();
 			}
 			$this->theme->display_bulk_uploader();
+		}
+				
+		if($event->page_matches("admin/cron")) {
+			$action = $event->get_arg(0);
+			$security = $config->get_string("admin_cron_key");
+			if($action == $security){
+				send_event(new CronWorkingEvent());
+			}
 		}
 	}
 	
@@ -206,7 +230,7 @@ class Admin extends SimpleExtension {
 		}
 	}
 	
-	private function database_dump() {
+	private function database_dump($mode="dump") {
 		global $page;
 		include "config.php";
 
@@ -215,12 +239,33 @@ class Admin extends SimpleExtension {
 				$cmd = "mysqldump -h$db_host -u$db_user -p$db_pass $db_name";
 				break;
 		}
-
-		$page->set_mode("data");
-		$page->set_type("application/x-unknown");
-		$page->set_filename('kimica-'.date('Ymd').'.sql');
-		$page->set_data(shell_exec($cmd));
+		
+		$filename = "kimica-".date("Y-m-d").".sql";
+		$content = shell_exec($cmd);
+		
+		if($mode == "dump"){
+			$page->set_mode("data");
+			$page->set_type("application/x-unknown");
+			$page->set_filename($filename);
+			$page->set_data($content);
+		}
+		else{
+			if(!file_exists(dirname("data/backups/".$filename))) {
+				mkdir(dirname("data/backups/".$filename), 0750, true);
+			}
+			file_put_contents("data/backups/".$filename, $content);
+		}
+	}
+	
+	public function onCronWorking($event){
+		global $page, $config;
+		
+		$backups = $config->get_bool("admin_run_backups");
+		
+		//run the backups once a day
+		if(($backups) && (date("H") == "00")){
+			$this->database_dump("backup");
+		}
 	}
 }
-
 ?>
