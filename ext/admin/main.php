@@ -37,9 +37,9 @@ class Admin extends SimpleExtension {
 			$config->set_string("admin_cron_key", substr(md5(microtime()), 0, 16));
 			$config->set_bool("admin_run_backups", false);
 			$config->set_bool("admin_cache_tags", false);
+			
+			$config->set_int("ext_admin_version", 1);
 		}
-		
-		$config->set_int("ext_admin_version", 1);
 	}
 	
 	public function onPageRequest($event) {
