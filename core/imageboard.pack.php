@@ -36,6 +36,7 @@ class Image {
 	var $owner_ip;
 	var $posted;
 	var $source;
+	var $tags;
 	var $status;
 	var $views;
 
@@ -226,7 +227,14 @@ class Image {
 	 * Get this image's tags as an array
 	 */
 	public function get_tag_array() {
-		global $database;
+		global $config, $database;
+		
+		$cache_tags = $config->get_bool("admin_cache_tags", false);
+		
+		if(($cache_tags) && (!is_null($this->tags))){
+			return Tag::implode($this->tags);
+		}
+		
 		$cached = $database->cache->get("image-{$this->id}-tags");
 		if($cached) return $cached;
 
@@ -247,7 +255,15 @@ class Image {
 	 * Get this image's tags as a string
 	 */
 	public function get_tag_list() {
-		return Tag::implode($this->get_tag_array());
+		global $config;
+		$cache_tags = $config->get_bool("admin_cache_tags", false);
+		
+		if(($cache_tags) && (!is_null($this->tags))){
+			return $this->tags;
+		}
+		else{
+			return Tag::implode($this->get_tag_array());
+		}
 	}
 
 	/**
@@ -533,7 +549,7 @@ class Image {
 	 * Set the tags for this image
 	 */
 	public function set_tags($tags) {
-		global $database;
+		global $config, $database;
 		$tags = Tag::resolve_list($tags);
 
 		assert(is_array($tags));
@@ -571,9 +587,21 @@ class Image {
 					),
 					array($tag));
 		}
+		
+		$this->set_tags_cache($tags);
 
 		log_info("core-image", "Tags for Image #{$this->id} set to: ".implode(" ", $tags));
 		$database->cache->delete("image-{$this->id}-tags");
+	}
+	
+	
+	public function set_tags_cache($tags){
+		global $config, $database;
+		$cache_tags = $config->get_bool("admin_cache_tags", false);
+		if($cache_tags){
+			$tags = Tag::implode($tags);
+			$database->execute("UPDATE images SET tags = ? WHERE id = ?",array($tags, $this->id));
+		}
 	}
 
 	/**

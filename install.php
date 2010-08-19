@@ -310,7 +310,7 @@ function create_tables($dsn) { // {{{
 			status ENUM('p', 'r', 's') NOT NULL DEFAULT 'p',
 			section VARCHAR(255) NOT NULL,
 			message VARCHAR(255) NOT NULL,
-			description TEXT,
+			description TEXT NULL,
 			location VARCHAR(255) NOT NULL,
 			created_at DATETIME NOT NULL,
 			alerter_id INTEGER NOT NULL DEFAULT 1,
@@ -330,6 +330,7 @@ function create_tables($dsn) { // {{{
 			width INTEGER NOT NULL,
 			height INTEGER NOT NULL,
 			posted SCORE_DATETIME NOT NULL DEFAULT SCORE_NOW,
+			tags TEXT NULL,
 			status ENUM('l', 'a', 'p', 'd', 'h') NOT NULL DEFAULT 'p',
 			warehoused ENUM('y', 'n') NOT NULL DEFAULT 'n',
 			views INTEGER NOT NULL DEFAULT 0,
@@ -447,7 +448,7 @@ function insert_defaults($dsn, $account) { // {{{
 		
 		$hash = md5(strtolower($username) . $password);
 		
-		$db->Execute("INSERT INTO users(name, pass, joindate, validate, role, email) VALUES(?, ?, ?, now(), ?, ?, ?)", array('Guest', null, null, 'g', null));
+		$db->Execute("INSERT INTO users(name, pass, joindate, validate, role, email) VALUES(?, ?, now(), ?, ?, ?)", array('Guest', null, null, 'g', null));
 		$db->Execute("INSERT INTO config(name, value) VALUES(?, ?)", array('anon_id', '1'));
 		$db->Execute("INSERT INTO users(name, pass, joindate,validate, role, email) VALUES(?, ?, now(), ?, ?, ?)", array($username, $hash, null, 'o', $email));
 

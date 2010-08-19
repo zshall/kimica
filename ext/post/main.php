@@ -484,40 +484,6 @@ class Post extends SimpleExtension {
 				}
 			}
 		}
-		
-		if($event->page_matches("post/reports")) {
-			if(!$config->get_bool('report_post_enable')){
-				$this->theme->display_error("Reported Posts", "Post reports are disabled.");
-			}
-			else{
-				$action = $event->get_arg(0);
-				switch ($action){
-					case "add":
-						if(isset($_POST['image_id']) && isset($_POST['reason'])) {
-							$image_id = int_escape($_POST['image_id']);
-							send_event(new AddReportedImageEvent($image_id, $user->id, $_POST['reason']));
-							$page->set_mode("redirect");
-							$page->set_redirect(make_link("post/view/$image_id"));
-						}
-					break;
-					case "remove":
-						if(isset($_POST['id'])) {
-							if($user->is_admin()) {
-								send_event(new RemoveReportedImageEvent($_POST['id']));
-								$page->set_mode("redirect");
-								$page->set_redirect(make_link("post/reports"));
-							}
-						}
-					break;
-					case "list":
-					default:
-						if($user->is_admin()) {
-							$this->theme->display_reported_images($this->get_reported_images());
-						}
-					break;
-				}
-			}
-		}
 	}
 
 	public function onSetupBuilding($event) {
@@ -552,9 +518,7 @@ class Post extends SimpleExtension {
 		$event->panel->add_block($sb);
 		
 		$sb = new SetupBlock("Report Post Options");
-		$sb->add_bool_option("report_post_enable", "Allow post reports: ");
-		$sb->add_bool_option("report_post_anon", "<br>Allow anonymous image reporting: ");
-		$sb->add_bool_option("report_post_show_thumbs", "<br>Show thumbnails in admin panel: ");
+		$sb->add_bool_option("report_post_anon", "Allow anonymous image reporting: ");
 		$event->panel->add_block($sb);
 	}
 	
@@ -602,7 +566,13 @@ class Post extends SimpleExtension {
 	}
 	
 	public function onDisplayingImage(DisplayingImageEvent $event) {
-		global $user;
+		global $user, $config;
+		
+		$cache = $config->get_bool("admin_cache_tags", false);
+		if(($cache) && (is_null($event->image->tags))){
+			$event->image->set_tags_cache($event->image->get_tag_array());
+		}
+		
 		$this->update_views($event->image);
 		$iibbe = new ImageInfoBoxBuildingEvent($event->get_image(), $user);
 		send_event($iibbe);
@@ -632,7 +602,6 @@ class Post extends SimpleExtension {
 	
 	public function onImageDeletion($event) {
 		$event->image->delete_tags_from_image();
-		send_event(new RemoveReportedImageEvent($event->image->id));
 	}
 	
 	public function onImageInfoBoxBuilding($event) {
@@ -642,16 +611,6 @@ class Post extends SimpleExtension {
 		if($this->can_source($event->image)) {
 			$event->add_part($this->theme->get_source_editor_html($event->image), 41);
 		}
-	}
-	
-	public function onAddReportedImage($event) {
-		global $database;
-		$database->Execute("INSERT INTO image_reports(image_id, reporter_id, reason) VALUES (?, ?, ?)", array($event->image_id, $event->reporter_id, $event->reason));
-	}
-	
-	public function onRemoveReportedImage($event) {
-		global $database;
-		$database->Execute("DELETE FROM image_reports WHERE id = ?", array($event->id));
 	}
 	
 	public function onSearchTermParse($event) {
@@ -793,29 +752,6 @@ class Post extends SimpleExtension {
 	private function can_source($image) {
 		global $config, $user;
 		return (($config->get_bool("source_edit_anon") || !$user->is_anon()) &&	($user->is_admin() || !$image->is_locked()));
-	}
-	
-	public function get_reported_images() {
-		global $config, $database;
-		$all_reports = $database->get_all("
-			SELECT image_reports.*, users.name AS reporter_name
-			FROM image_reports
-			JOIN users ON reporter_id = users.id");
-		if(is_null($all_reports)) $all_reports = array();
-
-		$reports = array();
-		foreach($all_reports as $report) {
-			$image_id = int_escape($report['image_id']);
-			$image = Image::by_id($image_id);
-			if(is_null($image)) {
-				send_event(new RemoveReportedImageEvent($report['id']));
-				continue;
-			}
-			$report['image'] = $image;
-			$reports[] = $report;
-		}
-
-		return $reports;
 	}
 }
 ?>
