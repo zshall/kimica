@@ -228,7 +228,7 @@ class PostTheme extends Themelet {
 		
 		$rating = "";
 		if(class_exists("Ratings")){
-		$rating = "<br>Rating: ".Ratings::rating_to_human($image->rating);
+			$rating = "<br>Rating: ".Ratings::rating_to_human($image->rating);
 		}
 
 		$html = "
