@@ -68,8 +68,8 @@ class TagsTheme extends Themelet {
 			$h_tag_no_underscores = str_replace("_", " ", $h_tag);
 			$count = $row['calc_count'];
 			if($n++) $html .= "\n<br/>";
-			if(!is_null($config->get_string('info_link'))) {
-				$link = str_replace('$tag', $tag, $config->get_string('info_link'));
+			if($config->get_bool('show_info_link')) {
+				$link = str_replace('$tag', $tag, $config->get_string('tag_info_link'));
 				$html .= " <a class='tag_info_link' href='$link'>?</a>";
 			}
 			$link = $this->tag_link($row['tag']);
@@ -100,8 +100,8 @@ class TagsTheme extends Themelet {
 			$h_tag_no_underscores = str_replace("_", " ", $h_tag);
 			$count = $row['count'];
 			if($n++) $html .= "\n<br/>";
-			if(!is_null($config->get_string('info_link'))) {
-				$link = str_replace('$tag', $tag, $config->get_string('info_link'));
+			if($config->get_bool('show_info_link')) {
+				$link = str_replace('$tag', $tag, $config->get_string('tag_info_link'));
 				$html .= " <a class='tag_info_link' href='$link'>?</a>";
 			}
 			$link = $this->tag_link($row['tag']);
@@ -132,8 +132,8 @@ class TagsTheme extends Themelet {
 			$h_tag = html_escape($tag);
 			$h_tag_no_underscores = str_replace("_", " ", $h_tag);
 			if($n++) $html .= "\n<br/>";
-			if(!is_null($config->get_string('info_link'))) {
-				$link = str_replace('$tag', $tag, $config->get_string('info_link'));
+			if($config->get_bool('show_info_link')) {
+				$link = str_replace('$tag', $tag, $config->get_string('tag_info_link'));
 				$html .= " <a class='tag_info_link' href='$link'>?</a>";
 			}
 			$link = $this->tag_link($row['tag']);
@@ -149,11 +149,13 @@ class TagsTheme extends Themelet {
 		$tag = strtolower($tag);
 		$tags = array_map("strtolower", $tags);
 		$html = "";
-		$html .= " <span class='ars'>(";
+		$html .= " <span class='ars'>";
 		$html .= $this->get_add_link($tags, $tag);
+		$html .= " ";
 		$html .= $this->get_remove_link($tags, $tag);
+		$html .= " ";
 		$html .= $this->get_subtract_link($tags, $tag);
-		$html .= ")</span>";
+		$html .= "</span>";
 		return $html;
 	}
 
@@ -299,13 +301,17 @@ class TagsTheme extends Themelet {
 			</form>
 		";
 		
+		if((!$is_admin) && (!$aliases)){
+			$html = "There is no aliases to show.";
+		}
+		
 		$pagination = $this->build_paginator("tags/alias", null, $pageNumber, $totalPages);
 
 		$page->set_title("Alias List");
 		$page->set_heading("Alias List");
-		$page->add_block(new Block("Aliases", $html.$pagination));
+		$page->add_block(new Block("Aliases", $html.$pagination, "main", 10));
 		if($is_admin) {
-			$page->add_block(new Block("Bulk Upload", $bulk_html, "main", 51));
+			$page->add_block(new Block("Bulk Upload", $bulk_html, "main", 20));
 		}
 	}
 	

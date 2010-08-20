@@ -20,9 +20,10 @@ class Tags extends SimpleExtension {
 // event handling {{{
 	public function onInitExt($event) {
 		global $config;
-		$config->set_default_int("tag_list_length", 15);
+		$config->set_default_int("tags_list_length", 15);
 		$config->set_default_int("tags_min", 3);
-		$config->set_default_string("info_link", 'http://en.wikipedia.org/wiki/$tag');
+		$config->set_default_bool("show_info_link", false);
+		$config->set_default_string("tag_info_link", 'http://en.wikipedia.org/wiki/$tag');
 		$config->set_default_string("tag_list_image_type", 'related');
 	}
 	
@@ -186,7 +187,7 @@ class Tags extends SimpleExtension {
 		
 	public function onPostListBuilding($event) {
 		global $config, $page;
-		if($config->get_int('tag_list_length') > 0) {
+		if($config->get_int('tags_list_length') > 0) {
 			if(!empty($event->search_terms)) {
 				$this->add_refine_block($page, $event->search_terms);
 			}
@@ -198,7 +199,7 @@ class Tags extends SimpleExtension {
 	
 	public function onDisplayingImage($event) {
 		global $config, $page;
-		if($config->get_int('tag_list_length') > 0) {
+		if($config->get_int('tags_list_length') > 0) {
 			if($config->get_string('tag_list_image_type') == 'related') {
 				$this->add_related_block($page, $event->image);
 			}
@@ -211,7 +212,7 @@ class Tags extends SimpleExtension {
 	public function onTagSet($event) {
 		global $config, $user;
 		if($config->get_bool('tag_history_enabled')) {
-			log_info("historie","tag set");
+			log_info("history","tag set");
 			$this->add_tag_history($event->image, $event->tags);
 		}
 		if($user->is_admin() || !$event->image->is_locked()) {
@@ -219,13 +220,9 @@ class Tags extends SimpleExtension {
 		}
 	}
 	
-	//FIXME: The image is deleted and the event returns no id so the deletion from tag_histories doesn't work.
 	public function onImageDeletion($event) {
 		global $database;
-		$image = Image::by_id($event->image->id);
-		if($image) {
-			$database->execute("DELETE FROM tag_histories WHERE image_id = ?", array($image->id));
-		}
+		$database->execute("DELETE FROM tag_histories WHERE image_id = ?", array($image->id));
 	}
 			
 	public function onSetupBuilding(SetupBuildingEvent $event) {
@@ -234,13 +231,14 @@ class Tags extends SimpleExtension {
 		$event->panel->add_block($sb);
 
 		$sb = new SetupBlock("Popular / Related Tag List");
-		$sb->add_int_option("tag_list_length", "Show top "); $sb->add_label(" tags");
-		$sb->add_text_option("info_link", "<br>Tag info link: ");
+		$sb->add_int_option("tags_list_length", "Show top "); $sb->add_label(" tags");
+		$sb->add_text_option("tag_info_link", "<br>Tag info link: ");
 		$sb->add_choice_option("tag_list_image_type", array(
 			"Image's tags only" => "tags",
 			"Show related" => "related"
 		), "<br>Image tag list: ");
 		$sb->add_bool_option("tag_list_numbers", "<br>Show tag counts: ");
+		$sb->add_bool_option("show_info_link", "<br>Show info link: ");
 		$event->panel->add_block($sb);
 		
 		$sb = new SetupBlock("Tag History");
@@ -347,13 +345,19 @@ class Tags extends SimpleExtension {
 	}
 
 	private function build_tag_categories() {
-		global $database;
+		global $config, $database;
+
+		$images = $config->get_int('index_width') * $config->get_int('index_height');
 
 		$tags_min = $this->get_tags_min();
-		$result = $database->execute("SELECT tag,count FROM tags ORDER BY count DESC, tag ASC LIMIT 9");
+		$result = $database->execute("SELECT tag,count FROM tags ORDER BY count DESC, tag ASC LIMIT ?", $images);
 		$tag_data = $result->GetArray();
-
-		$html = "<table>";
+				
+		$columns = floor(100 / $config->get_int('index_width'));
+		
+		$taken = array();
+		
+		$html = "<ul class='thumbblock'>";
 		$n = 0;
 		foreach($tag_data as $row) {
 			if($n%3==0) $html .= "<tr>";
@@ -363,11 +367,11 @@ class Tags extends SimpleExtension {
 			if(is_null($image)) continue; // one of the popular tags has no images
 			$thumb = $image->get_thumb_link();
 			$tsize = get_thumbnail_size($image->width, $image->height);
-			$html .= "<td><a href='$link'><img src='$thumb' style='height: {$tsize[1]}px; width: {$tsize[0]}px;'><br>$h_tag</a></td>\n";
+			$html .= "<li class=\"thumb\" style='width: {$columns}%;'><a href='$link'><img src='$thumb' style='height: {$tsize[1]}px; width: {$tsize[0]}px;'><br>$h_tag</a></li>\n";
 			if($n%3==2) $html .= "</tr>";
 			$n++;
 		}
-		$html .= "</table>";
+		$html .= "</ul>";	
 
 		return $html;
 	}
@@ -507,7 +511,7 @@ class Tags extends SimpleExtension {
 			ORDER BY calc_count DESC
 			LIMIT ?
 		";
-		$args = array($image->id, $config->get_int('tag_list_length'));
+		$args = array($image->id, $config->get_int('tags_list_length'));
 
 		$tags = $database->get_all($query, $args);
 		if(count($tags) > 0) {
@@ -527,7 +531,7 @@ class Tags extends SimpleExtension {
 			ORDER BY calc_count DESC
 			LIMIT ?
 		";
-		$args = array($image->id, $config->get_int('tag_list_length'));
+		$args = array($image->id, $config->get_int('tags_list_length'));
 
 		$tags = $database->get_all($query, $args);
 		if(count($tags) > 0) {
@@ -546,7 +550,7 @@ class Tags extends SimpleExtension {
 			ORDER BY count DESC
 			LIMIT ?
 		";
-		$args = array($config->get_int('tag_list_length'));
+		$args = array($config->get_int('tags_list_length'));
 
 		$tags = $database->get_all($query, $args);
 		if(count($tags) > 0) {
@@ -592,7 +596,7 @@ class Tags extends SimpleExtension {
 				ORDER BY calc_count
 				DESC LIMIT ?
 			";
-			$args = array($config->get_int('tag_list_length'));
+			$args = array($config->get_int('tags_list_length'));
 
 			$related_tags = $database->get_all($query, $args);
 			print $database->db->ErrorMsg();
