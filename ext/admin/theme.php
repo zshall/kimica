@@ -3,7 +3,7 @@ class AdminTheme extends Themelet {
 
 	public function display_sidebar(){
 		global $page;
-		$html = "<a href='".make_link("admin/alerts")."'>Alerts</a><br><a href='".make_link("admin/posts")."'>Posts</a><br><a href='".make_link("admin/database")."'>Database</a>";
+		$html = "<a href='".make_link("admin/alerts")."'>Alerts</a><br><a href='".make_link("admin/posts")."'>Post Tools</a><br><a href='".make_link("admin/bans/posts")."'>Post Bans</a><br><br><a href='".make_link("admin/database")."'>Database Tools</a>";
 		$page->add_block(new Block("Tools", $html, "left", 0));
 	}
 	
