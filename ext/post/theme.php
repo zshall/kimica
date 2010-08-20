@@ -143,7 +143,7 @@ class PostTheme extends Themelet {
 		
 		$metatags = str_replace(" ", ", ", html_escape($image->get_tag_list()));
 
-		$page->set_title("Image {$image->id}: ".html_escape($image->get_tag_list()));
+		$page->set_title("Post {$image->id}: ".html_escape($image->get_tag_list()));
 		$page->add_header("<meta name=\"keywords\" content=\"$metatags\">");
 		$page->set_heading(html_escape($image->get_tag_list()));
 		
@@ -223,7 +223,7 @@ class PostTheme extends Themelet {
 		
 		$votes = "";
 		if(class_exists("Votes")){
-		$votes = "<br>Score: ".$image->votes;
+			$votes = "<br>Score: ".$image->votes;
 		}
 		
 		$rating = "";
