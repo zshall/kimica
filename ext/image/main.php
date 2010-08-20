@@ -348,6 +348,14 @@ class ImageIO extends SimpleExtension {
 		}
 		
 		/*
+		 * Check if the image is banned
+		 */
+		$row = $database->db->GetRow("SELECT * FROM image_bans WHERE hash = ?", $image->hash);
+		if($row){
+			throw new ImageAdditionException("The file {$image->filename} with the hash {$image->hash} has been banned, reason: ".format_text($row["reason"]."."));
+		}
+		
+		/*
 		* Check for user roles or if the image contains a banned tag. It set the image as approved or deleted for review.
 		*/
 		if($user->get_auth_from_str($config->get_string("upload_autoapprove"))){
@@ -358,9 +366,8 @@ class ImageIO extends SimpleExtension {
 		}
 		
 		foreach ($image->get_tag_array() as $banned) {
-			$is_banned = $database->db->GetOne("SELECT COUNT(*) FROM tag_bans WHERE tag = ?",array($banned)) > 0;
-			if($is_banned){
-				$row = $database->db->GetRow("SELECT status FROM tag_bans WHERE tag = ?", $banned);
+			$row = $database->db->GetRow("SELECT status FROM tag_bans WHERE tag = ?", $banned);
+			if($row){
 				$auto_aprove = $row["status"];
 			}
 		}
@@ -382,6 +389,7 @@ class ImageIO extends SimpleExtension {
 				VALUES (?, ?, ?, ?, ?, ?, ?, ?, now(), ?, ?, ?)",
 				array($user->id, $_SERVER['REMOTE_ADDR'], $image->filename, $image->filesize,
 						$image->hash, $image->ext, $image->width, $image->height, $image->source, $auto_aprove, $warehoused));
+						
 		if($database->engine->name == "pgsql") {
 			$database->Execute("UPDATE users SET image_count = image_count+1 WHERE id = ? ", array($user->id));
 			$image->id = $database->db->GetOne("SELECT id FROM images WHERE hash=?", array($image->hash));
