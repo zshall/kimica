@@ -443,6 +443,17 @@ class Post extends SimpleExtension {
 			$page->set_redirect(make_link("post/view/$image_id", url_escape($_POST['query'])));
 		}
 		
+		if($event->page_matches("post/ban")) {			
+			$image = Image::by_id(int_escape($_POST['image_id']));
+			
+			if($image){
+				send_event(new AddImageHashBanEvent($image->hash, html_escape($_POST['reason'])));
+				
+				$page->set_mode("redirect");
+				$page->set_redirect(make_link("post/view/".$image->id));
+			}
+		}
+		
 		if($event->page_matches("post/status")) {
 			$image_id = int_escape($_POST['image_id']);
 			$action = html_escape($_POST['status']);
@@ -526,12 +537,13 @@ class Post extends SimpleExtension {
 		global $user, $config;
 		if($user->is_admin()|| $user->is_mod()){
 			$event->add_part($this->theme->get_status_html($event->image, $event->image->status));
-		}
-		if(($config->get_bool('report_post_anon') || !$user->is_anon()) && ($config->get_bool('report_post_enable'))) {
 			$event->add_part($this->theme->get_banner_html($event->image));
 		}
+		if(($config->get_bool('report_post_anon') || !$user->is_anon()) && ($config->get_bool('report_post_enable'))) {
+			$event->add_part($this->theme->get_reporter_html($event->image));
+		}
 	}
-	
+		
 	public function onUserPageBuilding($event) {
 		$display_user = $event->display_user->name;
 		if($display_user){
