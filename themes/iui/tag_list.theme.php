@@ -42,9 +42,9 @@ class CustomTagListTheme extends TagListTheme {
 			$h_tag_no_underscores = str_replace("_", " ", $h_tag);
 			$count = $row['calc_count'];
 			if($n++) $html .= "\n<br/>";
-			if(!is_null($config->get_string('info_link'))) {
-				$link = str_replace('$tag', $tag, $config->get_string('info_link'));
-				$html .= " <a class='tag_info_link' href='$link'>?</a>";
+			if(!is_null($config->get_string('tags_info_link'))) {
+				$link = str_replace('$tag', $tag, $config->get_string('tags_info_link'));
+				$html .= " <a class='tag_tags_info_link' href='$link'>?</a>";
 			}
 			$link = $this->tag_link($row['tag']);
 			$html .= " <a class='tag_name' href='$link'>$h_tag_no_underscores</a>";
@@ -74,9 +74,9 @@ class CustomTagListTheme extends TagListTheme {
 			$h_tag_no_underscores = str_replace("_", " ", $h_tag);
 			$count = $row['count'];
 			if($n++) $html .= "\n<br/>";
-			if(!is_null($config->get_string('info_link'))) {
-				$link = str_replace('$tag', $tag, $config->get_string('info_link'));
-				$html .= " <a class='tag_info_link' href='$link'>?</a>";
+			if(!is_null($config->get_string('tags_info_link'))) {
+				$link = str_replace('$tag', $tag, $config->get_string('tags_info_link'));
+				$html .= " <a class='tag_tags_info_link' href='$link'>?</a>";
 			}
 			$link = $this->tag_link($row['tag']);
 			$html .= " <a class='tag_name' href='$link'>$h_tag_no_underscores</a>";
@@ -106,9 +106,9 @@ class CustomTagListTheme extends TagListTheme {
 			$h_tag = html_escape($tag);
 			$h_tag_no_underscores = str_replace("_", " ", $h_tag);
 			if($n++) $html .= "\n<br/>";
-			if(!is_null($config->get_string('info_link'))) {
-				$link = str_replace('$tag', $tag, $config->get_string('info_link'));
-				$html .= " <a class='tag_info_link' href='$link'>?</a>";
+			if(!is_null($config->get_string('tags_info_link'))) {
+				$link = str_replace('$tag', $tag, $config->get_string('tags_info_link'));
+				$html .= " <a class='tag_tags_info_link' href='$link'>?</a>";
 			}
 			$link = $this->tag_link($row['tag']);
 			$html .= " <a class='tag_name' href='$link'>$h_tag_no_underscores</a>";
