@@ -82,13 +82,6 @@ class Favorites extends SimpleExtension {
 		$this->theme->display_recent_favorites($this->latest_favorites());
 	}
 
-	public function onImageInfoSet($event) {
-		global $user;
-		if(($_POST['favorite_action'] == "set") || ($_POST['favorite_action'] == "unset")) {
-			send_event(new FavoriteSetEvent($event->image_id, $user, ($_POST['favorite_action'] == "set")));
-		}
-	}
-
 	public function onFavoriteSet($event) {
 		global $user;
 		$this->add_vote($event->image_id, $user->id, $event->do_set);
