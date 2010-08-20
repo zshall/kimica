@@ -23,6 +23,24 @@ class AlertAdditionEvent extends Event {
 	}
 }
 
+class AddImageHashBanEvent extends Event {
+	var $hash;
+	var $reason;
+
+	public function AddImageHashBanEvent($hash, $reason) {
+		$this->hash = $hash;
+		$this->reason = $reason;
+	}
+}
+
+class RemoveImageHashBanEvent extends Event {
+	var $hash;
+
+	public function RemoveImageHashBanEvent($hash) {
+		$this->hash = $hash;
+	}
+}
+
 class CronWorkingEvent extends Event {
 	public function CronWorkingEvent() {
 	}
@@ -37,6 +55,8 @@ class Admin extends SimpleExtension {
 			$config->set_string("admin_cron_key", substr(md5(microtime()), 0, 16));
 			$config->set_bool("admin_run_backups", false);
 			$config->set_bool("admin_cache_tags", false);
+			
+			$config->set_string("admin_post_ban", "change_status");
 			
 			$config->set_int("ext_admin_version", 1);
 		}
@@ -98,9 +118,7 @@ class Admin extends SimpleExtension {
 			}
 		}
 		
-		if($event->page_matches("admin/database")) {
-			$action = $event->get_arg(0);
-						
+		if($event->page_matches("admin/database")) {						
 			if($user->is_admin()){
 				$this->theme->display_tag_tools();
 				
@@ -140,6 +158,37 @@ class Admin extends SimpleExtension {
 				$this->theme->display_bulk_rater();
 			}
 			$this->theme->display_bulk_uploader();
+		}
+		
+		if($event->page_matches("admin/bans")) {
+			if($user->is_admin()){
+				$type = $event->get_arg(0);
+				$action = $event->get_arg(1);
+				if($type == "posts"){
+					switch($action) {
+						case 'list':
+							$this->theme->display_post_bans($this->get_posts_bans());
+						break;
+						case 'action':
+							switch (strtolower($_POST["action"])) {
+								case 'add':									
+									//FIXME: Finish the extension.
+								break;
+								case 'remove':
+									foreach($_POST['hash'] as $hash) {
+										send_event(new RemoveImageHashBanEvent($hash));
+									}
+									$page->set_mode("redirect");
+									$page->set_redirect(make_link("admin/bans/posts"));
+								break;
+							}
+						break;
+						default:
+							$this->theme->display_post_bans($this->get_posts_bans());
+						break;				
+					}
+				}
+			}
 		}
 				
 		if($event->page_matches("admin/cron")) {
@@ -256,6 +305,50 @@ class Admin extends SimpleExtension {
 			}
 			file_put_contents("data/backups/".$filename, $content);
 		}
+	}
+	
+	public function onAddImageHashBan($event) {
+		global $config;
+		
+		$this->add_post_ban($event->hash, $event->reason);
+		
+		$mode = $config->get_string("admin_post_ban");
+		$image = Image::by_hash($event->hash);
+		
+		switch($mode){
+			case "delete":
+				send_event(new ImageDeletionEvent($image));
+			break;
+			case "change_status":
+				$image->set_status("d");
+			break;
+		}
+	}
+	
+	public function onRemoveImageHashBan($event) {
+		$this->remove_post_ban($event->hash);
+		
+		$image = Image::by_hash($event->hash);
+		if($image){
+			$image->set_status("p");
+		}
+	}
+	
+	public function get_posts_bans(){
+		global $database;
+		$bans = $database->get_all("SELECT * FROM image_bans ORDER BY id DESC");
+		if($bans) {return $bans;}
+		else {return array();}
+	}
+	
+	public function add_post_ban($hash, $reason){
+		global $database;
+		$database->Execute("INSERT INTO image_bans(hash, created_at, reason) VALUES(?, NOW(), ?)", array($hash, $reason));
+	}
+	
+	public function remove_post_ban($hash){
+		global $database;
+		$database->Execute("DELETE FROM image_bans WHERE hash = ?", array($hash));
 	}
 	
 	public function onCronWorking($event){

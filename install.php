@@ -360,6 +360,12 @@ function create_tables($dsn) { // {{{
 			FOREIGN KEY (image_id) REFERENCES images(id) ON DELETE CASCADE,
 			FOREIGN KEY (tag_id) REFERENCES tags(id) ON DELETE CASCADE
 		"));
+		$db->execute($engine->create_table_sql("image_bans", "
+			id SCORE_AIPK,
+			hash CHAR(32) NOT NULL,
+			created_at DATETIME DEFAULT SCORE_NOW,
+			reason TEXT NOT NULL
+		"));
 		$db->execute($engine->create_table_sql("tag_alias", "
 			oldtag VARCHAR(64) NOT NULL PRIMARY KEY,
 			newtag VARCHAR(64) NOT NULL,

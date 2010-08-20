@@ -145,5 +145,46 @@ class AdminTheme extends Themelet {
 					 </form>";
 		$page->add_block(new Block("Mass Post Uploader", $bulk_zip, "main", 40));
 	}
+	
+	public function display_post_bans($bans) {
+		global $page;
+		$h_bans = "";
+		$n = 0;
+		foreach($bans as $ban) {
+			$oe = ($n++ % 2 == 0) ? "even" : "odd";
+			$h_bans .= '
+				<tr class="'.$oe.'">
+					<td>'.$ban["id"].'</td>
+					<td>'.$ban["hash"].'</td>
+					<td>'.$ban["reason"].'</td>
+					<td><input name="hash[]" type="checkbox" value="'.$ban["hash"].'" /></td>
+				</tr>
+			';
+		}
+		$html = "
+			<script>
+			$(document).ready(function() {
+				$(\"#image_bans\").tablesorter();
+			});
+			</script>
+			<form action=".make_link("admin/bans/posts/action")." method='POST'>
+			<table id='image_bans' class='zebra'>
+				<thead><th>ID</th><th>Hash</th><th>Reason</th><th>Action</th></thead>
+				$h_bans
+			</table>
+			<input type='submit' name='action' value='Remove'>
+			</form>
+		";
+		
+		if(!$bans){
+			$html = "There is no posts to show.";
+		}
+		
+		//$pagination = $this->build_paginator("image_hash_ban/list", null, $page_number, $page_count);
+		
+		$page->set_title("Post Bans");
+		$page->set_heading("Post Bans");
+		$page->add_block(new Block("Post Bans", $html));
+	}
 }
 ?>
