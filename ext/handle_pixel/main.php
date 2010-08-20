@@ -32,8 +32,8 @@ class PixelFileHandler extends SimpleExtension {
 	}
 	
 	public function onSetupBuilding($event) {
-		$sb = new SetupBlock("Image Zoom");
-		$sb->add_bool_option("image_zoom", "Auto zoom images: ");
+		$sb = new SetupBlock("Post Zoom");
+		$sb->add_bool_option("post_zoom", "Auto zoom posts: ");
 		$event->panel->add_block($sb);
 	}
 	

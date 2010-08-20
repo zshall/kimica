@@ -49,7 +49,7 @@ class PixelFileHandlerTheme extends Themelet {
 					}
 				</script>";
 				
-		$zoom = $config->get_bool("image_zoom", false) ? $zoom : "";
+		$zoom = $config->get_bool("post_zoom", false) ? $zoom : "";
 		
 		$page->add_block(new Block("Image", $html.$zoom, "main", 0));
 	}

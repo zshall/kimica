@@ -243,6 +243,8 @@ class Post extends SimpleExtension {
 		$config->set_default_int("index_search_max_tags", 3);
 		$config->set_default_string("index_search_limited_to", "bgu");
 		
+		$config->set_default_bool("post_zoom", true)
+		
 		$config->set_default_string("post_approved_visible_to", "oamcug");
 		$config->set_default_string("post_locked_visible_to", "oamcug");
 		$config->set_default_string("post_pending_visible_to", "oam");
