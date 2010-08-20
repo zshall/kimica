@@ -60,7 +60,7 @@ class Favorites extends SimpleExtension {
 
 	public function onPageRequest($event) {
 		global $page, $user;
-		if($event->page_matches("change_favorite") && !$user->is_anon()) {
+		if($event->page_matches("post/favorite") && !$user->is_anon()) {
 			$image_id = int_escape($_POST['image_id']);
 			if ((($_POST['favorite_action'] == "set") || ($_POST['favorite_action'] == "unset")) && ($image_id > 0)) {
 				send_event(new FavoriteSetEvent($image_id, $user, ($_POST['favorite_action'] == "set")));

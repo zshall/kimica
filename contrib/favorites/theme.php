@@ -4,7 +4,7 @@ class FavoritesTheme extends Themelet {
 	public function get_voter_html(Image $image, $is_favorited) {
 		global $page, $user;
 				
-		$form_open = "<form action='".make_link("change_favorite")."' method='POST'>";
+		$form_open = "<form action='".make_link("post/favorite")."' method='POST'>";
 				 
 		$image_info = "<input id='image_id' type='hidden' value='$image->id' name='image_id'>";
 		
