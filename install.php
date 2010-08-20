@@ -491,9 +491,11 @@ function build_dirs() { // {{{
 	// if something is amiss, we'll tell the user later
 	if(!file_exists("images")) @mkdir("images");
 	if(!file_exists("thumbs")) @mkdir("thumbs");
+	if(!file_exists("cache") ) @mkdir("cache");
 	if(!file_exists("data")  ) @mkdir("data");
 	if(!is_writable("images")) @chmod("images", 0755);
 	if(!is_writable("thumbs")) @chmod("thumbs", 0755);
+	if(!is_writable("cache") ) @chmod("cache", 0755);
 	if(!is_writable("data")  ) @chmod("data", 0755);
 
 	if(
