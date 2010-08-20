@@ -557,38 +557,40 @@ class Image {
 
 		// delete old
 		$this->delete_tags_from_image();
+		
+		$cached_tags = array();
 
 		// insert each new tags
 		foreach($tags as $tag) {
-			$id = $database->db->GetOne(
-					$database->engine->scoreql_to_sql(
-						"SELECT id FROM tags WHERE SCORE_STRNORM(tag) = SCORE_STRNORM(?)"
-					),
-					array($tag));
+			
+			//tags types
+			$type_name = "general";
+			$matches = array();
+			if(preg_match("/^(general|artist|character|copyright):(.*)$/", $tag, $matches)) {
+				$type_name = $matches[1];
+				$tag = $matches[2];
+			}
+			
+			//we save the snitized tag to save in  the cache
+			array_push($cached_tags, $tag);
+		
+			$id = $database->db->GetOne($database->engine->scoreql_to_sql("SELECT id FROM tags WHERE SCORE_STRNORM(tag) = SCORE_STRNORM(?)"), array($tag));
+			
 			if(empty($id)) {
 				// a new tag
-				$database->execute(
-						"INSERT INTO tags(tag) VALUES (?)",
-						array($tag));
-				$database->execute(
-						"INSERT INTO image_tags(image_id, tag_id)
-						VALUES(?, (SELECT id FROM tags WHERE tag = ?))",
-						array($this->id, $tag));
+				
+				$database->execute("INSERT INTO tags(tag, type) VALUES (?, ?)", array($tag, $type_name));
+				
+				$database->execute("INSERT INTO image_tags(image_id, tag_id) VALUES(?, (SELECT id FROM tags WHERE tag = ?))", array($this->id, $tag));
 			}
 			else {
 				// user of an existing tag
-				$database->execute(
-						"INSERT INTO image_tags(image_id, tag_id) VALUES(?, ?)",
-						array($this->id, $id));
+				$database->execute("INSERT INTO image_tags(image_id, tag_id) VALUES(?, ?)", array($this->id, $id));
 			}
-			$database->execute(
-					$database->engine->scoreql_to_sql(
-						"UPDATE tags SET count = count + 1 WHERE SCORE_STRNORM(tag) = SCORE_STRNORM(?)"
-					),
-					array($tag));
+			$database->execute($database->engine->scoreql_to_sql("UPDATE tags SET count = count + 1 WHERE SCORE_STRNORM(tag) = SCORE_STRNORM(?)"), array($tag));
 		}
 		
-		$this->set_tags_cache($tags);
+		$this->set_tags_cache($cached_tags);
 
 		log_info("core-image", "Tags for Image #{$this->id} set to: ".implode(" ", $tags));
 		$database->cache->delete("image-{$this->id}-tags");

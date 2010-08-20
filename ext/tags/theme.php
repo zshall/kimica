@@ -73,7 +73,7 @@ class TagsTheme extends Themelet {
 				$html .= " <a class='tag_info_link' href='$link'>?</a>";
 			}
 			$link = $this->tag_link($row['tag']);
-			$html .= " <a class='tag_name' href='$link'>$h_tag_no_underscores</a>";
+			$html .= " <a class='tag_".$row['type']."' href='$link'>$h_tag_no_underscores</a> ";
 			if($config->get_bool("tag_list_numbers")) {
 				$html .= " <span class='tag_count'>$count</span>";
 			}
@@ -105,7 +105,7 @@ class TagsTheme extends Themelet {
 				$html .= " <a class='tag_info_link' href='$link'>?</a>";
 			}
 			$link = $this->tag_link($row['tag']);
-			$html .= " <a class='tag_name' href='$link'>$h_tag_no_underscores</a>";
+			$html .= " <a class='tag_".$row['type']."' href='$link'>$h_tag_no_underscores</a> ";
 			if($config->get_bool("tag_list_numbers")) {
 				$html .= " <span class='tag_count'>$count</span>";
 			}
@@ -134,11 +134,11 @@ class TagsTheme extends Themelet {
 			if($n++) $html .= "\n<br/>";
 			if($config->get_bool('show_info_link')) {
 				$link = str_replace('$tag', $tag, $config->get_string('tag_info_link'));
-				$html .= " <a class='tag_info_link' href='$link'>?</a>";
+				$html .= "<a class='tag_info_link' href='$link'>?</a> ";
 			}
-			$link = $this->tag_link($row['tag']);
-			$html .= " <a class='tag_name' href='$link'>$h_tag_no_underscores</a>";
 			$html .= $this->ars($tag, $search);
+			$link = $this->tag_link($row['tag']);
+			$html .= " <a class='tag_".$row['type']."' href='$link'>$h_tag_no_underscores</a> ";
 		}
 
 		$page->add_block(new Block("Refine Search", $html, "left", 60));
@@ -149,13 +149,13 @@ class TagsTheme extends Themelet {
 		$tag = strtolower($tag);
 		$tags = array_map("strtolower", $tags);
 		$html = "";
-		$html .= " <span class='ars'>";
+		$html .= "<span class='ars'>";
 		$html .= $this->get_add_link($tags, $tag);
 		$html .= " ";
 		$html .= $this->get_remove_link($tags, $tag);
 		$html .= " ";
 		$html .= $this->get_subtract_link($tags, $tag);
-		$html .= "</span>";
+		$html .= "</span> ";
 		return $html;
 	}
 

@@ -492,7 +492,7 @@ class Tags extends SimpleExtension {
 		global $config;
 
 		$query = "
-			SELECT t3.tag AS tag, t3.count AS calc_count
+			SELECT t3.tag AS tag, t3.type AS type, t3.count AS calc_count
 			FROM
 				image_tags AS it1,
 				image_tags AS it2,
@@ -524,7 +524,7 @@ class Tags extends SimpleExtension {
 		global $config;
 
 		$query = "
-			SELECT tags.tag, tags.count as calc_count
+			SELECT tags.tag, tags.type, tags.count as calc_count
 			FROM tags, image_tags
 			WHERE tags.id = image_tags.tag_id
 			AND image_tags.image_id = ?
@@ -544,7 +544,7 @@ class Tags extends SimpleExtension {
 		global $config;
 
 		$query = "
-			SELECT tag, count
+			SELECT tag, type, count
 			FROM tags
 			WHERE count > 0
 			ORDER BY count DESC
@@ -581,7 +581,7 @@ class Tags extends SimpleExtension {
 
 		if($tags_ok) {
 			$query = "
-				SELECT t2.tag AS tag, COUNT(it2.image_id) AS calc_count
+				SELECT t2.tag AS tag, t2.type AS type, COUNT(it2.image_id) AS calc_count
 				FROM
 					image_tags AS it1,
 					image_tags AS it2,

@@ -349,6 +349,7 @@ function create_tables($dsn) { // {{{
 		$db->execute($engine->create_table_sql("tags", "
 			id SCORE_AIPK,
 			tag VARCHAR(64) UNIQUE NOT NULL,
+			type ENUM('general', 'artist', 'character', 'copyright') NOT NULL DEFAULT 'general',
 			count INTEGER NOT NULL DEFAULT 0
 		"));
 		$db->execute($engine->create_table_sql("image_tags", "
