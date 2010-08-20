@@ -317,6 +317,21 @@ class PostTheme extends Themelet {
 		return $html;
 	}
 	
+	public function get_banner_html(Image $image) {
+		global $page, $config;
+
+		$i_image = int_escape($image->id);
+		$html = "
+			<form action='".make_link("post/ban")."' method='POST'>
+				<input type='hidden' name='image_id' value='$i_image'>
+				<input type='text' name='reason' value='Ban Reason' onclick='this.value=\"\";'>
+				<input type='submit' value='Ban'>
+			</form>
+		";
+		
+		return $html;
+	}
+	
 	public function get_tag_editor_html(Image $image) {
 		$script = "
 			<script type='text/javascript'>
@@ -349,7 +364,7 @@ class PostTheme extends Themelet {
 		return "<tr><td>Source</td><td><input type='text' name='tag_edit__source' value='$h_source'></td></tr>";
 	}
 	
-	public function get_banner_html(Image $image) {
+	public function get_reporter_html(Image $image) {
 		global $page, $config;
 
 		$i_image = int_escape($image->id);
@@ -363,65 +378,6 @@ class PostTheme extends Themelet {
 		
 		return $html;
 	}
-	
-	public function display_reported_images($reports) {
-		global $page, $config;
 
-		$h_reportedimages = "";
-		$n = 0;
-		foreach($reports as $report) {
-			$image = $report['image'];
-			$h_reason = format_text($report['reason']);
-
-			if($config->get_bool('report_post_show_thumbs')) {
-				$image_link = $this->build_thumb_html($image);
-			}
-			else {
-				$image_link = "<a href=\"".make_link("post/view/{$image->id}")."\">{$image->id}</a>";
-			}
-
-			$reporter_name = html_escape($report['reporter_name']);
-			$userlink = "<a href='".make_link("account/profile/$reporter_name")."'>$reporter_name</a>";
-
-			global $user;
-			$iabbe = new ImageAdminBlockBuildingEvent($image, $user);
-			send_event($iabbe);
-			ksort($iabbe->parts);
-			$actions = join("<br>", $iabbe->parts);
-
-			$oe = ($n++ % 2 == 0) ? "even" : "odd";
-			$h_reportedimages .= "
-				<tr class='$oe'>
-					<td>{$image_link}</td>
-					<td>Report by $userlink: $h_reason</td>
-					<td class='formstretch'>
-						<form action='".make_link("post/reports/remove")."' method='POST'>
-							<input type='hidden' name='id' value='{$report['id']}'>
-							<input type='submit' value='Remove Report'>
-						</form>
-
-						<br>$actions
-					</td>
-				</tr>
-			";
-		}
-
-		$thumb_width = $config->get_int("thumb_width");
-		$html = "
-			<table id='reportedimage' class='zebra'>
-				<thead><td width='$thumb_width'>Image</td><td>Reason</td><td width='128'>Action</td></thead>
-				$h_reportedimages
-			</table>
-		";
-		
-		if(!$reports){
-			$html = "There is no reports to show.";
-		}
-
-		$page->set_title("Reported Posts");
-		$page->set_heading("Reported Posts");
-		$page->add_block(new Block("Reported Posts", $html));
-
-	}
 }
 ?>
