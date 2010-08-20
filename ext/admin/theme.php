@@ -46,7 +46,7 @@ class AdminTheme extends Themelet {
 					 <input type='submit' name='action' value='Delete'><form>";
 	
 		if(!$alerts){
-			$html = "There is no alerts to display.";
+			$html = "There is no alerts to show.";
 		}
 	
 		$page->set_title("Alerts");
