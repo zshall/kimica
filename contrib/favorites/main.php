@@ -30,6 +30,7 @@ class Favorites extends SimpleExtension {
 	public function onInitExt($event) {
 		global $config;
 		if($config->get_int("ext_favorites_version", 0) < 1) {
+			$config->set_bool("favorites_hide_users", false);
 			$this->install();
 		}
 	}
@@ -49,8 +50,10 @@ class Favorites extends SimpleExtension {
 	}
 
 	public function onDisplayingImage($event) {
+		global $config;
+		$private = $config->get_bool("favorites_hide_users", false);
 		$people = $this->list_persons_who_have_favorited($event->image);
-		if(count($people) > 0) {
+		if((count($people) > 0) && (!$private)) {
 			$html = $this->theme->display_people($people);
 		}
 	}
