@@ -54,6 +54,8 @@ class BBCode extends FormatterExtension {
 		$text = preg_replace("/\[h2\](.*?)\[\/h2\]/s", "<h2>\\1</h2>", $text);
 		$text = preg_replace("/\[h3\](.*?)\[\/h3\]/s", "<h3>\\1</h3>", $text);
 		$text = preg_replace("/\[h4\](.*?)\[\/h4\]/s", "<h4>\\1</h4>", $text);
+		$text = preg_replace("/\[h5\](.*?)\[\/h5\]/s", "<h5>\\1</h5>", $text);
+		$text = preg_replace("/\[h6\](.*?)\[\/h6\]/s", "<h6>\\1</h6>", $text);
 		while(preg_match("/\[list\](.*?)\[\/list\]/s", $text))
 			$text = preg_replace("/\[list\](.*?)\[\/list\]/s", "<ul>\\1</ul>", $text);
 		while(preg_match("/\[ul\](.*?)\[\/ul\]/s", $text))
