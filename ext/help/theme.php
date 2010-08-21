@@ -9,9 +9,9 @@ class HelpTheme extends Themelet {
 			$body = "There is no documentation to show.";
 		}
 
-		$page->set_title($title);
-		$page->set_heading($title);
-		$page->add_block(new Block($title, $body, "main", 0));
+		$page->set_title("Help: ".$title);
+		$page->set_heading("Help: ".$title);
+		$page->add_block(new Block("Help: ".$title, $body, "main", 0));
 	}
 	
 }
