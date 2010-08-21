@@ -83,9 +83,9 @@ class CommentList extends SimpleExtension {
 	public function onInitExt($event) {
 		global $config, $database;
 		$config->set_default_bool('comment_anon', true);
-		$config->set_default_int('comment_window', 5);
-		$config->set_default_int('comment_limit', 10);
-		$config->set_default_int('comment_vote_window', 5);
+		$config->set_default_int('comment_window', 60);
+		$config->set_default_int('comment_limit', 5);
+		$config->set_default_int('comment_vote_window', 60);
 		$config->set_default_int('comment_vote_limit', 10);
 		$config->set_default_int('comment_list_count', 10);
 		$config->set_default_int('comment_count', 5);
