@@ -614,36 +614,20 @@ class Tags extends SimpleExtension {
 		$search_set = Tag::explode($search);
 		$replace_set = Tag::explode($replace);
 
-		$last_id = -1;
+		assert(is_array($search_set));
+		assert(is_array($replace_set));
+
+		$n = 0;
 		while(true) {
-			// make sure we don't look at the same images twice.
-			// search returns high-ids first, so we want to look
-			// at images with lower IDs than the previous.
-			$search_forward = $search_set;
-			if($last_id >= 0) $search_forward[] = "id<$last_id";
-
-			$images = Image::find_images(0, 100, $search_forward);
+			$images = Image::find_images($n, 100, $search_set);
 			if(count($images) == 0) break;
-
 			foreach($images as $image) {
-				// remove the search'ed tags
-				$before = $image->get_tag_array();
-				$after = array();
-				foreach($before as $tag) {
-					if(!in_array($tag, $search_set)) {
-						$after[] = $tag;
-					}
-				}
-
-				// add the replace'd tags
-				foreach($replace_set as $tag) {
-					$after[] = $tag;
-				}
-
-				$image->set_tags($after);
-
-				$last_id = $image->id;
+				print_r($image->get_tag_array());
+				print_r($replace_set);
+				$replace_set = array_merge($image->get_tag_array(), $replace_set);
+				$image->set_tags($replace_set);
 			}
+			$n += 100;
 		}
 	}
 	
