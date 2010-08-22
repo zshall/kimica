@@ -615,6 +615,27 @@ class Post extends SimpleExtension {
 		}
 	}
 	
+	public function onTagSet($event){
+		global $database;
+		$matches = array();
+		foreach($event->tags as $tag){
+			if(preg_match("/^parent:(\d+)/", $tag, $matches)) {
+				$parent_id = $matches[1];
+				if($parent_id != 0){
+					$database->execute("UPDATE images SET parent = ? WHERE id = ?",array($parent_id, $event->image->id));
+					$database->execute("UPDATE images SET has_children = 'y' WHERE id = ?",array($parent_id));
+				}
+				else{
+					$database->execute("UPDATE images SET parent = '0' WHERE id = ?",array($event->image->id));
+					$posts_count = $database->db->GetOne("SELECT COUNT(id) FROM images WHERE parent = ?", array($event->image->parent));
+					if($posts_count == 0){
+						$database->execute("UPDATE images SET has_children = 'n' WHERE id = ?",array($event->image->parent));
+					}
+				}
+			}
+		}
+	}
+	
 	public function onImageDeletion($event) {
 		$event->image->delete_tags_from_image();
 	}
@@ -692,6 +713,10 @@ class Post extends SimpleExtension {
 			$cmp = strrev(str_replace(":", "=", $cmp));
 			$tags = $matches[2];
 			$event->add_querylet(new Querylet("images.id IN (SELECT DISTINCT image_id FROM image_tags GROUP BY image_id HAVING count(image_id) $cmp $tags)"));
+		}
+		else if(preg_match("/^parent:(\d+)$/", $event->term, $matches)) {
+			$parent = $matches[1];
+			$event->add_querylet(new Querylet("parent = ?", array($parent)));
 		}
 		else if(preg_match("/^status:(l|a|p|d|h)$/", $event->term, $matches)) {
 			$status = $matches[1];
