@@ -37,6 +37,7 @@ class Image {
 	var $posted;
 	var $source;
 	var $tags;
+	var $parent;
 	var $status;
 	var $views;
 
@@ -570,24 +571,30 @@ class Image {
 				$type_name = $matches[1];
 				$tag = $matches[2];
 			}
-			
-			//we save the snitized tag to save in  the cache
-			array_push($cached_tags, $tag);
-		
-			$id = $database->db->GetOne($database->engine->scoreql_to_sql("SELECT id FROM tags WHERE SCORE_STRNORM(tag) = SCORE_STRNORM(?)"), array($tag));
-			
-			if(empty($id)) {
-				// a new tag
-				
-				$database->execute("INSERT INTO tags(tag, type) VALUES (?, ?)", array($tag, $type_name));
-				
-				$database->execute("INSERT INTO image_tags(image_id, tag_id) VALUES(?, (SELECT id FROM tags WHERE tag = ?))", array($this->id, $tag));
+			else if(preg_match("/^([a-zA-Z0-9-_]+):(.*)$/", $tag, $matches)) {
+				//avoid insert a tag containing ":"
+				$tag = "";
 			}
-			else {
-				// user of an existing tag
-				$database->execute("INSERT INTO image_tags(image_id, tag_id) VALUES(?, ?)", array($this->id, $id));
+			
+			if(!empty($tag)){
+				//we save the snitized tag to save in  the cache
+				array_push($cached_tags, $tag);
+			
+				$id = $database->db->GetOne($database->engine->scoreql_to_sql("SELECT id FROM tags WHERE SCORE_STRNORM(tag) = SCORE_STRNORM(?)"), array($tag));
+				
+				if(empty($id)) {
+					// a new tag
+					
+					$database->execute("INSERT INTO tags(tag, type) VALUES (?, ?)", array($tag, $type_name));
+					
+					$database->execute("INSERT INTO image_tags(image_id, tag_id) VALUES(?, (SELECT id FROM tags WHERE tag = ?))", array($this->id, $tag));
+				}
+				else {
+					// user of an existing tag
+					$database->execute("INSERT INTO image_tags(image_id, tag_id) VALUES(?, ?)", array($this->id, $id));
+				}
+				$database->execute($database->engine->scoreql_to_sql("UPDATE tags SET count = count + 1 WHERE SCORE_STRNORM(tag) = SCORE_STRNORM(?)"), array($tag));
 			}
-			$database->execute($database->engine->scoreql_to_sql("UPDATE tags SET count = count + 1 WHERE SCORE_STRNORM(tag) = SCORE_STRNORM(?)"), array($tag));
 		}
 		
 		$this->set_tags_cache($cached_tags);
