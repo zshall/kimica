@@ -35,7 +35,7 @@ class Email {
 		$this->header_img = $config->get_string("mail_img");
 		$this->sitename = $config->get_string("site_title");
 		$this->sitedomain = make_http(make_link(""));
-		$this->siteemail = $config->get_string("contact_link");
+		$this->siteemail = $config->get_string("site_email");
 		$this->date = date("F j, Y");
 		$this->body = $body;
 		$this->footer = $config->get_string("mail_fot");
