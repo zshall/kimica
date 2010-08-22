@@ -11,13 +11,12 @@
 * Location: Url of where is located the problem
 */
 class AlertAdditionEvent extends Event {
-	var $section, $message, $description, $location, $alerter;
+	var $section, $message, $location, $alerter;
 
-	public function AlertAdditionEvent($section, $message, $description="", $location) {
+	public function AlertAdditionEvent($section, $message, $location) {
 		global $user;
 		$this->section = $section;
 		$this->message = $message;
-		$this->description = $description;
 		$this->location = $location;
 		$this->alerter = $user->id;
 	}
@@ -53,6 +52,7 @@ class Admin extends SimpleExtension {
 		
 		if($config->get_int("ext_admin_version") < 1) {
 			$config->set_string("admin_cron_key", substr(md5(microtime()), 0, 16));
+			$config->set_bool("admin_email_alerts", false);
 			$config->set_bool("admin_run_backups", false);
 			$config->set_bool("admin_cache_tags", false);
 			
@@ -205,12 +205,20 @@ class Admin extends SimpleExtension {
 	}
 			
 	public function onAlertAddition($event){
+		global $config, $user;
 		$this->add_alert($event);
+		
+		$send_email = $config->get_bool("admin_email_alerts");
+		$site_email = $config->get_string("site_email");
+		if($send_email){
+			$email = new Email($site_email, $event->section." Alert", $event->section." Alert", "There is a '".strtolower($event->message)."' by the user ".$user->name.".");
+			$email->send();
+		}
 	}
 	
 	public function add_alert($event){
 		global $database;
-		$database->Execute("INSERT INTO notifications(section, message, description, location, created_at, alerter_id) VALUES(?, ?, ?, ?, NOW(), ?)", array($event->section, $event->message, $event->description, $event->location, $event->alerter));
+		$database->Execute("INSERT INTO notifications(section, message, location, created_at, alerter_id) VALUES(?, ?, ?, NOW(), ?)", array($event->section, $event->message, $event->location, $event->alerter));
 	}
 	
 	public function update_alert($status, $user_id, $alert_id){
