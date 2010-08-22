@@ -614,18 +614,12 @@ class Tags extends SimpleExtension {
 		$search_set = Tag::explode($search);
 		$replace_set = Tag::explode($replace);
 
-		assert(is_array($search_set));
-		assert(is_array($replace_set));
-
 		$n = 0;
 		while(true) {
 			$images = Image::find_images($n, 100, $search_set);
 			if(count($images) == 0) break;
 			foreach($images as $image) {
-				print_r($image->get_tag_array());
-				print_r($replace_set);
-				$replace_set = array_merge($image->get_tag_array(), $replace_set);
-				$image->set_tags($replace_set);
+				$image->set_tags(array_merge($image->get_tag_array(), $replace_set));
 			}
 			$n += 100;
 		}
