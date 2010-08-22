@@ -330,12 +330,15 @@ function create_tables($dsn) { // {{{
 			height INTEGER NOT NULL,
 			posted SCORE_DATETIME NOT NULL DEFAULT SCORE_NOW,
 			tags TEXT NULL,
+			has_children ENUM('y', 'n') NOT NULL DEFAULT 'n',
+			parent INTEGER NOT NULL DEFAULT 0,
 			status ENUM('l', 'a', 'p', 'd', 'h') NOT NULL DEFAULT 'p',
 			warehoused ENUM('y', 'n') NOT NULL DEFAULT 'n',
 			views INTEGER NOT NULL DEFAULT 0,
 			INDEX(owner_id),
 			INDEX(width),
 			INDEX(height),
+			INDEX(parent),
 			FOREIGN KEY (owner_id) REFERENCES users(id) ON DELETE CASCADE
 		"));
 		$db->execute($engine->create_table_sql("image_views", "
