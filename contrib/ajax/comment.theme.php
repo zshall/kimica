@@ -58,11 +58,11 @@ class CustomCommentListTheme extends CommentListTheme {
 				<li id='comment-$i_comment_id'>
 					<div id='comment' class='$oe'>
 						<div class='author'>
-							<h6>$h_userlink</h6>
+							<p>$h_userlink</p>
 							<a href='".make_link("account/profile/$h_name")."'>$avatar</a>
 						</div>
 						<div class='content'>
-							<span>$h_timestamp</span>
+							<div class='date'>$h_timestamp</div>
 							<p>$h_comment</p>	
 						</div>
 						<div class='footer'>
