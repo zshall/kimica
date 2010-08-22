@@ -244,7 +244,7 @@ class Forum extends SimpleExtension {
 							$threadID = int_escape($event->get_arg(1));
 							$postID = int_escape($event->get_arg(2));
 								
-							send_event(new AlertAdditionEvent("Forum", "Reported Post", "", "forum/post/".$postID));
+							send_event(new AlertAdditionEvent("Forum", "Reported Post", "forum/post/".$postID));
 								
 							$page->set_mode("redirect");
 							$page->set_redirect(make_link("forum/thread/".$threadID."/1"));
