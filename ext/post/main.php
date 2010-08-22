@@ -645,51 +645,55 @@ class Post extends SimpleExtension {
 		}
 								
 		$matches = array();
-		if(preg_match("/^size(<|>|<=|>=|=)(\d+)x(\d+)$/", $event->term, $matches)) {
+		if(preg_match("/^size(<|>|:<|:>|:)(\d+)x(\d+)$/", $event->term, $matches)) {
 			$cmp = $matches[1];
+			$cmp = strrev(str_replace(":", "=", $cmp));
 			$args = array(int_escape($matches[2]), int_escape($matches[3]));
 			$event->add_querylet(new Querylet("width $cmp ? AND height $cmp ?", $args));
 		}
-		else if(preg_match("/^ratio(<|>|<=|>=|=)(\d+):(\d+)$/", $event->term, $matches)) {
+		else if(preg_match("/^ratio(<|>|<:|>:|:)(\d+):(\d+)$/", $event->term, $matches)) {
 			$cmp = $matches[1];
+			$cmp = strrev(str_replace(":", "=", $cmp));
 			$args = array(int_escape($matches[2]), int_escape($matches[3]));
 			$event->add_querylet(new Querylet("width / height $cmp ? / ?", $args));
 		}
-		else if(preg_match("/^(filesize|id)(<|>|<=|>=|=)(\d+[kmg]?b?)$/i", $event->term, $matches)) {
+		else if(preg_match("/^(filesize|id)(<|>|<:|>:|:)(\d+[kmg]?b?)$/i", $event->term, $matches)) {
 			$col = $matches[1];
 			$cmp = $matches[2];
+			$cmp = strrev(str_replace(":", "=", $cmp));
 			$val = parse_shorthand_int($matches[3]);
 			$event->add_querylet(new Querylet("images.$col $cmp ?", array($val)));
 		}
-		else if(preg_match("/^(poster|user)=(.*)$/i", $event->term, $matches)) {
+		else if(preg_match("/^(poster|user):(.*)$/i", $event->term, $matches)) {
 			$user = User::by_name($matches[2]);
 			if(!is_null($user)) {
 				$user_id = $user->id;
-				$event->add_querylet(new Querylet("images.owner_id = $user_id"));
+				$event->add_querylet(new Querylet("images.owner_id = '$user_id'"));
 			}
 		}
-		else if(preg_match("/^(hash|md5)=([0-9a-fA-F]*)$/i", $event->term, $matches)) {
+		else if(preg_match("/^(hash|md5):([0-9a-fA-F]*)$/i", $event->term, $matches)) {
 			$hash = strtolower($matches[2]);
 			$event->add_querylet(new Querylet("images.hash = '$hash'"));
 		}
-		else if(preg_match("/^(filetype|ext)=([a-zA-Z0-9]*)$/i", $event->term, $matches)) {
+		else if(preg_match("/^(filetype|ext):([a-zA-Z0-9]*)$/i", $event->term, $matches)) {
 			$ext = strtolower($matches[2]);
 			$event->add_querylet(new Querylet("images.ext = '$ext'"));
 		}
-		else if(preg_match("/^(filename|name)=([a-zA-Z0-9]*)$/i", $event->term, $matches)) {
+		else if(preg_match("/^(filename|name):([a-zA-Z0-9]*)$/i", $event->term, $matches)) {
 			$filename = strtolower($matches[2]);
 			$event->add_querylet(new Querylet("images.filename LIKE '%$filename%'"));
 		}
-		else if(preg_match("/^posted=(([0-9\*]*)?(-[0-9\*]*)?(-[0-9\*]*)?)$/", $event->term, $matches)) {
+		else if(preg_match("/^posted:(([0-9\*]*)?(-[0-9\*]*)?(-[0-9\*]*)?)$/", $event->term, $matches)) {
 			$val = str_replace("*", "%", $matches[1]);
 			$event->add_querylet(new Querylet("images.posted LIKE '%$val%'"));
 		}
-		else if(preg_match("/tags(<|>|<=|>=|=)(\d+)/", $event->term, $matches)) {
+		else if(preg_match("/tags(<|>|<:|>:|:)(\d+)/", $event->term, $matches)) {
 			$cmp = $matches[1];
+			$cmp = strrev(str_replace(":", "=", $cmp));
 			$tags = $matches[2];
 			$event->add_querylet(new Querylet("images.id IN (SELECT DISTINCT image_id FROM image_tags GROUP BY image_id HAVING count(image_id) $cmp $tags)"));
 		}
-		else if(preg_match("/^status=(l|a|p|d|h)$/", $event->term, $matches)) {
+		else if(preg_match("/^status:(l|a|p|d|h)$/", $event->term, $matches)) {
 			$status = $matches[1];
 			if($user->is_admin() || $user->is_mod()){
 				$event->add_querylet(new Querylet("status = ?", array($status)));
@@ -699,7 +703,7 @@ class Post extends SimpleExtension {
 	
 	private function no_status_query($context) {
 		foreach($context as $term) {
-			if(preg_match("/^status=/", $term)) {
+			if(preg_match("/^status:/", $term)) {
 				return false;
 			}
 		}
