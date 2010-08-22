@@ -232,7 +232,7 @@ class Image {
 		$cache_tags = $config->get_bool("admin_cache_tags", false);
 		
 		if(($cache_tags) && (!is_null($this->tags))){
-			return Tag::implode($this->tags);
+			return Tag::explode($this->tags);
 		}
 		
 		$cached = $database->cache->get("image-{$this->id}-tags");
