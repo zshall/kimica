@@ -172,7 +172,7 @@ xanax
 					$comment_id = int_escape($event->get_arg(1));
 					
 					if($event->count_args() == 2) {
-						send_event(new AlertAdditionEvent("Comments", "Reported Comment", "", "comment/view/".$comment_id));
+						send_event(new AlertAdditionEvent("Comments", "Reported Comment", "comment/view/".$comment_id));
 						
 						$page->set_mode("redirect");
 						$page->set_redirect($_SERVER['HTTP_REFERER']);
