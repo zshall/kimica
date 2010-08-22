@@ -67,12 +67,13 @@ class Votes implements Extension {
 
 		if($event instanceof SearchTermParseEvent) {
 			$matches = array();
-			if(preg_match("/^score(<|<=|=|>=|>)(\d+)$/", $event->term, $matches)) {
+			if(preg_match("/^score(<|>|:<|:>|:)(\d+)$/", $event->term, $matches)) {
 				$cmp = $matches[1];
+				$cmp = strrev(str_replace(":", "=", $cmp));
 				$score = $matches[2];
 				$event->add_querylet(new Querylet("votes $cmp $score"));
 			}
-			if(preg_match("/^upvoted_by=(.*)$/", $event->term, $matches)) {
+			if(preg_match("/^upvoted_by:(.*)$/", $event->term, $matches)) {
 				$duser = User::by_name($matches[1]);
 				if(is_null($duser)) {
 					throw new SearchTermParseException(
@@ -82,7 +83,7 @@ class Votes implements Extension {
 					"images.id in (SELECT image_id FROM image_votes WHERE user_id=? AND votes=1)",
 					array($duser->id)));
 			}
-			if(preg_match("/^downvoted_by=(.*)$/", $event->term, $matches)) {
+			if(preg_match("/^downvoted_by:(.*)$/", $event->term, $matches)) {
 				$duser = User::by_name($matches[1]);
 				if(is_null($duser)) {
 					throw new SearchTermParseException(
@@ -92,13 +93,13 @@ class Votes implements Extension {
 					"images.id in (SELECT image_id FROM image_votes WHERE user_id=? AND votes=-1)",
 					array($duser->id)));
 			}
-			if(preg_match("/^upvoted_by_id=(\d+)$/", $event->term, $matches)) {
+			if(preg_match("/^upvoted_by_id:(\d+)$/", $event->term, $matches)) {
 				$iid = int_escape($matches[1]);
 				$event->add_querylet(new Querylet(
 					"images.id in (SELECT image_id FROM image_votes WHERE user_id=? AND votes=1)",
 					array($iid)));
 			}
-			if(preg_match("/^downvoted_by_id=(\d+)$/", $event->term, $matches)) {
+			if(preg_match("/^downvoted_by_id:(\d+)$/", $event->term, $matches)) {
 				$iid = int_escape($matches[1]);
 				$event->add_querylet(new Querylet(
 					"images.id in (SELECT image_id FROM image_votes WHERE user_id=? AND votes=-1)",

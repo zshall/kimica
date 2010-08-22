@@ -209,16 +209,17 @@ class Notes extends SimpleExtension {
 	 */
 	public function onSearchTermParse($event) {
 		$matches = array();
-		if(preg_match("/note=(.*)/i", $event->term, $matches)) {
+		if(preg_match("/note:(.*)/i", $event->term, $matches)) {
 			$notes = int_escape($matches[1]);
 			$event->add_querylet(new Querylet("images.id IN (SELECT image_id FROM notes WHERE note = $notes)"));
 		}
-		else if(preg_match("/notes(<|>|<=|>=|=)(\d+)/", $event->term, $matches)) {
+		else if(preg_match("/notes(<|>|:<|:>|:)(\d+)/", $event->term, $matches)) {
 			$cmp = $matches[1];
+			$cmp = strrev(str_replace(":", "=", $cmp));
 			$notes = $matches[2];
 			$event->add_querylet(new Querylet("images.id IN (SELECT id FROM images WHERE notes $cmp $notes)"));
 		}
-		else if(preg_match("/notes_by=(.*)/i", $event->term, $matches)) {
+		else if(preg_match("/notes_by:(.*)/i", $event->term, $matches)) {
 			global $database;
 			$user = User::by_name($matches[1]);
 			if(!is_null($user)) {
@@ -228,10 +229,6 @@ class Notes extends SimpleExtension {
 				$user_id = -1;
 			}
 
-			$event->add_querylet(new Querylet("images.id IN (SELECT image_id FROM notes WHERE user_id = $user_id)"));
-		}
-		else if(preg_match("/notes_by_userno=([0-9]+)/i", $event->term, $matches)) {
-			$user_id = int_escape($matches[1]);
 			$event->add_querylet(new Querylet("images.id IN (SELECT image_id FROM notes WHERE user_id = $user_id)"));
 		}
 	}

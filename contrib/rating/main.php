@@ -123,7 +123,7 @@ class Ratings implements Extension {
 				$set = Ratings::privs_to_sql(Ratings::get_user_privs($user));
 				$event->add_querylet(new Querylet("rating IN ($set)"));
 			}
-			if(preg_match("/^rating=([sqeu]+)$/", $event->term, $matches)) {
+			if(preg_match("/^rating:([sqeu]+)$/", $event->term, $matches)) {
 				$sqes = $matches[1];
 				$arr = array();
 				for($i=0; $i<strlen($sqes); $i++) {
@@ -132,7 +132,7 @@ class Ratings implements Extension {
 				$set = join(', ', $arr);
 				$event->add_querylet(new Querylet("rating IN ($set)"));
 			}
-			if(preg_match("/^rating=(safe|questionable|explicit|unknown)$/", strtolower($event->term), $matches)) {
+			if(preg_match("/^rating:(safe|questionable|explicit|unknown)$/", strtolower($event->term), $matches)) {
 				$text = $matches[1];
 				$char = $text[0];
 				$event->add_querylet(new Querylet("rating = ?", array($char)));
