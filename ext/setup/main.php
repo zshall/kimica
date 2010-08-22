@@ -293,6 +293,7 @@ class Setup extends SimpleExtension {
 		$sb->add_text_option("front_page", "<br>Front page: ");
 		$sb->add_text_option("main_page", "<br>Main page: ");
 		$sb->add_text_option("contact_link", "<br>Contact URL: ");
+		$sb->add_text_option("site_email", "<br>Contact Email: ");
 		$sb->add_choice_option("theme", $themes, "<br>Theme: ");
 		//$sb->add_multichoice_option("testarray", array("a" => "b", "c" => "d"), "<br>Test Array: ");
 		$sb->add_bool_option("nice_urls", "<br>Nice URLs: ");
