@@ -243,7 +243,7 @@ class Post extends SimpleExtension {
 		$config->set_default_int("index_search_max_tags", 3);
 		$config->set_default_string("index_search_limited_to", "bgu");
 		
-		$config->set_default_bool("post_zoom", true)
+		$config->set_default_bool("post_zoom", true);
 		
 		$config->set_default_string("post_approved_visible_to", "oamcug");
 		$config->set_default_string("post_locked_visible_to", "oamcug");
@@ -490,7 +490,7 @@ class Post extends SimpleExtension {
 					$post_id = int_escape($_POST['image_id']);
 					$reason = html_escape($_POST['reason']);
 					
-					send_event(new AlertAdditionEvent("Posts", "Reported Post", $reason, "post/view/".$post_id));
+					send_event(new AlertAdditionEvent("Posts", "Reported Post: ".$reason, "post/view/".$post_id));
 					
 					$page->set_mode("redirect");
 					$page->set_redirect(make_link("post/view/$post_id"));
@@ -529,9 +529,10 @@ class Post extends SimpleExtension {
 		$sb->add_bool_option("source_edit_anon", "<br>Allow anonymous source editing: ");
 		
 		$event->panel->add_block($sb);
-		
+
 		$sb = new SetupBlock("Report Post Options");
-		$sb->add_bool_option("report_post_anon", "Allow anonymous image reporting: ");
+		$sb->add_bool_option("report_post_enable", "Enable post reporting: ");
+		$sb->add_bool_option("report_post_anon", "<br>Allow anonymous post reporting: ");
 		$event->panel->add_block($sb);
 	}
 	
