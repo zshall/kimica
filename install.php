@@ -310,7 +310,6 @@ function create_tables($dsn) { // {{{
 			status ENUM('p', 'r', 's') NOT NULL DEFAULT 'p',
 			section VARCHAR(255) NOT NULL,
 			message VARCHAR(255) NOT NULL,
-			description TEXT NULL,
 			location VARCHAR(255) NOT NULL,
 			created_at DATETIME NOT NULL,
 			alerter_id INTEGER NOT NULL DEFAULT 1,
