@@ -147,11 +147,11 @@ class PostTheme extends Themelet {
 		$page->add_header("<meta name=\"keywords\" content=\"$metatags\">");
 		$page->set_heading(html_escape($image->get_tag_list()));
 		
-		$page->add_block(new Block("Navigation", $this->build_post_navigation($image), "left", 0));
-		$page->add_block(new Block("Post Statistics", $this->build_stats($image), "left", 10));
+		$page->add_block(new Block("Navigation", $this->build_post_navigation($image), "left", 10));
+		$page->add_block(new Block("Post Statistics", $this->build_stats($image), "left", 20));
 				
 		if($editor_parts){
-			$page->add_block(new Block("Editor", $this->build_image_editor($image, $editor_parts), "main", 10));
+			$page->add_block(new Block("Editor", $this->build_image_editor($image, $editor_parts), "main", 40));
 		}
 	}
 

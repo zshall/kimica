@@ -538,12 +538,12 @@ class Post extends SimpleExtension {
 	
 	public function onImageAdminBlockBuilding(ImageAdminBlockBuildingEvent $event) {
 		global $user, $config;
-		if($user->is_admin()|| $user->is_mod()){
-			$event->add_part($this->theme->get_status_html($event->image, $event->image->status));
-			$event->add_part($this->theme->get_banner_html($event->image));
-		}
 		if(($config->get_bool('report_post_anon') || !$user->is_anon()) && ($config->get_bool('report_post_enable'))) {
-			$event->add_part($this->theme->get_reporter_html($event->image));
+			$event->add_part($this->theme->get_reporter_html($event->image), 70);
+		}
+		if($user->is_admin()|| $user->is_mod()){
+			$event->add_part($this->theme->get_banner_html($event->image), 80);
+			$event->add_part($this->theme->get_status_html($event->image, $event->image->status), 90);
 		}
 	}
 		

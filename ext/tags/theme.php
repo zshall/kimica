@@ -79,7 +79,7 @@ class TagsTheme extends Themelet {
 			}
 		}
 
-		$page->add_block(new Block("Related Tags", $html, "left"));
+		$page->add_block(new Block("Related Tags", $html, "left", 30));
 	}
 
 
@@ -112,7 +112,7 @@ class TagsTheme extends Themelet {
 		}
 
 		$html .= "<br>&nbsp;<br><a class='more' href='".make_link("tags")."'>Full List</a>\n";
-		$page->add_block(new Block("Popular Tags", $html, "left", 60));
+		$page->add_block(new Block("Popular Tags", $html, "left", 30));
 	}
 
 	/*
@@ -141,7 +141,7 @@ class TagsTheme extends Themelet {
 			$html .= " <a class='tag_".$row['type']."' href='$link'>$h_tag_no_underscores</a> ";
 		}
 
-		$page->add_block(new Block("Refine Search", $html, "left", 60));
+		$page->add_block(new Block("Refine Search", $html, "left", 30));
 	}
 
 	protected function ars($tag, $tags) {
