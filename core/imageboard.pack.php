@@ -864,6 +864,8 @@ class Image {
 		
 		$positive_tags = array();
 		$negative_tags = array();
+		
+		$terms = Tag::resolve_blacklist($terms);
 
 		$stpe = new SearchTermParseEvent(null, $terms);
 		send_event($stpe);
@@ -872,8 +874,6 @@ class Image {
 				$img_querylets[] = new ImgQuerylet($querylet, true);
 			}
 		}
-		
-		$terms = Tag::resolve_blacklist($terms);
 
 		// turn each term into a specific type of querylet
 		foreach($terms as $term) {
@@ -972,11 +972,17 @@ class Image {
 				// "{$this->get_images} WHERE images.id IN (SELECT image_id FROM tags WHERE tag LIKE ?) ",
 				"
 					SELECT images.*, UNIX_TIMESTAMP(posted) AS posted_timestamp
-					FROM tags, image_tags, images
-					WHERE
-						tag NOT LIKE ?
-						AND tags.id = image_tags.tag_id
-						AND image_tags.image_id = images.id
+					FROM images
+					LEFT OUTER JOIN (
+							SELECT image_tags.image_id
+							FROM image_tags 
+							INNER JOIN tags
+							ON tags.id = image_tags.tag_id
+							WHERE tag LIKE ?
+							GROUP BY image_tags.image_id
+					) AS imagesToExclude
+					ON imagesToExclude.image_id = images.id
+					WHERE imagesToExclude.image_id IS NULL
 				",
 				$tag_search->variables);
 
@@ -993,21 +999,13 @@ class Image {
 			
 			$tag_id_array = array();
 			$tags_ok = true;
-			
-			foreach($negative_tags as $tag) {
-				$tag_ids = $database->db->GetCol("SELECT id FROM tags WHERE tag NOT LIKE ?", array($tag));
-				$tag_id_array = array_merge($tag_id_array, $tag_ids);
-				$tags_ok = count($tag_ids) > 0;
-				if(!$tags_ok) break;
-			}
-			
-			foreach($positive_tags as $tag) {
+			foreach($tag_search->variables as $tag) {
 				$tag_ids = $database->db->GetCol("SELECT id FROM tags WHERE tag LIKE ?", array($tag));
 				$tag_id_array = array_merge($tag_id_array, $tag_ids);
 				$tags_ok = count($tag_ids) > 0;
 				if(!$tags_ok) break;
 			}
-						
+			
 			if($tags_ok) {
 				$tag_id_list = join(', ', $tag_id_array);
 
