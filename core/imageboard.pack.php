@@ -584,12 +584,12 @@ class Image {
 				
 				if(empty($id)) {
 					// a new tag
-					
 					$database->execute("INSERT INTO tags(tag, type) VALUES (?, ?)", array($tag, $type_name));
 					
 					$database->execute("INSERT INTO image_tags(image_id, tag_id) VALUES(?, (SELECT id FROM tags WHERE tag = ?))", array($this->id, $tag));
 				}
 				else {
+					$database->execute("UPDATE tags SET type = ? WHERE tag = ?", array($type_name, $tag));
 					// user of an existing tag
 					$database->execute("INSERT INTO image_tags(image_id, tag_id) VALUES(?, ?)", array($this->id, $id));
 				}
@@ -1007,7 +1007,7 @@ class Image {
 				$tags_ok = count($tag_ids) > 0;
 				if(!$tags_ok) break;
 			}
-			
+						
 			if($tags_ok) {
 				$tag_id_list = join(', ', $tag_id_array);
 
