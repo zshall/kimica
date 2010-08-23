@@ -565,9 +565,11 @@ class Image {
 		foreach($tags as $tag) {
 			
 			//tags types
-			$type_name = "general";
 			$matches = array();
+			$update_type = false;
+			$type_name = "general";
 			if(preg_match("/^(general|artist|character|copyright):(.*)$/", $tag, $matches)) {
+				$update_type = true;
 				$type_name = $matches[1];
 				$tag = $matches[2];
 			}
@@ -589,7 +591,9 @@ class Image {
 					$database->execute("INSERT INTO image_tags(image_id, tag_id) VALUES(?, (SELECT id FROM tags WHERE tag = ?))", array($this->id, $tag));
 				}
 				else {
-					$database->execute("UPDATE tags SET type = ? WHERE tag = ?", array($type_name, $tag));
+					if($update_type){
+						$database->execute("UPDATE tags SET type = ? WHERE tag = ?", array($type_name, $tag));
+					}
 					// user of an existing tag
 					$database->execute("INSERT INTO image_tags(image_id, tag_id) VALUES(?, ?)", array($this->id, $id));
 				}
