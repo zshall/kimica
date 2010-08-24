@@ -37,6 +37,7 @@ class Image {
 	var $posted;
 	var $source;
 	var $tags;
+	var $has_children;
 	var $parent;
 	var $status;
 	var $views;
