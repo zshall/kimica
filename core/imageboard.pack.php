@@ -506,6 +506,26 @@ class Image {
 		return $image_status;
 	}
 	
+	
+	/*
+	 * Get if the image hash childrens
+	 *
+	 * @retval bool
+	 */
+	public function has_children(){
+		return ($this->has_children == "y");
+	}
+	
+	/*
+	 * Get if the image is children
+	 *
+	 * @retval bool
+	 */
+	public function is_children(){
+		return ($this->parent != 0);
+	}
+	
+	
 	/*
 	 * Get if the image is warehoused
 	 *
