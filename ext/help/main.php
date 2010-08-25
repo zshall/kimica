@@ -5,6 +5,7 @@ class Help extends SimpleExtension {
 		if($event->page_matches("help")) {
 			$section = html_escape(strtolower($event->get_arg(0)));
 			$this->theme->display_content(ucfirst($section), $this->sanitize($this->get_help($section)));
+			$this->theme->display_sidebar();
 		}
 	}
 	
