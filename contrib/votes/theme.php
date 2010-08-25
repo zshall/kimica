@@ -47,7 +47,7 @@ class VotesTheme extends Themelet {
 	
 	public function add_vote_block($image, $vote){
 		global $page;
-		$page->add_block(new Block("Post Votes", $this->get_voter_html($image, $vote), "left", 20));
+		$page->add_block(new Block("Post Votes", $this->get_voter_html($image, $vote), "left", 40));
 	}
 }
 
