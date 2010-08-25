@@ -157,7 +157,9 @@ class CommentListTheme extends Themelet {
 		}
 		
 		if($postbox) {
+			$html .= "<div id='comments'><ul>";
 			$html .= $this->build_postbox($image->id);
+			$html .= "</ul></div>";
 		}
 		
 		$page->add_block(new Block("Comments", $html, "main", 30));
