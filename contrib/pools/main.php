@@ -169,10 +169,12 @@ class Pools extends SimpleExtension {
 
 				case "add_posts":
 					$pool_id = int_escape($_POST["pool_id"]);
+					$images_id = $_POST['check'];
+					
 					$pool = $this->get_single_pool($pool_id);
 
-					if(($pool['public'] == "Y" && !$user->is_anon()) || $user->is_admin() || $user->id == $pool['user_id']) {
-						$this->add_posts();
+					if(($pool['public'] == "Y" && !$user->is_anon()) || $user->is_admin() || $user->id == $pool['user_id']) {					
+						$this->add_posts($pool_id, $images_id);
 						$page->set_mode("redirect");
 						$page->set_redirect(make_link("pool/view/".$pool_id));
 					} else {
@@ -182,10 +184,12 @@ class Pools extends SimpleExtension {
 
 				case "remove_posts":
 					$pool_id = int_escape($_POST["pool_id"]);
+					$images_id = $_POST['check'];
+					
 					$pool = $this->get_single_pool($pool_id);
 
 					if(($pool['public'] == "Y" && !$user->is_anon()) || $user->is_admin() || $user->id == $pool['user_id']) {
-						$this->remove_posts();
+						$this->remove_posts($pool_id, $images_id);
 						$page->set_mode("redirect");
 						$page->set_redirect(make_link("pool/view/".$pool_id));
 					} else {
@@ -263,6 +267,27 @@ class Pools extends SimpleExtension {
 			}
 			if(count($pools) > 0) {
 				$event->add_part($this->theme->get_adder_html($event->image, $pools));
+			}
+		}
+	}
+	
+	public function onTagSet($event){
+		global $database;
+		$matches = array();
+		foreach($event->tags as $tag){
+			if(preg_match("/^pool:(\d+)/", $tag, $matches)) {
+				$pool_id = $matches[1];
+				if($pool_id != 0){
+					$images = array($event->image->id);
+					$this->add_posts($pool_id, $images);
+				}
+			}
+			if(preg_match("/^-pool:(\d+)/", $tag, $matches)) {
+				$pool_id = $matches[1];
+				if($pool_id != 0){
+					$images = array($event->image->id);
+					$this->remove_posts($pool_id, $images);
+				}
 			}
 		}
 	}
@@ -375,36 +400,33 @@ class Pools extends SimpleExtension {
 	/*
 	 * HERE WE ADD CHECKED IMAGES FROM POOL AND UPDATE THE HISTORY
 	 */
-	private function add_posts() {
+	private function add_posts($pool_id, $images_id) {
 		global $database;
 
-		$poolID = int_escape($_POST['pool_id']);
 		$images = "";
-
-		foreach ($_POST['check'] as $imageID){
-			if(!$this->check_post($poolID, $imageID)){
+		foreach ($images_id as $image_id){
+			if(!$this->check_post($pool_id, $image_id)){
 				$database->execute("
 						INSERT INTO pool_images (pool_id, image_id)
 						VALUES (?, ?)",
-						array($poolID, $imageID));
+						array($pool_id, $image_id));
 
-				$images .= " ".$imageID;
+				$images .= " ".$image_id;
 			}
-
 		}
 
 		if(!strlen($images) == 0) {
-			$count = $database->db->GetOne("SELECT COUNT(*) FROM pool_images WHERE pool_id=?", array($poolID));
-			$this->add_history($poolID, 1, $images, $count);
+			$count = $database->db->GetOne("SELECT COUNT(*) FROM pool_images WHERE pool_id=?", array($pool_id));
+			$this->add_history($pool_id, 1, $images, $count);
 		}
 
 		$database->Execute("
 			UPDATE pools
 			SET posts=(SELECT COUNT(*) FROM pool_images WHERE pool_id=?)
 			WHERE id=?",
-			array($poolID, $poolID)
+			array($pool_id, $pool_id)
 		);
-		return $poolID;	 
+		return $pool_id;	 
 	}
 
 	private function order_posts() {
@@ -429,20 +451,18 @@ class Pools extends SimpleExtension {
 	/*
 	 * HERE WE REMOVE CHECKED IMAGES FROM POOL AND UPDATE THE HISTORY
 	 */
-	private function remove_posts() {
+	private function remove_posts($pool_id, $images_id) {
 		global $database;
 
-		$poolID = int_escape($_POST['pool_id']);
 		$images = "";
-
-		foreach($_POST['check'] as $imageID) {
-			$database->execute("DELETE FROM pool_images WHERE pool_id = ? AND image_id = ?", array($poolID, $imageID));
-			$images .= " ".$imageID;
+		foreach($images_id as $image_id) {
+			$database->execute("DELETE FROM pool_images WHERE pool_id = ? AND image_id = ?", array($pool_id, $image_id));
+			$images .= " ".$image_id;
 		}
 
-		$count = $database->db->GetOne("SELECT COUNT(*) FROM pool_images WHERE pool_id=?", array($poolID));
-		$this->add_history($poolID, 0, $images, $count);
-		return $poolID;	 
+		$count = $database->db->GetOne("SELECT COUNT(*) FROM pool_images WHERE pool_id=?", array($pool_id));
+		$this->add_history($pool_id, 0, $images, $count);
+		return $pool_id;	 
 	}
 
 
