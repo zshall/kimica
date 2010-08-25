@@ -308,7 +308,7 @@ function create_tables($dsn) { // {{{
 		$db->execute($engine->create_table_sql("notifications", "
 			id SCORE_AIPK,
 			status ENUM('p', 'r', 's') NOT NULL DEFAULT 'p',
-			section VARCHAR(255) NOT NULL,
+			section VARCHAR(64) NOT NULL,
 			message VARCHAR(255) NOT NULL,
 			location VARCHAR(255) NOT NULL,
 			created_at DATETIME NOT NULL,
