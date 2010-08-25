@@ -626,7 +626,7 @@ class Post extends SimpleExtension {
 					$database->execute("UPDATE images SET has_children = 'y' WHERE id = ?",array($parent_id));
 				}
 				else{
-					$database->execute("UPDATE images SET parent = '0' WHERE id = ?",array($event->image->id));
+					$database->execute("UPDATE images SET parent = NULL WHERE id = ?",array($event->image->id));
 					$posts_count = $database->db->GetOne("SELECT COUNT(id) FROM images WHERE parent = ?", array($event->image->parent));
 					if($posts_count == 0){
 						$database->execute("UPDATE images SET has_children = 'n' WHERE id = ?",array($event->image->parent));

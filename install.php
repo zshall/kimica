@@ -331,7 +331,7 @@ function create_tables($dsn) { // {{{
 			posted SCORE_DATETIME NOT NULL DEFAULT SCORE_NOW,
 			tags TEXT NULL,
 			has_children ENUM('y', 'n') NOT NULL DEFAULT 'n',
-			parent INTEGER NOT NULL DEFAULT 0,
+			parent INTEGER,
 			status ENUM('l', 'a', 'p', 'd', 'h') NOT NULL DEFAULT 'p',
 			warehoused ENUM('y', 'n') NOT NULL DEFAULT 'n',
 			views INTEGER NOT NULL DEFAULT 0,
