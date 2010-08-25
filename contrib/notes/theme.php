@@ -181,7 +181,7 @@ class NotesTheme extends Themelet {
 					</td>
 				</tr>
 				<tr>
-					<td><input type='submit' value='Add Note' /></td>
+					<td><input type='submit' value='Save' /></td>
 					<td><input type='button' value='Cancel' id='cancelnote' /></td>
 			  	</tr>
 			</table>
@@ -203,7 +203,7 @@ class NotesTheme extends Themelet {
                         </td>
                     </tr>
                     <tr>
-                        <td><input type='submit' value='Save Note' /></td>
+                        <td><input type='submit' value='Save' /></td>
                         <td><input type='button' value='Cancel' id='EditCancelNote' /></td>
                     </tr>
                 </table>
@@ -216,7 +216,7 @@ class NotesTheme extends Themelet {
                 <input type='hidden' name='note_id' value='' id='DeleteNoteNoteID' />
                 <table>
                     <tr>
-                        <td><input type='submit' value='Delete note' /></td>
+                        <td><input type='submit' value='Delete' /></td>
                     </tr>
                 </table>
             </form>
