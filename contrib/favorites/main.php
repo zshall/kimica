@@ -27,11 +27,33 @@ class FavoriteSetEvent extends Event {
 }
 
 class Favorites extends SimpleExtension {
+
 	public function onInitExt($event) {
-		global $config;
-		if($config->get_int("ext_favorites_version", 0) < 1) {
+		global $config, $database;	
+		
+		if($config->get_int("ext_favorites_version") < 1) {
+			$database->Execute("ALTER TABLE images ADD COLUMN favorites INTEGER NOT NULL DEFAULT 0");
+			$database->Execute("CREATE INDEX images_favorites ON images(favorites)");
+			$database->Execute("
+				CREATE TABLE user_favorites (
+					image_id INTEGER NOT NULL,
+					user_id INTEGER NOT NULL,
+					created_at DATETIME NOT NULL,
+					UNIQUE(image_id, user_id),
+					INDEX(image_id),
+					INDEX(user_id),
+					FOREIGN KEY (image_id) REFERENCES images(id) ON DELETE CASCADE,
+					FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+				)
+			");
+			$config->set_int("ext_favorites_version", 1);
+		}
+		
+		if(($config->get_int("ext_favorites_version") < 2) && ($database->engine->name == "mysql")){
+			$database->Execute("CREATE TRIGGER update_favorites_on_insert AFTER INSERT ON user_favorites FOR EACH ROW UPDATE images SET favorites = (SELECT COUNT(*) FROM user_favorites WHERE image_id = NEW.image_id) WHERE images.id = NEW.image_id");
+			$database->Execute("CREATE TRIGGER update_favorites_on_delete AFTER DELETE ON user_favorites FOR EACH ROW UPDATE images SET favorites = (SELECT COUNT(*) FROM user_favorites WHERE image_id = OLD.image_id) WHERE images.id = OLD.image_id");
 			$config->set_bool("favorites_hide_users", false);
-			$this->install();
+			$config->set_int("ext_favorites_version", 2);
 		}
 	}
 
@@ -129,49 +151,22 @@ class Favorites extends SimpleExtension {
 		}
 	}
 
-
-	private function install() {
-		global $database;
-		global $config;
-
-		if($config->get_int("ext_favorites_version") < 1) {
-			$database->Execute("ALTER TABLE images ADD COLUMN favorites INTEGER NOT NULL DEFAULT 0");
-			$database->Execute("CREATE INDEX images__favorites ON images(favorites)");
-			$database->Execute("
-				CREATE TABLE user_favorites (
-					image_id INTEGER NOT NULL,
-					user_id INTEGER NOT NULL,
-					created_at DATETIME NOT NULL,
-					UNIQUE(image_id, user_id),
-					INDEX(image_id),
-					INDEX(user_id)
-				)
-			");
-			$config->set_int("ext_favorites_version", 1);
-		}
-	}
-
 	private function add_vote($image_id, $user_id, $do_set) {
-		global $database;
+		global $database, $config;
 			
 		if ($do_set) {
-			$is_favorited = $database->db->GetOne(
-				"SELECT COUNT(*) AS ct FROM user_favorites WHERE user_id = ? AND image_id = ?",
-				array($user_id, $image_id)) > 0;
-			
+			$is_favorited = $database->db->GetOne("SELECT COUNT(*) AS ct FROM user_favorites WHERE user_id = ? AND image_id = ?",	array($user_id, $image_id)) > 0;
 			if (!$is_favorited) {
-			$database->Execute(
-				"INSERT INTO user_favorites(image_id, user_id, created_at) VALUES(?, ?, NOW())",
-				array($image_id, $user_id));
+				$database->Execute("INSERT INTO user_favorites(image_id, user_id, created_at) VALUES(?, ?, NOW())", array($image_id, $user_id));
 			}
 		} else {
-			$database->Execute(
-				"DELETE FROM user_favorites WHERE image_id = ? AND user_id = ?",
-				array($image_id, $user_id));
+			$database->Execute("DELETE FROM user_favorites WHERE image_id = ? AND user_id = ?",	array($image_id, $user_id));
 		}
-		$database->Execute(
-			"UPDATE images SET favorites=(SELECT COUNT(*) FROM user_favorites WHERE image_id=?) WHERE id=?",
-			array($image_id, $image_id));
+		
+		
+		if($database->engine->name != "mysql"){
+			$database->Execute("UPDATE images SET favorites=(SELECT COUNT(*) FROM user_favorites WHERE image_id=?) WHERE id=?",	array($image_id, $image_id));
+		}
 	}
 	
 	private function list_persons_who_have_favorited($image) {

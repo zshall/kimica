@@ -27,8 +27,31 @@ class Votes implements Extension {
 		if(is_null($this->theme)) $this->theme = get_theme_object($this);
 
 		if($event instanceof InitExtEvent) {
-			if($config->get_int("ext_votes_version", 0) < 1) {
-				$this->install();
+			if($config->get_int("ext_votes_version") < 1) {
+				$database->Execute("ALTER TABLE images ADD COLUMN votes INTEGER NOT NULL DEFAULT 0");
+				$database->Execute("CREATE INDEX images_votes ON images(votes)");
+				$database->create_table("image_votes", "
+					image_id INTEGER NOT NULL,
+					user_id INTEGER NOT NULL,
+					vote INTEGER NOT NULL,
+					UNIQUE(image_id, user_id),
+					INDEX(image_id),
+					INDEX(user_id),
+					FOREIGN KEY (image_id) REFERENCES images(id) ON DELETE CASCADE,
+					FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+				");
+				$config->set_int("ext_votes_version", 1);
+			}
+			
+			if($config->get_int("ext_votes_version") < 2) {
+				$database->Execute("CREATE INDEX image_votes_user_votes ON image_votes(user_id, vote)");
+				$config->set_int("ext_votes_version", 2);
+			}
+			
+			if(($config->get_int("ext_votes_version") < 3) && ($database->engine->name == "mysql")){
+				$database->Execute("CREATE TRIGGER update_votes_on_insert AFTER INSERT ON image_votes FOR EACH ROW UPDATE images SET votes = (SELECT SUM(vote) FROM image_votes WHERE image_id = NEW.image_id) WHERE images.id = NEW.image_id");
+				$database->Execute("CREATE TRIGGER update_votes_on_delete AFTER DELETE ON image_votes FOR EACH ROW UPDATE images SET votes = (SELECT SUM(vote) FROM image_votes WHERE image_id = OLD.image_id) WHERE images.id = OLD.image_id");
+				$config->set_int("ext_votes_version", 3);
 			}
 		}
 
@@ -108,43 +131,17 @@ class Votes implements Extension {
 		}
 	}
 
-	private function install() {
-		global $database;
-		global $config;
-
-		if($config->get_int("ext_votes_version") < 1) {
-			$database->Execute("ALTER TABLE images ADD COLUMN votes INTEGER NOT NULL DEFAULT 0");
-			$database->Execute("CREATE INDEX images_votes ON images(votes)");
-			$database->create_table("image_votes", "
-				image_id INTEGER NOT NULL,
-				user_id INTEGER NOT NULL,
-				vote INTEGER NOT NULL,
-				UNIQUE(image_id, user_id),
-				INDEX(image_id),
-				FOREIGN KEY (image_id) REFERENCES images(id) ON DELETE CASCADE,
-				FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-			");
-			$config->set_int("ext_votes_version", 1);
-		}
-		if($config->get_int("ext_votes_version") < 2) {
-			$database->Execute("CREATE INDEX image_votes__user_votes ON image_votes(user_id, vote)");
-			$config->set_int("ext_votes_version", 2);
-		}
-	}
-
 	private function add_vote($image_id, $user_id, $score) {
 		global $database;
-		$database->Execute(
-			"DELETE FROM image_votes WHERE image_id=? AND user_id=?",
-			array($image_id, $user_id));
+		$database->Execute("DELETE FROM image_votes WHERE image_id=? AND user_id=?", array($image_id, $user_id));
+		
 		if($score != 0) {
-			$database->Execute(
-				"INSERT INTO image_votes(image_id, user_id, vote) VALUES(?, ?, ?)",
-				array($image_id, $user_id, $score));
+			$database->Execute("INSERT INTO image_votes(image_id, user_id, vote) VALUES(?, ?, ?)", array($image_id, $user_id, $score));
 		}
-		$database->Execute(
-			"UPDATE images SET votes=(SELECT SUM(vote) FROM image_votes WHERE image_id=?) WHERE id=?",
-			array($image_id, $image_id));
+		
+		if($database->engine->name != "mysql"){
+			$database->Execute("UPDATE images SET votes=(SELECT SUM(vote) FROM image_votes WHERE image_id=?) WHERE id=?", array($image_id, $image_id));
+		}
 	}
 }
 add_event_listener(new Votes());
