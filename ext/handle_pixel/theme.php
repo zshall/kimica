@@ -52,18 +52,6 @@ class PixelFileHandlerTheme extends Themelet {
 				
 		$zoom = $config->get_bool("post_zoom", false) ? $zoom : "";
 		
-		if($image->has_children()){
-			$childrens = make_link("post/list/parent:".$image->id."/1");
-			$childrens = "This post has <a href='".$childrens."'>child posts</a>. Child posts are often minor variations of the parent post.";
-			$page->add_block(new Block(null, $childrens, "subheading", 0));
-		}
-		
-		if($image->is_children()){
-			$childrens = make_link("post/view/".$image->parent);
-			$childrens = "This post belongs to a <a href='".$childrens."'>parent post</a>. Child posts are often minor variations of the parent post.";
-			$page->add_block(new Block(null, $childrens, "subheading", 0));
-		}
-		
 		$page->add_block(new Block("Image", $html.$zoom, "main", 0));
 	}
 }

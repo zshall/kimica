@@ -153,6 +153,23 @@ class PostTheme extends Themelet {
 		if($editor_parts){
 			$page->add_block(new Block("Editor", $this->build_image_editor($image, $editor_parts), "main", 20));
 		}
+		
+		if($image->is_pending()){
+			$pending = "This post is pending moderator approval.";
+			$page->add_block(new Block(null, $pending, "subheading", 0));
+		}
+		
+		if($image->has_children()){
+			$childrens = make_link("post/list/parent:".$image->id."/1");
+			$childrens = "This post has <a href='".$childrens."'>child posts</a>. Child posts are often minor variations of the parent post.";
+			$page->add_block(new Block(null, $childrens, "subheading", 0));
+		}
+		
+		if($image->is_children()){
+			$childrens = make_link("post/view/".$image->parent);
+			$childrens = "This post belongs to a <a href='".$childrens."'>parent post</a>. Child posts are often minor variations of the parent post.";
+			$page->add_block(new Block(null, $childrens, "subheading", 0));
+		}
 	}
 
 	public function display_admin_block($parts) {
