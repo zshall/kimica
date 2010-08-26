@@ -151,7 +151,7 @@ class PostTheme extends Themelet {
 		$page->add_block(new Block("Post Statistics", $this->build_stats($image), "left", 20));
 				
 		if($editor_parts){
-			$page->add_block(new Block("Editor", $this->build_image_editor($image, $editor_parts), "main", 40));
+			$page->add_block(new Block("Editor", $this->build_image_editor($image, $editor_parts), "main", 20));
 		}
 	}
 
@@ -230,6 +230,11 @@ class PostTheme extends Themelet {
 		if(class_exists("Ratings")){
 			$rating = "<br>Rating: ".Ratings::rating_to_human($image->rating);
 		}
+		
+		$favorites = "";
+		if(class_exists("Favorites")){
+			$favorites = "<br>Favorites: ".$image->favorites;
+		}
 
 		$html = "
 		Id: {$image->id}
@@ -238,6 +243,7 @@ class PostTheme extends Themelet {
 		<br>Views: $image->views
 		$votes
 		$rating
+		$favorites
 		<br>Size: {$image->width}x{$image->height}
 		<br>Filesize: $h_filesize
 		";
