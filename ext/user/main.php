@@ -110,7 +110,7 @@ class UserPage extends SimpleExtension {
 			else if($event->get_arg(0) == "profile"){
 				$account = $event->get_arg(1);
 				if(isset($account)){
-					$display_user = User::by_name($event->get_arg(1));
+					$display_user = User::by_name($account);
 				}
 				else{
 					$display_user = $user;

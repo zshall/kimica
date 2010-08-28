@@ -270,8 +270,8 @@ class UserPageTheme extends Themelet {
 		$page->add_block(new Block("Login", $html, "left", 90));
 	}
 
-	public function display_user_page(User $duser, $stats) {
-		global $page, $user;
+	public function display_user_page($duser, $stats) {
+		global $page;
 		assert(is_array($stats));
 		
 		$av = $duser->get_avatar_html();
