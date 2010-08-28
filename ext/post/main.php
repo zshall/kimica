@@ -686,9 +686,9 @@ class Post extends SimpleExtension {
 			$event->add_querylet(new Querylet("images.$col $cmp ?", array($val)));
 		}
 		else if(preg_match("/^(poster|user):(.*)$/i", $event->term, $matches)) {
-			$user = User::by_name($matches[2]);
-			if(!is_null($user)) {
-				$user_id = $user->id;
+			$duser = User::by_name($matches[2]);
+			if(!is_null($duser)) {
+				$user_id = $duser->id;
 				$event->add_querylet(new Querylet("images.owner_id = '$user_id'"));
 			}
 		}

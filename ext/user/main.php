@@ -437,15 +437,17 @@ class UserPage extends SimpleExtension {
 	public function onUserPageBuilding($event) {
 		global $page, $user, $config;
 
+		$duser = User::by_name($event->display_user->name);
+
 		$h_join_date = autodate($event->display_user->join_date);
 		$h_login_date = autodate($event->display_user->login_date);
 		$event->add_stats(array("Join Date", "$h_join_date"), 10);
 		$event->add_stats(array("Last Login", "$h_login_date"), 20);
-		$event->add_stats(array("Role", ucfirst($event->display_user->role_to_human())), 30);
+		$event->add_stats(array("Role", ucfirst($duser->role_to_human())), 30);
 
 		ksort($event->stats);
-		$this->theme->display_user_page($event->display_user, $event->stats);
-		if($user->id == $event->display_user->id) {
+		$this->theme->display_user_page($duser, $event->stats);
+		if($user->id == $duser->id) {
 			$ubbe = new UserBlockBuildingEvent();
 			send_event($ubbe);
 			ksort($ubbe->parts);
