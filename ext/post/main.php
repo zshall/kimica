@@ -558,7 +558,7 @@ class Post extends SimpleExtension {
 		global $user, $config;
 		
 		$username = url_escape($user->name);		
-		$event->add_link("My Posts", make_link("post/list/user=$username/1"), 10);
+		$event->add_link("My Posts", make_link("post/list/user:{$username}/1"), 10);
 		
 		if($user->is_admin() && $config->get_bool('report_post_enable')){
 			$event->add_link("Reported Posts", make_link("post/reports"), 30);
@@ -758,7 +758,7 @@ class Post extends SimpleExtension {
 		global $config;
 		$max_images = $config->get_int('index_width');
 		if(!is_null($duser)) {
-			return Image::find_images(0, $max_images, array("user=".$duser->name));
+			return Image::find_images(0, $max_images, array("user:{$duser->name}"));
 		} else {
 			return Image::find_images(0, $max_images);
 		}

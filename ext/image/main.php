@@ -256,9 +256,9 @@ class ImageIO extends SimpleExtension {
 	}
 	
 	public function onUserPageBuilding($event) {
-		$u_id = url_escape($event->display_user->id);
-		$i_image_count = Image::count_images(array("user_id={$event->display_user->name}"));
-		$images_link = make_link("post/list/user=$u_id/1");
+		$u_name = url_escape($event->display_user->name);
+		$i_image_count = Image::count_images(array("user:{$u_name}"));
+		$images_link = make_link("post/list/user:{$u_name}/1");
 		$event->add_stats(array("<a href='$images_link'>Posts</a>", "$i_image_count"), 40);
 	}
 
