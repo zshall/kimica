@@ -221,9 +221,9 @@ class Notes extends SimpleExtension {
 		}
 		else if(preg_match("/notes_by:(.*)/i", $event->term, $matches)) {
 			global $database;
-			$user = User::by_name($matches[1]);
-			if(!is_null($user)) {
-				$user_id = $user->id;
+			$duser = User::by_name($matches[1]);
+			if(!is_null($duser)) {
+				$user_id = $duser->id;
 			}
 			else {
 				$user_id = -1;
