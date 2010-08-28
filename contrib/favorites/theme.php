@@ -33,7 +33,7 @@ class FavoritesTheme extends Themelet {
 			$html .= "<br><a href='".make_link("account/profile/$username")."'>$username</a>";
 		}
 
-		$page->add_block(new Block("Favorited By", $html, "left", 25));
+		$page->add_block(new Block("Favorited By", $html, "left", 30));
 	}
 	
 	public function display_recent_favorites($favorites){

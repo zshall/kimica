@@ -118,7 +118,7 @@ class Subscription extends SimpleExtension {
 		if($display_user && $display_subscriptions){
 			$max_images = $config->get_int('index_width');
 			$subscriptions = $database->get_all("SELECT tag_name FROM subscriptions WHERE user_id = ? AND private = 'N' ORDER BY id ASC", array($event->display_user->id));
-			$pos = 40;
+			$pos = 50;
 			foreach($subscriptions as $subscription){
 				$posts = Image::find_images(0, $max_images, array($subscription['tag_name']));
 				$this->theme->display_subscriptions($subscription['tag_name'], $posts, $pos);
