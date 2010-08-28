@@ -366,8 +366,8 @@ function create_tables($dsn) { // {{{
 		$db->execute($engine->create_table_sql("image_bans", "
 			id SCORE_AIPK,
 			hash CHAR(32) NOT NULL,
-			created_at DATETIME DEFAULT SCORE_NOW,
-			reason TEXT NOT NULL
+			created_at SCORE_DATETIME NOT NULL DEFAULT SCORE_NOW,
+			reason TEXT
 		"));
 		$db->execute($engine->create_table_sql("tag_alias", "
 			oldtag VARCHAR(64) NOT NULL PRIMARY KEY,
@@ -402,7 +402,7 @@ function create_tables($dsn) { // {{{
 			image_id INTEGER NOT NULL,
 			owner_id INTEGER NOT NULL,
 			owner_ip SCORE_INET NOT NULL,
-			posted DATETIME DEFAULT NULL,
+			posted SCORE_DATETIME NOT NULL DEFAULT SCORE_NOW,
 			comment TEXT NOT NULL,
 			votes INTEGER NOT NULL DEFAULT 0,
 			INDEX (image_id),
