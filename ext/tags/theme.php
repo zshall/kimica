@@ -81,6 +81,31 @@ class TagsTheme extends Themelet {
 
 		$page->add_block(new Block("Related Tags", $html, "left", 30));
 	}
+	
+	public function display_tags_block(Page $page, $tag_infos) {
+		global $config;
+
+		$html = "";
+		$n = 0;
+		foreach($tag_infos as $row) {
+			$tag = $row['tag'];
+			$h_tag = html_escape($tag);
+			$h_tag_no_underscores = str_replace("_", " ", $h_tag);
+			$count = $row['calc_count'];
+			if($n++) $html .= "\n<br/>";
+			if($config->get_bool('show_info_link')) {
+				$link = str_replace('$tag', $tag, $config->get_string('tag_info_link'));
+				$html .= " <a class='tag_info' href='$link'>?</a>";
+			}
+			$link = $this->tag_link($row['tag']);
+			$html .= " <a class='tag_".$row['type']."' href='$link'>$h_tag_no_underscores</a> ";
+			if($config->get_bool("tag_list_numbers")) {
+				$html .= " <span class='tag_count'>$count</span>";
+			}
+		}
+
+		$page->add_block(new Block("Post Tags", $html, "left", 30));
+	}
 
 
 	/*

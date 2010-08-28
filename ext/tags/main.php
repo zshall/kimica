@@ -273,7 +273,7 @@ class Tags extends SimpleExtension {
 		$tags_min = $this->get_tags_min();
 		$result = $database->execute("
 				SELECT
-					tag,
+					tag, type,
 					FLOOR(LOG(2.7, LOG(2.7, count - ? + 1)+1)*1.5*100)/100 AS scaled
 				FROM tags
 				WHERE count >= ?
@@ -288,7 +288,7 @@ class Tags extends SimpleExtension {
 			$link = $this->tag_link($row['tag']);
 			if($size<0.5) $size = 0.5;
 			$h_tag_no_underscores = str_replace("_", " ", $h_tag);
-			$html .= "&nbsp;<a style='font-size: ${size}em' href='$link'>$h_tag_no_underscores</a>&nbsp;\n";
+			$html .= "&nbsp;<a class='tag_".$row['type']."' style='font-size: ${size}em' href='$link'>$h_tag_no_underscores</a>&nbsp;\n";
 		}
 		return $html;
 	}
@@ -298,7 +298,7 @@ class Tags extends SimpleExtension {
 
 		$tags_min = $this->get_tags_min();
 		$result = $database->execute(
-				"SELECT tag,count FROM tags WHERE count >= ? ORDER BY tag",
+				"SELECT tag, type, count FROM tags WHERE count >= ? ORDER BY tag",
 				array($tags_min));
 		$tag_data = $result->GetArray();
 
@@ -312,7 +312,7 @@ class Tags extends SimpleExtension {
 				$html .= "<p>$lastLetter<br>";
 			}
 			$link = $this->tag_link($row['tag']);
-			$html .= "<a href='$link'>$h_tag&nbsp;($count)</a>\n";
+			$html .= "<a class='tag_".$row['type']."' href='$link'>$h_tag&nbsp;($count)</a>\n";
 		}
 
 		return $html;
@@ -323,7 +323,7 @@ class Tags extends SimpleExtension {
 
 		$tags_min = $this->get_tags_min();
 		$result = $database->execute(
-				"SELECT tag,count,FLOOR(LOG(count)) AS scaled FROM tags WHERE count >= ? ORDER BY count DESC, tag ASC",
+				"SELECT tag, type, count,FLOOR(LOG(count)) AS scaled FROM tags WHERE count >= ? ORDER BY count DESC, tag ASC",
 				array($tags_min));
 		$tag_data = $result->GetArray();
 
@@ -338,7 +338,7 @@ class Tags extends SimpleExtension {
 				$html .= "<p>$lastLog<br>";
 			}
 			$link = $this->tag_link($row['tag']);
-			$html .= "<a href='$link'>$h_tag&nbsp;($count)</a>\n";
+			$html .= "<a class='tag_".$row['type']."' href='$link'>$h_tag&nbsp;($count)</a>\n";
 		}
 
 		return $html;
@@ -529,13 +529,12 @@ class Tags extends SimpleExtension {
 			WHERE tags.id = image_tags.tag_id
 			AND image_tags.image_id = ?
 			ORDER BY calc_count DESC
-			LIMIT ?
 		";
-		$args = array($image->id, $config->get_int('tags_list_length'));
+		$args = array($image->id);
 
 		$tags = $database->get_all($query, $args);
 		if(count($tags) > 0) {
-			$this->theme->display_related_block($page, $tags);
+			$this->theme->display_tags_block($page, $tags);
 		}
 	}
 
@@ -614,14 +613,36 @@ class Tags extends SimpleExtension {
 		$search_set = Tag::explode($search);
 		$replace_set = Tag::explode($replace);
 
-		$n = 0;
+		$last_id = -1;
 		while(true) {
-			$images = Image::find_images($n, 100, $search_set);
+			// make sure we don't look at the same images twice.
+			// search returns high-ids first, so we want to look
+			// at images with lower IDs than the previous.
+			$search_forward = $search_set;
+			if($last_id >= 0) $search_forward[] = "id<$last_id";
+
+			$images = Image::find_images(0, 100, $search_forward);
 			if(count($images) == 0) break;
+
 			foreach($images as $image) {
-				$image->set_tags(array_merge($image->get_tag_array(), $replace_set));
+				// remove the search'ed tags
+				$before = $image->get_tag_array();
+				$after = array();
+				foreach($before as $tag) {
+					if(!in_array($tag, $search_set)) {
+						$after[] = $tag;
+					}
+				}
+
+				// add the replace'd tags
+				foreach($replace_set as $tag) {
+					$after[] = $tag;
+				}
+
+				$image->set_tags($after);
+
+				$last_id = $image->id;
 			}
-			$n += 100;
 		}
 	}
 	
