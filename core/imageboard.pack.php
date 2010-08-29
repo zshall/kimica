@@ -634,7 +634,7 @@ class Image {
 		$cache_tags = $config->get_bool("admin_cache_tags", false);
 		if($cache_tags){
 			$tags = Tag::implode($tags);
-			$database->execute("UPDATE images SET tags = ? WHERE id = ?",array($tags, $this->id));
+			$database->execute("UPDATE images SET tags = ? WHERE id = ?",array(strtolower($tags), $this->id));
 		}
 	}
 
