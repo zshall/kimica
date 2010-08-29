@@ -538,7 +538,8 @@ class UserPage extends SimpleExtension {
 			$sent = $email->send();
 			
 			if($sent){
-				$database->Execute("UPDATE users SET pass = ? WHERE id = ?", array(md5($duser->name.$pass), $duser->id));
+				$hash = md5(strtolower($duser->name).$pass);
+				$database->Execute("UPDATE users SET pass = ? WHERE id = ?", array($hash, $duser->id));
 			}
 			
 			$page->set_mode("redirect");
@@ -557,7 +558,7 @@ class UserPage extends SimpleExtension {
 
 		$name = $_POST['user'];
 		$pass = $_POST['pass'];
-		$hash = md5(strtolower($name) . $pass);
+		$hash = md5(strtolower($name).$pass);
 
 		$duser = User::by_name_and_hash($name, $hash);
 		
@@ -659,7 +660,7 @@ class UserPage extends SimpleExtension {
 			$sent = $email->send();
 		}
 		
-		$hash = md5(strtolower($event->username) . $event->password);
+		$hash = md5(strtolower($event->username).$event->password);
 						
 		$ip = $_SERVER['REMOTE_ADDR'];
 		

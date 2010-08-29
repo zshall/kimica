@@ -66,7 +66,9 @@ class Admin extends SimpleExtension {
 		global $page, $config, $user;
 		
 		if($event->page_matches("admin")) {
-			$this->theme->display_sidebar();
+			if($user->is_admin()){
+				$this->theme->display_sidebar();
+			}
 		}
 		
 		if($event->page_matches("admin/alerts")) {
@@ -152,12 +154,17 @@ class Admin extends SimpleExtension {
 		}
 		
 		if($event->page_matches("admin/posts")) {
-			$this->theme->display_bulk_tag_editor();
-			$this->theme->display_bulk_source_editor();
-			if(class_exists("Ratings")){
-				$this->theme->display_bulk_rater();
+			if($user->is_admin()){
+				$this->theme->display_bulk_tag_editor();
+				$this->theme->display_bulk_source_editor();
+				if(class_exists("Ratings")){
+					$this->theme->display_bulk_rater();
+				}
+				$this->theme->display_bulk_uploader();
 			}
-			$this->theme->display_bulk_uploader();
+			else{
+				$this->theme->display_permission_denied();
+			}
 		}
 		
 		if($event->page_matches("admin/bans")) {
@@ -201,7 +208,10 @@ class Admin extends SimpleExtension {
 	}
 	
 	public function onUserBlockBuilding($event) {
-		$event->add_link("Admin Tools", make_link("admin"), 100);
+		global $user;
+		if($user->is_admin()){
+			$event->add_link("Admin Tools", make_link("admin"), 100);
+		}
 	}
 			
 	public function onAlertAddition($event){
