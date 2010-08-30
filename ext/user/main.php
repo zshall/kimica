@@ -863,7 +863,9 @@ class UserPage extends SimpleExtension {
 		$owner = $database->get_row("SELECT to_id FROM messages WHERE id = ?", array($id));
 		$pm = NULL;
 		if($owner["to_id"] == $user->id || $user->is_admin()){
-			$database->execute("UPDATE messages SET status = 'r' WHERE id = ?", array($id));
+			if($owner["to_id"] == $user->id){
+				$database->execute("UPDATE messages SET status = 'r' WHERE id = ?", array($id));
+			}
 			$pm = $database->get_row("SELECT * FROM messages WHERE id = ?", array($id));
 		}
 		return $pm;
