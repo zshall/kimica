@@ -181,6 +181,8 @@ class Subscription extends SimpleExtension {
 		//insert one tag per entry
 		if($words == 1){
 			if($this->canAddSubscription($userID)){
+				$tagNAME = Tag::resolve_alias($tagNAME);
+				
 				$database->execute("
 							INSERT INTO subscriptions
 								(user_id, tag_name, digest, private)

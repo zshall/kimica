@@ -75,6 +75,8 @@ class Blacklist extends SimpleExtension {
 		//insert one tag per entry
 		if($words == 1){
 			if($this->canAddTag($userID)){
+				$tagNAME = Tag::resolve_alias($tagNAME);
+				
 				$database->execute("
 							INSERT INTO tag_blacklist
 								(user_id, tag)
