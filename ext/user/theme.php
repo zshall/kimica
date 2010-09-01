@@ -391,11 +391,12 @@ class UserPageTheme extends Themelet {
 	}
 	
 	public function display_messages_viewer(Page $page, $subject, $message) {
+	
 		$tfe = new TextFormattingEvent($message);
         send_event($tfe);
         $message = $tfe->formatted;
 		
-		$page->add_block(new Block("Message:".$subject, $message, "main", 10));
+		$page->add_block(new Block("Message:".$subject, "<div align='left'>".$message."</div>", "main", 10));
 	}
 	
 	public function display_composer(Page $page, $user_name = NULL, $subject = NULL, $message = NULL) {
@@ -524,20 +525,34 @@ class UserPageTheme extends Themelet {
 			</script>
 			<form action='".make_link("account/messages/action")."' method='POST'>
 			<table id='pms' class='zebra'>
-				<thead><tr><th>Subject</th><th>To</th><th>Date</th><th>Select</th></tr></thead>
+				<thead><tr><th>Subject</th><th>To</th><th>Date</th><th>Priority</th><th>Select</th></tr></thead>
 				<tbody>";
 		$n = 0;
 		foreach($pms as $pm) {
 			$oe = ($n++ % 2 == 0) ? "even" : "odd";
 			$h_subject = html_escape($pm["subject"]);
+			if($pm["status"] == "u") $h_subject = "<strong>".$h_subject."</strong>";
 			if(strlen(trim($h_subject)) == 0) $h_subject = "(No subject)";
 			$from_name = $pm["to_name"];
 			$h_from = html_escape($from_name);
 			$from_url = make_link("account/profile/".url_escape($from_name));
 			$pm_url = make_link("account/messages/view/".$pm["id"]);
 			$h_date = html_escape($pm["sent_date"]);
+			
+			switch($pm["priority"]){
+				case "l":
+					$h_priority = "Low";
+				break;
+				case "n":
+					$h_priority = "Normal";
+				break;
+				case "h":
+					$h_priority = "High";
+				break;
+			}
+			
 			$html .= "<tr class='$oe'><td><a href='$pm_url'>$h_subject</a></td>
-			<td><a href='$from_url'>$h_from</a></td><td>$h_date</td>
+			<td><a href='$from_url'>$h_from</a></td><td>$h_date</td><td>$h_priority</td>
 			<td>
 				<input name='id[]' type='checkbox' value='".$pm["id"]."' />
 			</td></tr>";
