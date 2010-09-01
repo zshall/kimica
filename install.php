@@ -343,9 +343,10 @@ function create_tables($dsn) { // {{{
 		"));
 		$db->execute($engine->create_table_sql("image_views", "
 			image_id INTEGER NOT NULL,
-			user_id INTEGER NOT NULL,
+			user_ip CHAR(15) NOT NULL,
+			viewed_at SCORE_DATETIME NOT NULL DEFAULT SCORE_NOW,
 			INDEX(image_id),
-			UNIQUE(image_id, user_id),
+			INDEX(user_ip),
 			FOREIGN KEY (image_id) REFERENCES images(id) ON DELETE CASCADE
 		"));
 		$db->execute($engine->create_table_sql("tags", "

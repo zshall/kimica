@@ -589,6 +589,7 @@ class Post extends SimpleExtension {
 		}
 		
 		$this->update_views($event->image);
+		
 		$iibbe = new ImageInfoBoxBuildingEvent($event->get_image(), $user);
 		send_event($iibbe);
 		ksort($iibbe->parts);
@@ -781,9 +782,13 @@ class Post extends SimpleExtension {
 	
 	public function update_views($image) {
 		global $database, $user;
-		$viewed = $database->db->GetOne("SELECT COUNT(*) FROM image_views WHERE image_id = ? AND user_id = ?",array($image->id, $user->id));
+		
+		$user_ip = $_SERVER['REMOTE_ADDR'];
+		
+		$viewed = $database->db->GetOne("SELECT COUNT(*) FROM image_views WHERE image_id = ? AND user_ip = ?",array($image->id, $user_ip));
+		
 		if($viewed < 1){
-			$database->Execute("INSERT INTO image_views(image_id, user_id) VALUES(?, ?)",array($image->id, $user->id));
+			$database->Execute("INSERT INTO image_views(image_id, user_ip, viewed_at) VALUES(?, ?, now())",array($image->id, $user_ip));
 			$database->Execute("UPDATE images SET views=(SELECT COUNT(*) FROM image_views WHERE image_id = ?) WHERE id = ?",array($image->id, $image->id));
 		}
 	}
