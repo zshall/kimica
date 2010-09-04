@@ -478,6 +478,15 @@ class Post extends SimpleExtension {
 					$image->set_status("h");
 				}
 			}
+			
+			if(isset($_GET['search'])) {
+				$search_terms = explode(' ', $_GET['search']);
+				$query = "#search=".url_escape($_GET['search']);
+			}
+			else {
+				$search_terms = array();
+				$query = null;
+			}
 
 			$page->set_mode("redirect");
 			$page->set_redirect(make_link("post/view/$image_id", $query));

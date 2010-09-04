@@ -222,7 +222,7 @@ class Tags extends SimpleExtension {
 	
 	public function onImageDeletion($event) {
 		global $database;
-		$database->execute("DELETE FROM tag_histories WHERE image_id = ?", array($image->id));
+		$database->execute("DELETE FROM tag_histories WHERE image_id = ?", array($event->image->id));
 	}
 			
 	public function onSetupBuilding(SetupBuildingEvent $event) {
