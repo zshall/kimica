@@ -234,7 +234,9 @@ class Image {
 		$cache_tags = $config->get_bool("admin_cache_tags", false);
 		
 		if(($cache_tags) && (!is_null($this->tags))){
-			return Tag::explode($this->tags);
+			$tags = Tag::explode($this->tags);
+			sort($tags);
+			return $tags;
 		}
 		
 		$cached = $database->cache->get("image-{$this->id}-tags");
@@ -248,7 +250,7 @@ class Image {
 				$row->MoveNext();
 			}
 		}
-
+		
 		$database->cache->set("image-{$this->id}-tags", $this->tag_array);
 		return $this->tag_array;
 	}
@@ -257,15 +259,7 @@ class Image {
 	 * Get this image's tags as a string
 	 */
 	public function get_tag_list() {
-		global $config;
-		$cache_tags = $config->get_bool("admin_cache_tags", false);
-		
-		if(($cache_tags) && (!is_null($this->tags))){
-			return $this->tags;
-		}
-		else{
-			return Tag::implode($this->get_tag_array());
-		}
+		return Tag::implode($this->get_tag_array());
 	}
 
 	/**
@@ -633,6 +627,7 @@ class Image {
 		global $config, $database;
 		$cache_tags = $config->get_bool("admin_cache_tags", false);
 		if($cache_tags){
+			sort($tags);
 			$tags = Tag::implode($tags);
 			$database->execute("UPDATE images SET tags = ? WHERE id = ?",array(strtolower($tags), $this->id));
 		}
