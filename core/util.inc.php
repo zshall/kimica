@@ -202,9 +202,9 @@ function calendar($date=NULL, $link){
 
 		//Do something different for the current day.
 		if($day == $day_counter)
-	   		$calendar_html .= "<td><b><a href='".make_link($link."/".$year."-".$month."-".$day_counter)."'>" . $day_counter . "</a></b></td>";
+	   		$calendar_html .= "<td><b><a href='".make_link($link."/".$year."-".$month."-".str_pad($day_counter, 2, "0", STR_PAD_LEFT))."'>" . $day_counter . "</a></b></td>";
 		else
-	   		$calendar_html .= "<td><a href='".make_link($link."/".$year."-".$month."-".$day_counter)."'>" . $day_counter . "</a></td>";
+	   		$calendar_html .= "<td><a href='".make_link($link."/".$year."-".$month."-".str_pad($day_counter, 2, "0", STR_PAD_LEFT))."'>" . $day_counter . "</a></td>";
 
 		$week_day++;
 	}
