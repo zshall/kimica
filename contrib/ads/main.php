@@ -116,7 +116,7 @@ class Ads extends SimpleExtension {
 		$location = $_POST["location"];
 		$position = int_escape($_POST["position"]);
 		$priority = int_escape($_POST["priority"]);
-		$section = $_POST["section"];
+		$section = trim($_POST["section"]);
 		$rating = $_POST["rating"];
 		$advertirser = html_escape($_POST["advertirser"]);
 		$url = $_POST["url"];
