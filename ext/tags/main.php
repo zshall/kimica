@@ -389,12 +389,11 @@ class Tags extends SimpleExtension {
 			$oe = ($n++ % 2 == 0) ? "even" : "odd";
 			
 			$h_tag = "<a href='".make_link("post/list/".url_escape($row["tag"])."/1")."'>".html_escape($row["tag"])."</a>";
-			$h_status = "";
 			
 			switch($row["status"]) {
-				case "p": $h_status = "pending";
-				case "d": $h_status = "deleted";
-				case "h": $h_status = "hidden";
+				case "p": $h_status = "pending"; break;
+				case "d": $h_status = "deleted"; break;
+				case "h": $h_status = "hidden"; break;
 			}
 			
 			$h_bans .= "<tr class='$oe'><td>$h_tag</td><td>$h_status</td>";
