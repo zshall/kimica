@@ -2,13 +2,12 @@
 class PoolsTheme extends Themelet {
 	
 	public function pool_navigation(){
-		$nav_html = "
-					<a href=".make_link().">Index</a>
-					<br><a href=".make_link("pool/new").">Create Pool</a>
-					<br><a href=".make_link("pool/updated").">Pool Changes</a>
-					";
+		global $page;
+		$nav_html = "<a href=".make_link("pool/new").">Create Pool</a>
+					 <br><a href=".make_link("pool/history").">Pool History</a>
+					 ";
 					
-		return $nav_html;
+		$page->add_block(new Block("Manage Pools", $nav_html, "left", 10));
 	}
 	
 	/*
@@ -27,8 +26,10 @@ class PoolsTheme extends Themelet {
 			if(!is_null($prev) && !is_null($next)){
 				$sep = " | ";
 			}
-			$page->add_block(new Block("Pools", implode("<br>", $linksPools)."<br><br>".$prev.$sep.$next, "left"));
-		}
+			$pool = implode(", ", $linksPools);
+			$pool = "This post belongs to the pool ".$pool.". ".$prev.$sep.$next;
+			$page->add_block(new Block(null, $pool, "subheading", 0));
+		}		
 	}
 
 	public function get_adder_html(Image $image, $pools) {
@@ -90,7 +91,6 @@ class PoolsTheme extends Themelet {
 		$page->set_title("Pools");
 		$page->set_heading("Pools");
 		$page->add_block(new Block("Pools", $html.$pagination, "main", 10));
-		$page->add_block(new Block("Manage Pools", $this->pool_navigation(), "left", 10));
 	}
 
 
@@ -111,7 +111,6 @@ class PoolsTheme extends Themelet {
 		$page->set_title(html_escape($blockTitle));
 		$page->set_heading(html_escape($blockTitle));
 		$page->add_block(new Block("Create Pool", $create_html, "main", 10));
-		$page->add_block(new Block("Manage Pools", $this->pool_navigation(), "left", 10));
 	}
 
 
@@ -419,7 +418,7 @@ class PoolsTheme extends Themelet {
 			$html = "There is no histories to show.";
 		}
 		
-		$pagination = $this->build_paginator("pool/updated", null, $pageNumber, $totalPages);
+		$pagination = $this->build_paginator("pool/history", null, $pageNumber, $totalPages);
 
 		$page->set_title("Pool History");
 		$page->set_heading("Pool History");

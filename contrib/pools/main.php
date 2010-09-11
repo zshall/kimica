@@ -69,6 +69,8 @@ class Pools extends SimpleExtension {
 		global $config, $page, $user;
 
 		if($event->page_matches("pool")) {
+			$this->theme->pool_navigation();
+			
 			switch($event->get_arg(0)) {
 				case "list": //index
 					$this->list_pools($page, int_escape($event->get_arg(1)));
