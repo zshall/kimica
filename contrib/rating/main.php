@@ -168,7 +168,7 @@ class Ratings implements Extension {
 	}
 	
 	public static function get_user_privs($user) {
-		global $prefs;
+		$prefs = Prefs::by_id($user->id);
 		return $prefs->get_string("ext_rating_privs", "s");
 	}
 	
