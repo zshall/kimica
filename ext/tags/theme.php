@@ -24,10 +24,35 @@ class TagsTheme extends Themelet {
 		$page->add_block(new Block("Tags", $this->list));
 	}
 	
+	public function display_list($tags, $pageNumber, $totalPages){
+		global $page;
+		
+		$pagination = $this->build_paginator("tags/list", null, $pageNumber, $totalPages);
+		
+		$html = "<table><thead><tr><th>Tag</th><th>Type</th><th>Posts</th></tr></thead><tbody>";
+		
+		$n = 0;
+		foreach($tags as $tag){
+			$oe = ($n++ % 2 == 0) ? "even" : "odd";
+			 
+			$link = $this->tag_link($tag['tag']);
+			$h_tag_no_underscores = str_replace("_", " ", $tag['tag']);
+			$tag_link = " <a class='tag_".$tag['type']."' href='$link'>$h_tag_no_underscores</a> ";
+			
+			$html .= "<tr class='$oe'><td>".$tag_link."</td><td>".$tag['type']."</td><td>".$tag['count']."</td></tr>";
+		}
+		
+		$html .= "</tbody></table>";
+	
+		$page->set_title("Tag List");
+		$page->set_heading("Tag List");
+    	$page->add_block(new Block("Tag List", $html.$pagination, "main", 10));
+	}
+	
 	public function display_navigation() {
 		global $page, $user;
 		
-		$h_index = "<a href='".make_link()."'>Index</a>";
+		$h_list = "<a href='".make_link("tags/list")."'>List</a>";
 		$h_map = "<a href='".make_link("tags/map")."'>Map</a>";
 		$h_alphabetic = "<a href='".make_link("tags/alphabetic")."'>Alphabetic</a>";
 		$h_popularity = "<a href='".make_link("tags/popularity")."'>Popularity</a>";
@@ -44,7 +69,7 @@ class TagsTheme extends Themelet {
 		}
 		$h_all = "<a href='?mincount=1'>Show All</a>";
 		
-		$html = "$h_index<br>&nbsp;<br>$h_map<br>$h_alphabetic<br>$h_popularity<br>$h_cats<br>$h_aliases<br>$h_histories<br>$h_bans$h_tools<br>$h_all";
+		$html = "$h_list<br>$h_map<br>$h_alphabetic<br>$h_popularity<br>$h_cats<br>$h_aliases<br>$h_histories<br>$h_bans$h_tools<br>$h_all";
 		
 		$page->add_block(new Block("Tags", $html, "left", 0));
 	}

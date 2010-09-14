@@ -35,6 +35,9 @@ class Tags extends SimpleExtension {
 
 			switch($event->get_arg(0)) {
 				default:
+				case 'list':
+					$this->get_tag_list($event);
+					break;
 				case 'map':
 					$this->theme->set_heading("Tag Map");
 					$this->theme->set_tag_list($this->build_tag_map());
@@ -210,13 +213,20 @@ class Tags extends SimpleExtension {
 	}
 	
 	public function onTagSet($event) {
-		global $config, $user;
+		global $config, $user, $database;
 		if($config->get_bool('tag_history_enabled')) {
 			log_info("history","tag set");
 			$this->add_tag_history($event->image, $event->tags);
 		}
 		if($user->is_admin() || !$event->image->is_locked()) {
 			$event->image->set_tags($event->tags);
+		}
+		
+		foreach ($event->tags as $banned) {
+			$row = $database->db->GetRow("SELECT status FROM tag_bans WHERE tag = ?", $banned);
+			if($row){
+				$event->image->set_status($row["status"]);
+			}
 		}
 	}
 	
@@ -266,6 +276,31 @@ class Tags extends SimpleExtension {
 		}
 	}
 // }}}
+// list {{{
+	private function get_tag_list($event){
+		global $config, $database;
+		
+		$pageNumber = $event->get_arg(1);
+			
+		if(is_null($pageNumber) || !is_numeric($pageNumber)){
+			$pageNumber = 0;
+		}
+		else if ($pageNumber <= 0){
+			$pageNumber = 0;
+		}
+		else{
+			$pageNumber--;
+		}
+		
+		$tagsPerPage = $config->get_int('tagsPerPage', 30);
+		
+		$tags = $database->get_all("SELECT * FROM tags ORDER BY tag ASC LIMIT ?, ?", array($pageNumber * $tagsPerPage, $tagsPerPage));
+		
+		$totalPages = ceil($database->db->GetOne("SELECT COUNT(*) FROM tags") / $tagsPerPage);
+		
+		$this->theme->display_list($tags, $pageNumber + 1, $totalPages);
+	}
+// }}}
 // maps {{{
 	private function build_tag_map() {
 		global $database;
@@ -309,7 +344,7 @@ class Tags extends SimpleExtension {
 			$count = $row['count'];
 			if($lastLetter != strtolower(substr($h_tag, 0, 1))) {
 				$lastLetter = strtolower(substr($h_tag, 0, 1));
-				$html .= "<p>$lastLetter<br>";
+				$html .= "<h4>$lastLetter</h4>";
 			}
 			$link = $this->tag_link($row['tag']);
 			$html .= "<a class='tag_".$row['type']."' href='$link'>$h_tag&nbsp;($count)</a>\n";
