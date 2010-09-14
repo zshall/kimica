@@ -201,7 +201,8 @@ class Artists implements Extension {
                     $userIsLogged = !$user->is_anon();
                     $userIsAdmin = $user->is_admin();
 					
-                    $images = Image::find_images(0, 4, Tag::explode($artist['name']));
+					$max_images = $config->get_int('index_width');
+                    $images = Image::find_images(0, $max_images, Tag::explode($artist['name']));
 
                     $this->theme->show_artist($artist, $aliases, $members, $urls, $images, $userIsLogged, $userIsAdmin);
                     if ($userIsLogged)
