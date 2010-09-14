@@ -428,7 +428,7 @@ class ExtendedApi extends SimpleExtension {
 			$taglist = $img->get_tag_list();
 			$owner = $img->get_owner();
 							
-			$xml .= "<post id=\"$img->id\" poster=\"$owner->name\" posted=\"$img->posted\" filename=\"" . $this->xmlspecialchars($img->filename) . "\" filesize=\"$img->filesize\" hash=\"$img->hash\" ext=\"$img->ext\" width=\"$img->width\" height=\"$img->height\" tags=\"" . $this->xmlspecialchars($taglist) . "\" source=\"" . $this->xmlspecialchars($img->source) . "\" rating=\"$img->rating\" score=\"$img->numeric_score\"  favorites=\"$img->favorites\"/>\n";
+			$xml .= "<post id=\"$img->id\" poster=\"$owner->name\" posted=\"$img->posted\" filename=\"" . $this->xmlspecialchars($img->filename) . "\" filesize=\"$img->filesize\" hash=\"$img->hash\" ext=\"$img->ext\" width=\"$img->width\" height=\"$img->height\" tags=\"" . $this->xmlspecialchars($taglist) . "\" source=\"" . $this->xmlspecialchars($img->source) . "\" rating=\"$img->rating\" score=\"$img->votes\"  favorites=\"$img->favorites\"/>\n";
 		}
 		$xml .= "</posts>";
 		$page->set_data($xml);
