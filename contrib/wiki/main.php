@@ -92,6 +92,12 @@ class Wiki extends SimpleExtension {
 
 			$content = $this->get_page($title);
 			$this->theme->display_page($page, $content, $this->get_page("wiki:sidebar"));
+			
+			if($config->get_bool("wiki_display_posts", false)){
+				$this->theme->display_tag_related($this->recent_posts($title));
+			}
+			
+			$this->theme->display_changes($this->recent_updates());
 		}
 		else if($event->page_matches("wiki_admin/edit")) {
 			$content = $this->get_page($_POST['title']);
@@ -171,6 +177,7 @@ class Wiki extends SimpleExtension {
 		$sb = new SetupBlock("Wiki");
 		$sb->add_bool_option("wiki_edit_anon", "Allow anonymous edits: ");
 		$sb->add_bool_option("wiki_edit_user", "<br>Allow user edits: ");
+		$sb->add_bool_option("wiki_display_posts", "<br>Display posts: ");
 		$event->panel->add_block($sb);
 	}
 
@@ -487,6 +494,24 @@ class Wiki extends SimpleExtension {
 				return "--- $value\n";
 				break; 
 		} 
+	}
+	
+	private function recent_updates(){
+		global $database;
+		$titles = $database->get_all("SELECT DISTINCT title FROM wiki_pages ORDER BY date DESC LIMIT 20 OFFSET 0");
+		
+		$pre = "";
+		foreach($titles as $title){
+			$pre .= "[[".$title["title"]."]]\n";
+		}
+		//$pre = substr($pre,0,4); //remove the last <br>
+		return $pre;
+	}
+	
+	private function recent_posts($title){
+		global $config;
+		$max_images = $config->get_int('index_width');
+		return Image::find_images(0, $max_images, array("$title"));
 	}
 // }}}
 }

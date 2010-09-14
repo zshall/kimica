@@ -25,15 +25,21 @@ class WikiTheme extends Themelet {
 
 		$page->set_title(html_escape($wiki_page->title));
 		$page->set_heading(html_escape($wiki_page->title));
-		$page->add_block(new NavBlock());
-		$page->add_block(new Block("Wiki Index", $tfe->formatted, "left", 20));
-		$page->add_block(new Block(html_escape($wiki_page->title), $this->create_display_html($wiki_page)));
+		$page->add_block(new Block("Wiki Index", $tfe->formatted, "left", 10));
+		
+		$page->add_block(new Block(html_escape($wiki_page->title), $this->create_display_html($wiki_page), "main", 10));
+	}
+	
+	public function display_changes($changes){
+		global $page;
+		$tfe = new TextFormattingEvent($changes);
+		send_event($tfe);
+		$page->add_block(new Block("Recent Changes", $tfe->formatted, "left", 20));
 	}
 
 	public function display_page_editor(Page $page, WikiPage $wiki_page) {
 		$page->set_title(html_escape($wiki_page->title));
 		$page->set_heading(html_escape($wiki_page->title));
-		$page->add_block(new NavBlock());
 		$page->add_block(new Block("Editor", $this->create_edit_html($wiki_page)));
 	}
 
@@ -105,6 +111,14 @@ class WikiTheme extends Themelet {
 			</p>
 			</div>
 		";
+	}
+	
+	public function display_tag_related($posts){
+		global $page;
+		
+		if(!empty($posts)){
+			$page->add_block(new Block("Related Posts", $this->build_table($posts, null), "main", 20));
+		}
 	}
 }
 ?>
