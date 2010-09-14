@@ -860,9 +860,9 @@ class UserPage extends SimpleExtension {
 	
 	private function view_message($user, $id) {
 		global $database;
-		$owner = $database->get_row("SELECT to_id FROM messages WHERE id = ?", array($id));
+		$owner = $database->get_row("SELECT to_id, from_id FROM messages WHERE id = ?", array($id));
 		$pm = NULL;
-		if($owner["to_id"] == $user->id || $user->is_admin()){
+		if(($owner["to_id"] == $user->id) || ($owner["from_id"] == $user->id) || ($user->is_admin())){
 			if($owner["to_id"] == $user->id){
 				$database->execute("UPDATE messages SET status = 'r' WHERE id = ?", array($id));
 			}
