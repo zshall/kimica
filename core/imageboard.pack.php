@@ -566,11 +566,14 @@ class Image {
 	 */
 	public function set_tags($tags) {
 		global $config, $database;
-		$tags = Tag::resolve_list($tags);
-
+		
 		assert(is_array($tags));
 		assert(count($tags) > 0);
-
+		
+		$tags = array_unique($tags);
+		
+		$tags = Tag::resolve_list($tags);
+		
 		// delete old
 		$this->delete_tags_from_image();
 		
