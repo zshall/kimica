@@ -93,10 +93,12 @@ class TagsTheme extends Themelet {
 			$h_tag_no_underscores = str_replace("_", " ", $h_tag);
 			$count = $row['calc_count'];
 			if($n++) $html .= "\n<br/>";
+			
 			if($config->get_bool('show_info_link')) {
-				$link = str_replace('$tag', $tag, $config->get_string('tag_info_link'));
+				$link = $this->get_info_link($row);
 				$html .= " <a class='tag_info' href='$link'>?</a>";
 			}
+			
 			$link = $this->tag_link($row['tag']);
 			$html .= " <a class='tag_".$row['type']."' href='$link'>$h_tag_no_underscores</a> ";
 			if($config->get_bool("tag_list_numbers")) {
@@ -119,7 +121,7 @@ class TagsTheme extends Themelet {
 			$count = $row['calc_count'];
 			if($n++) $html .= "\n<br/>";
 			if($config->get_bool('show_info_link')) {
-				$link = str_replace('$tag', $tag, $config->get_string('tag_info_link'));
+				$link = $this->get_info_link($row);
 				$html .= " <a class='tag_info' href='$link'>?</a>";
 			}
 			$link = $this->tag_link($row['tag']);
@@ -151,7 +153,7 @@ class TagsTheme extends Themelet {
 			$count = $row['count'];
 			if($n++) $html .= "\n<br/>";
 			if($config->get_bool('show_info_link')) {
-				$link = str_replace('$tag', $tag, $config->get_string('tag_info_link'));
+				$link = $this->get_info_link($row);
 				$html .= " <a class='tag_info' href='$link'>?</a>";
 			}
 			$link = $this->tag_link($row['tag']);
@@ -183,7 +185,7 @@ class TagsTheme extends Themelet {
 			$h_tag_no_underscores = str_replace("_", " ", $h_tag);
 			if($n++) $html .= "\n<br/>";
 			if($config->get_bool('show_info_link')) {
-				$link = str_replace('$tag', $tag, $config->get_string('tag_info_link'));
+				$link = $this->get_info_link($row);
 				$html .= "<a class='tag_info' href='$link'>?</a> ";
 			}
 			$html .= $this->ars($tag, $search);
@@ -192,6 +194,16 @@ class TagsTheme extends Themelet {
 		}
 
 		$page->add_block(new Block("Refine Search", $html, "left", 30));
+	}
+	
+	private function get_info_link($row){
+		global $config;
+		if(class_exists("Artists") && ($row['type'] == 'artist')){
+			return make_link("artist/redirect/".$row['tag']);
+		}
+		else{
+			return str_replace('$tag', $row['tag'], $config->get_string('tag_info_link'));
+		}
 	}
 
 	protected function ars($tag, $tags) {
