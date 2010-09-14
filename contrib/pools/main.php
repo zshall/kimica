@@ -44,7 +44,6 @@ class Pools extends SimpleExtension {
 			$config->set_int("ext_pools_version", 1);
 
 			$config->set_int("poolsMaxImportResults", 1000);
-			$config->set_int("poolsImagesPerPage", 20);
 			$config->set_int("poolsListsPerPage", 20);
 			$config->set_int("poolsUpdatedPerPage", 20);
 			$config->set_bool("poolsInfoOnViewImage", "N");
@@ -57,7 +56,6 @@ class Pools extends SimpleExtension {
 	public function onSetupBuilding(SetupBuildingEvent $event) {
 		$sb = new SetupBlock("Pools");
 		$sb->add_int_option("poolsMaxImportResults", "Max results on import: ");
-		$sb->add_int_option("poolsImagesPerPage", "<br>Images per page: ");
 		$sb->add_int_option("poolsListsPerPage", "<br>Index list items per page: ");
 		$sb->add_int_option("poolsUpdatedPerPage", "<br>Updated list items per page: ");
 		$sb->add_bool_option("poolsInfoOnViewImage", "<br>Show pool info on image: ");
@@ -494,7 +492,7 @@ class Pools extends SimpleExtension {
 
 		$poolID = int_escape($poolID);
 
-		$imagesPerPage = $config->get_int("poolsImagesPerPage");
+		$imagesPerPage = $count = $config->get_int('index_width') * $config->get_int('index_height');
 
 		// WE CHECK IF THE EXTENSION RATING IS INSTALLED, WHICH VERSION AND IF IT
 		// WORKS TO SHOW/HIDE SAFE, QUESTIONABLE, EXPLICIT AND UNRATED IMAGES FROM USER
