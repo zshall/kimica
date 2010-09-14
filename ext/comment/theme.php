@@ -210,9 +210,13 @@ class CommentListTheme extends Themelet {
 			"<a ".
 			"onclick=\"return confirm('Delete comment by $h_name:\\n$stripped_nonl');\" ".
 			"href='".make_link("comment/delete/$i_comment_id")."'>Delete</a> |" : "";
+				
+		$san_comment = addslashes($comment->comment);
+		$san_comment = str_replace("\n", "\\n", $san_comment);
+		$san_comment = str_replace("\r", "\\r", $san_comment);
 		
 		$h_toolslinks = !$user->is_anon() ?
-			"$h_dellink <a href=".make_link("comment/vote/up/".$i_comment_id).">Vote Up</a> | <a href=".make_link("comment/vote/down/".$i_comment_id).">Vote Down</a> | <a href='#' OnClick=\"BBcode.Quote('comment-box-".$i_image_id."', '".$h_name."', '".$comment->comment."'); return false;\">Quote</a> | <a href=".make_link("comment/report/".$i_comment_id).">Report</a> | <a href=\"#comment-$i_comment_id\">Link</a>" : "";
+			"$h_dellink <a href=".make_link("comment/vote/up/".$i_comment_id).">Vote Up</a> | <a href=".make_link("comment/vote/down/".$i_comment_id).">Vote Down</a> | <a href='#' OnClick=\"BBcode.Quote('comment-box-".$i_image_id."', '".$h_name."', '".$san_comment."'); return false;\">Quote</a> | <a href=".make_link("comment/report/".$i_comment_id).">Report</a> | <a href=\"#comment-$i_comment_id\">Link</a>" : "";
 
 		if($trim) {
 			return "
