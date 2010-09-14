@@ -198,12 +198,14 @@ class PoolsTheme extends Themelet {
 			<input type='hidden' name='pool_id' value='".$pool['id']."'>
 			</form>
 
-			<form method='GET' action='".make_link("pool/edit/".$pool['id'])."'>
+			<form method='POST' action='".make_link("pool/edit")."'>
 			<input type='submit' name='edit' id='edit' value='Edit Pool'/>
+			<input type='hidden' name='pool_id' value='".$pool['id']."'>
 			</form>
 
-			<form method='GET' action='".make_link("pool/order/".$pool['id'])."'>
+			<form method='POST' action='".make_link("pool/order")."'>
 			<input type='submit' name='edit' id='edit' value='Order Pool'/>
+			<input type='hidden' name='pool_id' value='".$pool['id']."'>
 			</form>
 			";
 
@@ -307,7 +309,7 @@ class PoolsTheme extends Themelet {
 		
 		$this->display_top($pools, "Sorting Pool");
 
-		$pool_images = "<form action='".make_link("pool/order")."' method='POST' name='checks'><ul class='thumbblock'>";
+		$pool_images = "<form action='".make_link("pool/order_posts")."' method='POST' name='checks'><ul class='thumbblock'>";
 		$n = 0;
 		foreach($images as $pair) {
 			$image = $pair[0];

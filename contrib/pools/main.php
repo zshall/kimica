@@ -74,7 +74,7 @@ class Pools extends SimpleExtension {
 			switch($event->get_arg(0)) {
 				case "list": //index
 					$this->list_pools($page, int_escape($event->get_arg(1)));
-					break;
+				break;
 
 				case "new": // Show form
 					if(!$user->is_anon()){
@@ -83,7 +83,7 @@ class Pools extends SimpleExtension {
 						$errMessage = "You must be registered and logged in to create a new pool.";
 						$this->theme->display_error($errMessage);
 					}
-					break;
+				break;
 
 				case "create": // ADD _POST
 					try {
@@ -94,16 +94,16 @@ class Pools extends SimpleExtension {
 					catch(PoolCreationException $pce) {
 						$this->theme->display_error($pce->getMessage());
 					}
-					break;
+				break;
 
 				case "view":
 					$poolID = int_escape($event->get_arg(1));
 					$this->get_posts($event, $poolID);
-					break;
+				break;
 
 				case "history":
 					$this->get_history(int_escape($event->get_arg(1)));
-					break;
+				break;
 
 				case "revert":
 					if(!$user->is_anon()) {
@@ -112,51 +112,37 @@ class Pools extends SimpleExtension {
 						$page->set_mode("redirect");
 						$page->set_redirect(make_link("pool/updated"));
 					}
-					break;
+				break;
 
 				case "edit":
-					$poolID = int_escape($event->get_arg(1));
-					$pools = $this->get_pool($poolID);
+					$pool_id = int_escape($_POST["pool_id"]);
+					$pools = $this->get_pool($pool_id);
 
 					foreach($pools as $pool) {
 						// if the pool is public and user is logged OR if the user is admin OR the user is the owner
 						if(($pool['public'] == "Y" && !$user->is_anon()) || $user->is_admin() || $user->id == $pool['user_id']) {
-							$this->theme->edit_pool($page, $this->get_pool($poolID), $this->edit_posts($poolID));
+							$this->theme->edit_pool($page, $this->get_pool($pool_id), $this->edit_posts($pool_id));
+						} else {
+							$page->set_mode("redirect");
+							$page->set_redirect(make_link("pool/view/".$pool_id));
+						}
+					}
+				break;
+
+				case "order":
+					$poolID = int_escape($_POST["pool_id"]);
+					$pools = $this->get_pool($poolID);
+
+					foreach($pools as $pool) {
+						//if the pool is public and user is logged OR if the user is admin
+						if(($pool['public'] == "Y" && !$user->is_anon()) || $user->is_admin() || $user->id == $pool['user_id']) {
+							$this->theme->edit_order($page, $this->get_pool($poolID), $this->edit_order($poolID));
 						} else {
 							$page->set_mode("redirect");
 							$page->set_redirect(make_link("pool/view/".$poolID));
 						}
 					}
-					break;
-
-				case "order":
-					if($_SERVER["REQUEST_METHOD"] == "GET") {
-						$poolID = int_escape($event->get_arg(1));
-						$pools = $this->get_pool($poolID);
-
-						foreach($pools as $pool) {
-							//if the pool is public and user is logged OR if the user is admin
-							if(($pool['public'] == "Y" && !$user->is_anon()) || $user->is_admin() || $user->id == $pool['user_id']) {
-								$this->theme->edit_order($page, $this->get_pool($poolID), $this->edit_order($poolID));
-							} else {
-								$page->set_mode("redirect");
-								$page->set_redirect(make_link("pool/view/".$poolID));
-							}
-						}
-					}
-					else {
-						$pool_id = int_escape($_POST["pool_id"]);
-						$pool = $this->get_single_pool($pool_id);
-
-						if(($pool['public'] == "Y" && !$user->is_anon()) || $user->is_admin() || $user->id == $pool['user_id']) {
-							$this->order_posts();
-							$page->set_mode("redirect");
-							$page->set_redirect(make_link("pool/view/".$pool_id));
-						} else {
-							$this->theme->display_error("Permssion denied.");
-						}
-					}
-					break;
+				break;
 
 				case "import":
 					$pool_id = int_escape($_POST["pool_id"]);
@@ -167,7 +153,7 @@ class Pools extends SimpleExtension {
 					} else {
 						$this->theme->display_error("Permssion denied.");
 					}
-					break;
+				break;
 
 				case "add_posts":
 					$pool_id = int_escape($_POST["pool_id"]);
@@ -182,7 +168,7 @@ class Pools extends SimpleExtension {
 					} else {
 						$this->theme->display_error("Permssion denied.");
 					}
-					break;
+				break;
 
 				case "remove_posts":
 					$pool_id = int_escape($_POST["pool_id"]);
@@ -198,7 +184,20 @@ class Pools extends SimpleExtension {
 						$this->theme->display_error("Permssion denied.");
 					}
 
-					break;
+				break;
+					
+				case "order_posts":
+					$pool_id = int_escape($_POST["pool_id"]);
+					$pool = $this->get_single_pool($pool_id);
+
+					if(($pool['public'] == "Y" && !$user->is_anon()) || $user->is_admin() || $user->id == $pool['user_id']) {
+						$this->order_posts();
+						$page->set_mode("redirect");
+						$page->set_redirect(make_link("pool/view/".$pool_id));
+					} else {
+						$this->theme->display_error("Permssion denied.");
+					}
+				break;
 
 				case "nuke":
 					$pool_id = int_escape($_POST['pool_id']);
@@ -212,12 +211,12 @@ class Pools extends SimpleExtension {
 					} else {
 						$this->theme->display_error("Permssion denied.");
 					}
-					break;
+				break;
 
 				default:
 					$page->set_mode("redirect");
 					$page->set_redirect(make_link("pool/list"));
-					break;
+				break;
 			}
 		}
 	}
