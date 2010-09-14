@@ -323,19 +323,6 @@ class ArtistsTheme extends Themelet {
             $n = 0;
 
             $html = "<table id='poolsList' class='zebra'>
-                    <thead>
-                        <tr>
-                            <th></th>
-                            <th></th>";
-            
-            if ($userIsLogged)
-                $html .= "<th></th>";
-
-            if ($userIsAdmin)
-                $html .= "<th></th>";
-
-            $html .= "  <tr>
-                    </thead>
 
                     <tr class='".(($n++ % 2 == 0) ? "even" : "odd")."'>
                         <td class='left'>Name:</td>
