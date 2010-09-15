@@ -39,11 +39,6 @@ class Ratings implements Extension {
 					}
 					$n += 100;
 				}
-				#$database->execute("
-				#	update images set rating=? where images.id in (
-				#		select image_id from image_tags join tags
-				#		on image_tags.tag_id = tags.id where tags.tag = ?);
-				#	", array($_POST["rating"], $_POST["tag"]));
 				$page->set_mode("redirect");
 				$page->set_redirect(make_link("admin"));
 			}
@@ -100,6 +95,9 @@ class Ratings implements Extension {
 				case "m":
 					$sqes = $this->privs_to_array($config->get_string("ext_rating_admin_privs"));
 					break;
+				case "c":
+					$sqes = $this->privs_to_array($config->get_string("ext_rating_user_privs"));
+					break;
 				case "u":
 					$sqes = $this->privs_to_array($config->get_string("ext_rating_user_privs"));
 					break;
@@ -125,11 +123,7 @@ class Ratings implements Extension {
 			}
 			if(preg_match("/^rating:([sqeu]+)$/", $event->term, $matches)) {
 				$sqes = $matches[1];
-				$arr = array();
-				for($i=0; $i<strlen($sqes); $i++) {
-					$arr[] = "'" . $sqes[$i] . "'";
-				}
-				$set = join(', ', $arr);
+				$set = $this->privs_to_sql($sqes);
 				$event->add_querylet(new Querylet("rating IN ($set)"));
 			}
 			if(preg_match("/^rating:(safe|questionable|explicit|unknown)$/", strtolower($event->term), $matches)) {
