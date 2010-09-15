@@ -189,6 +189,21 @@ class Artists implements Extension {
                     }
                     break;
                 }
+				
+				case "redirect":
+                {
+					$artistName = $event->get_arg(1);
+					$artistID = $this->get_artistID_by_name($artistName);
+					
+					$page->set_mode("redirect");
+					if($artistID != 0){
+                    	$page->set_redirect(make_link("artist/view/".$artistID));
+					}
+					else{
+						$page->set_redirect(make_link("artist/list"));
+					}
+					break;
+				}
 
                 case "view":
                 {
@@ -465,6 +480,15 @@ class Artists implements Extension {
                 , mysql_real_escape_string($alias)
             ));
         return ($result != 0);
+    }
+	
+	private function get_artistID_by_name($name)
+    {
+        global $database;
+		$artistID = 0;
+        $result = $database->get_row("SELECT id FROM artists WHERE name = ?", array(mysql_real_escape_string($name)));
+		$artistID = $result['id'];
+        return $artistID;
     }
 
     private function get_artistID_by_url($url)
