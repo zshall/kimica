@@ -54,6 +54,7 @@ class WikiPage {
 }
 
 class Wiki extends SimpleExtension {
+
 	public function onInitExt($event) {
 		global $database;
 		global $config;
@@ -89,15 +90,32 @@ class Wiki extends SimpleExtension {
 			else {
 				$title = $event->get_arg(0);
 			}
-
-			$content = $this->get_page($title);
-			$this->theme->display_page($page, $content, $this->get_page("wiki:sidebar"));
 			
-			if($config->get_bool("wiki_display_posts", false)){
-				$this->theme->display_tag_related($this->recent_posts($title));
+			if($title == "list"){
+				if(isset($_GET['search'])) {
+					$search = url_escape(trim($_GET['search']));
+					if(empty($search)) {
+						$page->set_mode("redirect");
+						$page->set_redirect(make_link("wiki/list/1"));
+					}
+					else {
+						$page->set_mode("redirect");
+						$page->set_redirect(make_link("wiki/list/$search/1"));
+					}
+					return;
+				}
+				$this->display_pages($event);
 			}
-			
-			$this->theme->display_changes($this->recent_updates());
+			else{
+				$content = $this->get_page($title);
+				$this->theme->display_page($page, $content, $this->get_page("wiki:sidebar"));
+				
+				if($config->get_bool("wiki_display_posts", false)){
+					$this->theme->display_tag_related($this->recent_posts($title));
+				}
+				
+				$this->theme->display_changes($this->recent_updates());
+			}
 		}
 		else if($event->page_matches("wiki_admin/edit")) {
 			$content = $this->get_page($_POST['title']);
@@ -179,6 +197,70 @@ class Wiki extends SimpleExtension {
 		$sb->add_bool_option("wiki_edit_user", "<br>Allow user edits: ");
 		$sb->add_bool_option("wiki_display_posts", "<br>Display posts: ");
 		$event->panel->add_block($sb);
+	}
+	
+	//FIXME: for some reason is not adding this stat
+	public function onUserPageBuilding($event) {
+		global $database;
+        $wiki_count = $database->db->GetOne("SELECT COUNT(*) FROM wiki_pages WHERE owner_id = ?", array($event->display_user->id));	
+        $event->add_stats(array("Wiki Edits", "$wiki_count"), 80);
+	}
+
+	private function display_pages($event){
+		global $config, $database;
+		
+		$pageNumber = $event->get_arg(1);
+		
+		$search = "";
+		if($event->count_args() == 3){
+			$search = $event->get_arg(1);
+			$pageNumber = $event->get_arg(2);			
+		}
+		
+			
+		if(is_null($pageNumber) || !is_numeric($pageNumber)){
+			$pageNumber = 0;
+		}
+		else if ($pageNumber <= 0){
+			$pageNumber = 0;
+		}
+		else{
+			$pageNumber--;
+		}
+		
+		if(empty($search)){
+			$searchTerm = "%";
+		}
+		else{
+			$searchTerm = "%".$search."%";
+		}
+		
+		$wikisPerPage = $config->get_int('wikisPerPage', 30);
+
+		$pages = $database->get_all("SELECT wp.owner_id,
+       									 wp.date,
+								    	 wp.title,
+							         	 wp.revision,
+								     	 u.name AS updater
+									 FROM wiki_pages wp
+									 JOIN users u ON u.id = wp.owner_id
+									 JOIN (SELECT t.title,
+						             MAX(t.revision) AS max_rev
+						             FROM wiki_pages t
+									 WHERE t.body LIKE ?
+									 GROUP BY t.title) x ON x.title = wp.title
+									 AND x.max_rev = wp.revision LIMIT ?, ?", array($searchTerm, $pageNumber * $wikisPerPage, $wikisPerPage));
+									 
+		//$pages = $database->get_all("SELECT DISTINCT w.owner_id, w.date, w.title, MAX(w.revision), u.name AS updater FROM wiki_pages AS w JOIN users AS u ON w.owner_id = u.id GROUP BY title ORDER BY title ASC LIMIT ?, ?", array($pageNumber * $wikisPerPage, $wikisPerPage));
+		
+		if(empty($search)){
+			$totalPages = ceil($database->db->GetOne("SELECT count(DISTINCT title) FROM wiki_pages") / $wikisPerPage);
+		}
+		else{
+			$totalPages = ceil($database->db->GetOne("SELECT count(DISTINCT title) FROM wiki_pages WHERE body LIKE '$searchTerm'") / $wikisPerPage);
+		}
+		
+		$this->theme->display_wiki_pages($pages, $search, $pageNumber + 1, $totalPages);
 	}
 
 	/**
