@@ -9,7 +9,7 @@
  */
 
 class Forum extends SimpleExtension {
-        public function onInitExt($event) {
+	public function onInitExt($event) {
 		global $config, $database;
 
 		// shortcut to latest
@@ -53,7 +53,7 @@ class Forum extends SimpleExtension {
                             INDEX (thread_id)
                     ");
 					
-					$database->execute("ALTER TABLE forum_threads ADD COLUMN locked SCORE_BOOL NOT NULL DEFAULT SCORE_BOOL_N", array());
+					$database->execute("ALTER TABLE forum_threads ADD COLUMN locked ENUM('Y', 'N') DEFAULT 'N'", array());
 					
 					$config->set_int("forum_version", 2);
 					
@@ -72,7 +72,7 @@ class Forum extends SimpleExtension {
 	}
 	
 	public function onUserPageBuilding($event) {
-		global $page, $user, $database;
+		global $database;
         $posts_count = $database->db->GetOne("SELECT COUNT(*) FROM forum_posts WHERE user_id=?", array($event->display_user->id));
 				
         $event->add_stats(array("Forum Posts", "$posts_count"),70);
