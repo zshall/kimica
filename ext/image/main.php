@@ -275,6 +275,7 @@ class ImageIO extends SimpleExtension {
 			$sb->add_bool_option("image_show_meta", "<br>Show metadata: ");
 		}
 		
+		$sb->add_int_option("upload_min_tags", "<br>Min tags on upload: ");
 		$event->panel->add_block($sb);
 
 		$thumbers = array();
@@ -353,6 +354,16 @@ class ImageIO extends SimpleExtension {
 		$row = $database->db->GetRow("SELECT * FROM image_bans WHERE hash = ?", $image->hash);
 		if($row){
 			throw new ImageAdditionException("The file {$image->filename} with the hash {$image->hash} has been banned, reason: ".format_text($row["reason"]."."));
+		}
+		
+		/*
+		 * Check if the user has setted the tags
+		 */
+		$min_tags = $config->get_int('upload_min_tags',3);
+		$tags_auth = $user->get_auth_from_str($config->get_string("upload_tags_auth", "bguc"));
+		
+		if((count($image->get_tag_array()) < $min_tags) && $tags_auth){
+			throw new ImageAdditionException("You must provide at least $min_tags tags for this image.");
 		}
 		
 		/*
