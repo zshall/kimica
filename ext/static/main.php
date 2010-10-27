@@ -1,5 +1,5 @@
 <?php
-class Static extends SimpleExtension {
+class ExtStatic extends SimpleExtension {
 
 	public function onInitExt($event) {
 		global $config;
