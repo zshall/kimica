@@ -276,6 +276,7 @@ class ImageIO extends SimpleExtension {
 		}
 		
 		$sb->add_int_option("upload_min_tags", "<br>Min tags on upload: ");
+		$sb->add_text_option("upload_tags_auth", "<br>Applicable to: ");
 		$event->panel->add_block($sb);
 
 		$thumbers = array();
