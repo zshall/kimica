@@ -91,7 +91,7 @@ class Subscription extends SimpleExtension {
 	}
 		
 	public function onTagSet($event) {
-		$this->checkSubscription($event->image->id);
+		$this->checkSubscription($event->image, $event->tags);
 	}
 	
 	public function onSetupBuilding(SetupBuildingEvent $event) {
@@ -251,17 +251,13 @@ class Subscription extends SimpleExtension {
 	/*
 	* HERE WE GETS SUBSCRIPTIONS FROM USERS AND ADD A DIGEST
 	*/
-	private function checkSubscription($image_id) {
+	private function checkSubscription($image, $tags) {
 		global $database;
-		
-		$image = Image::by_id($image_id);
-		$tags = $image->get_tag_list();
-		$tags = explode(" ", $tags);
-			
+					
 		foreach ($tags as $tag){
 			$users = $database->get_all("SELECT user_id, tag_name, digest FROM subscriptions WHERE tag_name = ?", array($tag));
 			foreach($users as $user){
-				$this->addDigestEntry($user['user_id'], $image_id, $user['tag_name'], $user['digest']);
+				$this->addDigestEntry($user['user_id'], $image->id, $user['tag_name'], $user['digest']);
 			}
 		}
 	}
