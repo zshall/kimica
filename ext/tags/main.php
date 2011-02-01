@@ -673,7 +673,7 @@ class Tags extends SimpleExtension {
 					$after[] = $tag;
 				}
 
-				$image->set_tags($after);
+				send_event(new TagSetEvent($image, $after));
 
 				$last_id = $image->id;
 			}
