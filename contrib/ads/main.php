@@ -160,10 +160,10 @@ class Ads extends SimpleExtension {
 		if($ads_visible){
 			
 			if($random){
-				$ads = $database->get_all("SELECT DISTINCT id, location, position, image, html FROM ads WHERE prints < until_prints AND $rating AND (section = ? OR section = '*') ORDER BY RAND() DESC LIMIT ?", array($section, $limit));
+				$ads = $database->get_all("SELECT id, location, position, image, html FROM ads WHERE enable = 'y' AND prints < until_prints AND $rating AND (section = ? OR section = '*') GROUP BY location ORDER BY RAND() DESC LIMIT ?", array($section, $limit));
 			}
 			else{
-				$ads = $database->get_all("SELECT id, location, position, image, html FROM ads WHERE prints < until_prints AND $rating AND (section = ? OR section = '*') ORDER BY priority DESC LIMIT ?", array($section, $limit));
+				$ads = $database->get_all("SELECT id, location, position, image, html FROM ads WHERE enable = 'y' AND prints < until_prints AND $rating AND (section = ? OR section = '*') GROUP BY location ORDER BY priority DESC LIMIT ?", array($section, $limit));
 			}
 		
 			foreach($ads as $ad){
