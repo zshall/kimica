@@ -626,7 +626,7 @@ class Post extends SimpleExtension {
 	}
 	
 	public function onTagSet($event){
-		global $database;
+		global $database, $user;
 		$matches = array();
 		foreach($event->tags as $tag){
 			if(preg_match("/^parent:(\d+)/", $tag, $matches)) {
@@ -641,6 +641,12 @@ class Post extends SimpleExtension {
 					if($posts_count == 0){
 						$database->execute("UPDATE images SET has_children = 'n' WHERE id = ?",array($event->image->parent));
 					}
+				}
+			}
+			else if(preg_match("/^status:(.*)$/", $tag, $matches)) {
+				$status = $matches[1];
+				if($user->is_admin() || $user->is_mod()){
+					$database->execute("UPDATE images SET status = ? WHERE id = ?",array($status, $event->image->id));
 				}
 			}
 		}
