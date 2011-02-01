@@ -433,7 +433,22 @@ class UserPage extends SimpleExtension {
 			}
 		}		
 	}
-
+	
+	public function onTagSet($event){
+		global $database, $user;
+		$matches = array();
+		foreach($event->tags as $tag){
+			if(preg_match("/^setuser:(\d+)/", $tag, $matches)) {
+				$user_id = $matches[1];
+				if($user_id > 0){
+					if($user->is_admin() || $user->is_mod()){
+						$database->execute("UPDATE images SET owner_id = ? WHERE id = ?",array($user_id, $event->image->id));
+					}
+				}
+			}
+		}
+	}
+	
 	public function onUserPageBuilding($event) {
 		global $page, $user, $config;
 
